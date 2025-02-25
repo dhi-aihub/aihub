@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
 
-//import userRoutes from "./routes/user-routes.js";
+import courseRoutes from "./routes/course-routes.js";
+import taskRoutes from "./routes/task-routes.js";
+import participationRoutes from "./routes/participation-routes.js";
 //import authRoutes from "./routes/auth-routes.js";
 
 const app = express();
@@ -30,7 +32,9 @@ app.use((req, res, next) => {
   next();
 });
 
-//app.use("/users", userRoutes);
+app.use("/courses", courseRoutes);
+app.use("/tasks", taskRoutes);
+app.use("/participations", participationRoutes);
 //app.use("/auth", authRoutes);
 
 app.get("/", (req, res, next) => {
