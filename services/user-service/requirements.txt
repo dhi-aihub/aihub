@@ -1,0 +1,6 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+dotenv
+gunicorn
+psycopg2-binary
