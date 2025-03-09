@@ -1,3 +1,33 @@
+import { Sequelize, DataTypes } from "sequelize";
+import sequelize from "../db.js";
+
+const Course = sequelize.define("course", {
+    code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        notEmpty: true,
+    },
+    academicYear: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    semester: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['code', 'academicYear', 'semester']
+        }
+    ]
+});
+
+export default Course;
+
+
+/*
 import mongoose from "mongoose";
 import Participation from "./participation-model.js";
 import Task from "./task-model.js";
@@ -37,3 +67,4 @@ courseSchema.pre("findOneAndDelete", async function (next) {
 const Course = mongoose.model("CourseModel", courseSchema);
 
 export default Course;
+*/

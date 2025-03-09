@@ -2,9 +2,8 @@ import express from "express";
 import cors from "cors";
 
 import courseRoutes from "./routes/course-routes.js";
-import taskRoutes from "./routes/task-routes.js";
-import participationRoutes from "./routes/participation-routes.js";
-//import authRoutes from "./routes/auth-routes.js";
+//import taskRoutes from "./routes/task-routes.js";
+//import participationRoutes from "./routes/participation-routes.js";
 
 const app = express();
 
@@ -32,11 +31,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes
 app.use("/courses", courseRoutes);
-app.use("/tasks", taskRoutes);
-app.use("/participations", participationRoutes);
-//app.use("/auth", authRoutes);
+//app.use("/tasks", taskRoutes);
+//app.use("/participations", participationRoutes);
 
+// Default Route
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
   res.json({
@@ -51,6 +51,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
+// Handle All Errors
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({

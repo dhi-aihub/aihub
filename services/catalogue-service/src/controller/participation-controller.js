@@ -1,7 +1,7 @@
 import { 
     createParticipation as _createParticipation, 
     deleteParticipation as _deleteParticipation 
-} from '../model/participation-model.js';
+} from '../models/participation-model.js';
 
 export async function createParticipation(req, res) {
     try {
