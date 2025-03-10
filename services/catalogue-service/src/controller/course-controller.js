@@ -46,3 +46,29 @@ export async function deleteCourse(req, res) {
         res.status(500).json({ message: error.message });
     }
 }
+
+// get all tasks associated with a course
+export async function getCourseTasks(req, res) {
+    try {
+        const course = await Course.findByPk(req.params.id, { include: "tasks" });
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+        res.status(200).json({ message: "Course tasks", data: course.tasks });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+// get all groups associated with a course
+export async function getCourseGroups(req, res) {
+    try {
+        const course = await Course.findByPk(req.params.id, { include: "groups" });
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+        res.status(200).json({ message: "Course groups", data: course.groups });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
