@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
 
-const Participation = sequelize.define("participation", {
+const CourseParticipation = sequelize.define("courseParticipation", {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -19,7 +19,8 @@ const Participation = sequelize.define("participation", {
     ]
 });
 
-export default Participation;
+
+export default CourseParticipation;
 
 
 /*

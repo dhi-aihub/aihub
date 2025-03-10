@@ -1,7 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
-import Participation from "./participation-model.js";
+import CourseParticipation from "./courseParticipation-model.js";
 import Task from "./task-model.js";
+import Group from "./group-model.js";
 
 const Course = sequelize.define("course", {
     code: {
@@ -26,14 +27,14 @@ const Course = sequelize.define("course", {
     ]
 });
 
-Course.hasMany(Participation, {
+Course.hasMany(CourseParticipation, {
     foreignKey: {
         name: "courseId",
         allowNull: false,
     },
     onDelete: "CASCADE",
 });
-Participation.belongsTo(Course);
+CourseParticipation.belongsTo(Course);
 
 Course.hasMany(Task, {
     foreignKey: {
@@ -43,6 +44,16 @@ Course.hasMany(Task, {
     onDelete: "CASCADE",
 });
 Task.belongsTo(Course);
+
+Course.hasMany(Group, {
+    foreignKey: {
+        name: "courseId",
+        allowNull: false,
+    },
+    onDelete: "CASCADE",
+});
+Group.belongsTo(Course);
+
 
 export default Course;
 

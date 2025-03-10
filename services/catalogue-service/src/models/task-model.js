@@ -18,6 +18,7 @@ const Task = sequelize.define("task", {
     },
 });
 
+
 export default Task;
 
 /*
