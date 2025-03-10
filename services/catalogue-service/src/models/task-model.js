@@ -5,6 +5,7 @@ const Task = sequelize.define("task", {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
+        notEmpty: true,
     },
     description: {
         type: DataTypes.TEXT,
