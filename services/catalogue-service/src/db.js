@@ -1,10 +1,7 @@
 import "dotenv/config";
 import { Sequelize } from "sequelize";
 
-let postgresUri =
-        process.env.ENV === "PROD"
-            ? process.env.DB_CLOUD_URI
-            : process.env.DB_LOCAL_URI;
+let postgresUri = process.env.DATABASE_URL;
 const sequelize = new Sequelize(postgresUri);
 
 sequelize.sync({ force: false })
