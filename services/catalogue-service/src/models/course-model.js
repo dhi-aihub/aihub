@@ -1,5 +1,7 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
+import Participation from "./participation-model.js";
+import Task from "./task-model.js";
 
 const Course = sequelize.define("course", {
     code: {
@@ -23,6 +25,24 @@ const Course = sequelize.define("course", {
         }
     ]
 });
+
+Course.hasMany(Participation, {
+    foreignKey: {
+        name: "courseId",
+        allowNull: false,
+    },
+    onDelete: "CASCADE",
+});
+Participation.belongsTo(Course);
+
+Course.hasMany(Task, {
+    foreignKey: {
+        name: "courseId",
+        allowNull: false,
+    },
+    onDelete: "CASCADE",
+});
+Task.belongsTo(Course);
 
 export default Course;
 

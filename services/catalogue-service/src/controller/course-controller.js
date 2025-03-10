@@ -20,8 +20,7 @@ export async function getCourseById(req, res) {
 
 export async function createCourse(req, res) {
     try {
-        const { code, academicYear, semester } = req.body;
-        const course = await Course.create({ code, academicYear, semester });
+        const course = await Course.create(req.body);
         res.status(201).json({ message: "Course created", data: course });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -30,9 +29,8 @@ export async function createCourse(req, res) {
 
 export async function updateCourse(req, res) {
     try {
-        const { code, academicYear, semester } = req.body;
         const course = await Course.findByPk(req.params.id);
-        course.update({ code, academicYear, semester });
+        course.update(req.body);
         res.status(200).json({ message: "Course updated", data: course });
     } catch (error) {
         res.status(500).json({ message: error.message });
