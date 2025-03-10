@@ -5,6 +5,9 @@ import courseRoutes from "./routes/course-routes.js";
 //import taskRoutes from "./routes/task-routes.js";
 //import participationRoutes from "./routes/participation-routes.js";
 
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger/swagger.json" with { type: "json" };
+
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +38,9 @@ app.use((req, res, next) => {
 app.use("/courses", courseRoutes);
 //app.use("/tasks", taskRoutes);
 //app.use("/participations", participationRoutes);
+
+// add route for swagger document API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Default Route
 app.get("/", (req, res, next) => {
