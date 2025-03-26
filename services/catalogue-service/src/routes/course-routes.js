@@ -9,6 +9,7 @@ import {
     getCourseTasks,
     getCourseGroups
 } from "../controller/course-controller.js";
+import { verifyToken } from "../middleware/authentication.js";
 
 const router = express.Router();
 
