@@ -1,21 +1,15 @@
 import * as React from 'react';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
-import {useMatch, useNavigate} from "react-router-dom";
+import {useMatch, useNavigate, matchPath} from "react-router-dom";
 import {Typography} from "@mui/material";
 
 const MuiBreadcrumbs = (props) => {
   const navigate = useNavigate();
   const pathnames = window.location.pathname.split("/").filter((x) => x);
+  console.log(pathnames);
 
   // Unconditionally call all useMatch hooks
-  const matchAdmin = useMatch({path: "/course_admin/:id", end: true});
-  const matchCoursesAdmin = useMatch({path: "/course_admin", end: true});
-  const matchSubmissions = useMatch({path: "/courses/:id/:task_id", end: true});
-  const matchTasks = useMatch({path: "/courses/:id", end: true});
-  const matchCourses = useMatch({path: "/courses", end: true});
-  const matchSignIn = useMatch({path: "/signin", end: true});
-  const matchApiTest = useMatch({path: "/api_test", end: true});
   const matchVerifyEmail = useMatch({path: "/account/verify_email/"});
   const matchSignUp = useMatch({path: "/signup/"});
   const matchResetPassword = useMatch({path: "/reset_password/"});
@@ -23,13 +17,21 @@ const MuiBreadcrumbs = (props) => {
 
   // Helper functions to determine breadcrumb names
   const getBreadcrumbName = (pathname) => {
-    if (matchAdmin) return "Admin";
-    if (matchCoursesAdmin) return "Courses";
-    if (matchSubmissions) return "Submissions";
-    if (matchTasks) return "Tasks";
-    if (matchCourses) return "Courses";
-    if (matchSignIn) return "Sign In";
-    if (matchApiTest) return "API Tester";
+    const breadcrumbMap = [
+      { pattern: "/course_admin/:id", name: "Admin" },
+      { pattern: "/course_admin", name: "Courses" },
+      { pattern: "/courses/:id/:task_id", name: "Submissions" },
+      { pattern: "/courses/:id", name: "Tasks" },
+      { pattern: "/courses", name: "Courses" },
+      { pattern: "/signin", name: "Sign In" },
+      { pattern: "/api_test", name: "API Tester" },
+    ];
+  
+    for (const { pattern, name } of breadcrumbMap) {
+      const match = matchPath({ path: pattern, end: true }, pathname);
+      if (match) return name;
+    }
+  
     return "Unknown";
   };
 
@@ -48,9 +50,11 @@ const MuiBreadcrumbs = (props) => {
     links = <Typography key={`link_0`}>{special}</Typography>;
   } else {
     links = pathnames.map((_, index) => {
-      const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+      const to = `/${pathnames.slice(0, index+1).join('/')}`;
+      console.log(to);
       const last = index === pathnames.length - 1;
       const displayName = getBreadcrumbName(to);
+      console.log(displayName);
       return last ? (
         <Typography key={`link_${index}`}>{displayName}</Typography>
       ) : (

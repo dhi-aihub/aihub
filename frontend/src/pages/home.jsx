@@ -7,7 +7,7 @@ const Home = () => {
       <Container component="main" maxWidth="lg">
         <CssBaseline/>
         <Typography variant="h4" gutterBottom>
-          Welcome to aiVLE!
+          Welcome to AiRENA!
         </Typography>
         <Typography variant="body1" gutterBottom>
           Login first, then open the drawer by pressing the top left corner button. Enjoy~

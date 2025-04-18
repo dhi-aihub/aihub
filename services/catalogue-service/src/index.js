@@ -3,8 +3,11 @@ import cors from "cors";
 
 import courseRoutes from "./routes/course-routes.js";
 import taskRoutes from "./routes/task-routes.js";
-import participationRoutes from "./routes/participation-routes.js";
-//import authRoutes from "./routes/auth-routes.js";
+import groupRoutes from "./routes/group-routes.js";
+import courseParticipationRoutes from "./routes/courseParticipation-routes.js";
+
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger/swagger.json" with { type: "json" };
 
 const app = express();
 
@@ -32,11 +35,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes
 app.use("/courses", courseRoutes);
 app.use("/tasks", taskRoutes);
-app.use("/participations", participationRoutes);
-//app.use("/auth", authRoutes);
+app.use("/groups", groupRoutes);
+app.use("/courseParticipations", courseParticipationRoutes);
 
+// add route for swagger document API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Default Route
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
   res.json({
@@ -51,6 +59,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
+// Handle All Errors
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({

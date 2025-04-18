@@ -73,7 +73,7 @@ const MyApp = () => {
             <MenuIcon/>
           </IconButton>
           <Typography variant="h6" sx={{flexGrow: 1, textAlign: "left"}}>
-            <Link color="inherit" underline={"none"} component={RouterLink} to="/">aiVLE</Link>
+            <Link color="inherit" underline={"none"} component={RouterLink} to="/">AiRENA</Link>
           </Typography>
           {
             !isLoggedIn
