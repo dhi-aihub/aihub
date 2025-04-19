@@ -3,7 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {logout, selectLoggedIn} from "../redux/authSlice";
 import axios from "axios";
-import {API_BASE_URL} from "../constants";
+import {CATALOG_SERVICE_BASE_URL} from "../constants";
 import Cookie from "js-cookie";
 import {
   Accordion,
@@ -49,14 +49,14 @@ class Task {
 
   constructor(json) {
     this.id = json["id"];
-    this.courseId = json["course"];
+    this.courseId = json["courseId"];
     this.name = json["name"];
     this.description = json["description"];
     this.dailySubmissionLimit = json["daily_submission_limit"];
     this.runtimeLimit = json["run_time_limit"];
-    this.openedAt = new Date(json["opened_at"]);
-    this.closedAt = new Date(json["closed_at"]);
-    this.deadlineAt = new Date(json["deadline_at"]);
+    this.openedAt = new Date(json["openedAt"]);
+    this.closedAt = new Date(json["closedAt"]);
+    this.deadlineAt = new Date(json["deadlineAt"]);
     this.hasTemplate = json["template"] !== null;
     this.maxUploadSize = json["max_upload_size"];
   }
@@ -138,7 +138,7 @@ const CourseDetail = () => {
     axios(
       {
         method: "post",
-        url: API_BASE_URL + "/api/v1/submissions/",
+        url: "/api/v1/submissions/", // TODO
         data: bodyForm,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -174,12 +174,12 @@ const CourseDetail = () => {
     }
     axios(
       {
-        method: "get", url: API_BASE_URL + `/api/v1/tasks/`, headers: {
+        method: "get", url: CATALOG_SERVICE_BASE_URL + `/courses/${id}/tasks/`, headers: {
           "Authorization": "Token " + sessionStorage.getItem("token")
-        }, params: {course: id}
+        }
       }
     ).then(resp => {
-      const tasks = /** @type {Task[]} */ resp.data.map((value) => new Task(value));
+      const tasks = /** @type {Task[]} */ resp.data["data"].map((value) => new Task(value));
       setTasks(tasks);
       setLoading(false);
     }).catch(e => {
@@ -219,7 +219,7 @@ const CourseDetail = () => {
                   }}>Details</Button>
                   {
                     task.hasTemplate ?
-                      <Button href={`${API_BASE_URL}/api/v1/tasks/${task.id}/download_template/`}>Template</Button>
+                      <Button href={`${CATALOG_SERVICE_BASE_URL}/api/v1/tasks/${task.id}/download_template/`}>Template</Button>
                       : null
                   }
                   <div style={{flexGrow: 1}}/>

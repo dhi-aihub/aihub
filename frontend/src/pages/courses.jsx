@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {logout, selectLoggedIn} from "../redux/authSlice";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
-import {API_BASE_URL} from "../constants";
+import {CATALOG_SERVICE_BASE_URL} from "../constants";
 import {cleanAuthStorage} from "../lib/auth";
 
 
@@ -21,12 +21,12 @@ const CoursePage = () => {
     }
     axios(
       {
-        method: "get", url: API_BASE_URL + "/api/v1/courses/", headers: {
+        method: "get", url: CATALOG_SERVICE_BASE_URL + "/courses/", headers: {
           "Authorization": "Token " + sessionStorage.getItem("token")
         }
       }
     ).then(resp => {
-      const courses = resp.data["results"];
+      const courses = resp.data["data"];
       setCourses(courses);
       setLoading(false);
     }).catch(e => {
@@ -59,7 +59,7 @@ const CoursePage = () => {
                     <CourseCard name={course.code} semester={`Semester ${course.semester}`}
                                 id={course.id}
                                 participating={course.participation !== null}
-                                role={course.participation === null ? null : course.participation.role}/>
+                                role={course.participation === null ? null : course.participation}/>
                   </Grid>
                 })
               }
