@@ -7,7 +7,6 @@ import {Typography} from "@mui/material";
 const MuiBreadcrumbs = (props) => {
   const navigate = useNavigate();
   const pathnames = window.location.pathname.split("/").filter((x) => x);
-  console.log(pathnames);
 
   // Unconditionally call all useMatch hooks
   const matchVerifyEmail = useMatch({path: "/account/verify_email/"});
@@ -51,10 +50,8 @@ const MuiBreadcrumbs = (props) => {
   } else {
     links = pathnames.map((_, index) => {
       const to = `/${pathnames.slice(0, index+1).join('/')}`;
-      console.log(to);
       const last = index === pathnames.length - 1;
       const displayName = getBreadcrumbName(to);
-      console.log(displayName);
       return last ? (
         <Typography key={`link_${index}`}>{displayName}</Typography>
       ) : (

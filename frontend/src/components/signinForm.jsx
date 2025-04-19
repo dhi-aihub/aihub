@@ -10,7 +10,7 @@ import {useDispatch} from "react-redux";
 import {login} from "../redux/authSlice";
 import {SigninSnackBarType} from "../pages/signin";
 import {Grid, styled} from "@mui/material";
-import {API_BASE_URL} from "../constants";
+import {USER_SERVICE_BASE_URL} from "../constants";
 import Link from "@mui/material/Link";
 import {Link as RouterLink} from "react-router-dom";
 
@@ -43,7 +43,7 @@ const SigninForm = (props) => {
     axios(
       {
         method: "post",
-        url: API_BASE_URL + "/dj-rest-auth/login/",
+        url: USER_SERVICE_BASE_URL + "/auth/login/",
         data: bodyForm,
         headers: {"Content-Type": "multipart/form-data"}
       }

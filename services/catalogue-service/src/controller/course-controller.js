@@ -3,7 +3,15 @@ import Course from "../models/course-model.js";
 export async function getAllCourses(req, res) {
     try {
         const courses = await Course.findAll();
-        res.status(200).json({ message: "All courses", data: courses });
+        const data = courses.map(course => {
+            return {
+                id: course.id,
+                code: course.code,
+                semester: course.semester,
+                participation: "STU" // TODO: get participation from user
+            };
+        });
+        res.status(200).json({ message: "All courses", data });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -3,7 +3,7 @@ import {useForm} from "react-hook-form";
 import {useState} from "react";
 import {Button, styled, TextField, Typography} from "@mui/material";
 import axios from "axios";
-import {API_BASE_URL} from "../constants";
+import {USER_SERVICE_BASE_URL} from "../constants";
 import {useYupValidationResolver} from "../lib/yupValidationResolver";
 import {SignUpSnackbarType} from "../pages/signup";
 
@@ -30,14 +30,14 @@ const SignupForm = (props) => {
   const onSubmit = data => {
     const bodyForm = new FormData();
     bodyForm.append("username", data.username);
-    bodyForm.append("password1", data.password);
-    bodyForm.append("password2", data.confirmPassword);
+    bodyForm.append("password", data.password);
+    //bodyForm.append("password2", data.confirmPassword);
     bodyForm.append("email", data.email);
     setDisable(true);
     axios(
       {
         method: "post",
-        url: API_BASE_URL + "/dj-rest-auth/registration/",
+        url: USER_SERVICE_BASE_URL + "/auth/register/",
         data: bodyForm,
         headers: {"Content-Type": "multipart/form-data"}
       }
