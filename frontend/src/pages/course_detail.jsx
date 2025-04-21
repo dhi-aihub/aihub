@@ -52,16 +52,17 @@ class Task {
     this.courseId = json["courseId"];
     this.name = json["name"];
     this.description = json["description"];
-    this.dailySubmissionLimit = json["daily_submission_limit"];
-    this.runtimeLimit = json["run_time_limit"];
+    this.dailySubmissionLimit = json["dailySubmissionLimit"];
+    this.runtimeLimit = json["runtimeLimit"];
     this.openedAt = new Date(json["openedAt"]);
     this.closedAt = new Date(json["closedAt"]);
     this.deadlineAt = new Date(json["deadlineAt"]);
     this.hasTemplate = json["template"] !== null;
-    this.maxUploadSize = json["max_upload_size"];
+    this.maxUploadSize = json["maxUploadSize"];
   }
 
   getPropertiesAsString() {
+    console.log(this)
     return [
       ["Opened At", this.openedAt.toString()],
       ["Closed At", this.closedAt.toString()],
