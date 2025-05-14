@@ -62,7 +62,6 @@ class Task {
   }
 
   getPropertiesAsString() {
-    console.log(this)
     return [
       ["Opened At", this.openedAt.toString()],
       ["Closed At", this.closedAt.toString()],
