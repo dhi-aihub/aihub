@@ -52,13 +52,13 @@ class Task {
     this.courseId = json["courseId"];
     this.name = json["name"];
     this.description = json["description"];
-    this.dailySubmissionLimit = json["daily_submission_limit"];
-    this.runtimeLimit = json["run_time_limit"];
+    this.dailySubmissionLimit = json["dailySubmissionLimit"];
+    this.runtimeLimit = json["runtimeLimit"];
     this.openedAt = new Date(json["openedAt"]);
     this.closedAt = new Date(json["closedAt"]);
     this.deadlineAt = new Date(json["deadlineAt"]);
     this.hasTemplate = json["template"] !== null;
-    this.maxUploadSize = json["max_upload_size"];
+    this.maxUploadSize = json["maxUploadSize"];
   }
 
   getPropertiesAsString() {
@@ -142,7 +142,7 @@ const CourseDetail = () => {
         data: bodyForm,
         headers: {
           "Content-Type": "multipart/form-data",
-          "Authorization": "Token " + sessionStorage.getItem("token"),
+          "authorization": "Token " + sessionStorage.getItem("token"),
         }
       }
     ).then(resp => {
@@ -175,7 +175,7 @@ const CourseDetail = () => {
     axios(
       {
         method: "get", url: CATALOG_SERVICE_BASE_URL + `/courses/${id}/tasks/`, headers: {
-          "Authorization": "Token " + sessionStorage.getItem("token")
+          "authorization": "Token " + sessionStorage.getItem("token")
         }
       }
     ).then(resp => {

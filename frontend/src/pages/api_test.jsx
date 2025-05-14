@@ -33,7 +33,7 @@ const ApiTest = () => {
       method: "get",
       url: API_BASE_URL + data.endpoint,
       headers: {
-        "Authorization": "Token " + sessionStorage.getItem("token")
+        "authorization": "Token " + sessionStorage.getItem("token")
       }
     }).then(resp => {
       setText(JSON.stringify(resp.data));

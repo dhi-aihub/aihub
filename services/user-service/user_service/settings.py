@@ -59,6 +59,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "ALGORITHM": "HS256",
     "SIGNING_KEY": os.getenv("SECRET_KEY"),
 }
 
