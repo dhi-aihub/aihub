@@ -9,11 +9,11 @@ import {
     getCourseTasks,
     getCourseGroups
 } from "../controller/course-controller.js";
-import { verifyToken } from "../middleware/authentication.js";
+import { verifyAccessToken } from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getAllCourses);
+router.get("/", verifyAccessToken, getAllCourses);
 
 router.get("/:id", getCourseById);
 

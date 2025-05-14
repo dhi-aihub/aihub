@@ -142,7 +142,7 @@ const CourseDetail = () => {
         data: bodyForm,
         headers: {
           "Content-Type": "multipart/form-data",
-          "Authorization": "Token " + sessionStorage.getItem("token"),
+          "authorization": "Token " + sessionStorage.getItem("token"),
         }
       }
     ).then(resp => {
@@ -175,7 +175,7 @@ const CourseDetail = () => {
     axios(
       {
         method: "get", url: CATALOG_SERVICE_BASE_URL + `/courses/${id}/tasks/`, headers: {
-          "Authorization": "Token " + sessionStorage.getItem("token")
+          "authorization": "Token " + sessionStorage.getItem("token")
         }
       }
     ).then(resp => {

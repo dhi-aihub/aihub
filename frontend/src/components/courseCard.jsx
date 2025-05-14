@@ -44,7 +44,7 @@ export const CourseCard = ({id, name, semester, participating, role}) => {
           token: data.token
         },
         headers: {
-          "Authorization": "Token " + sessionStorage.getItem("token")
+          "authorization": "Token " + sessionStorage.getItem("token")
         }
       }
     ).then(resp => {

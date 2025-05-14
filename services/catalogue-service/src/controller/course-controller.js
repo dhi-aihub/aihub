@@ -1,16 +1,44 @@
 import Course from "../models/course-model.js";
+import CourseParticipation from "../models/courseParticipation-model.js";
 
 export async function getAllCourses(req, res) {
     try {
-        const courses = await Course.findAll();
-        const data = courses.map(course => {
+        const userId = req.user.id;
+        const userIsAdmin = req.user.isAdmin;
+
+        let data = [];
+        if (userIsAdmin) {
+            // if user is admin, get all courses
+            const courses = await Course.findAll();
+            data = courses.map(course => {
+                return {
+                    id: course.id,
+                    code: course.code,
+                    semester: course.semester,
+                    participation: "ADM",
+                };
+            });
+        } else {
+            // if user is not admin, get only courses the user participates in
+            const courses = await Course.findAll({
+            include: {
+                model: CourseParticipation,
+                as: "courseParticipations",
+                where: {
+                    userId: userId,
+                },
+            }
+            });
+
+            data = courses.map(course => {
             return {
                 id: course.id,
                 code: course.code,
                 semester: course.semester,
-                participation: "STU" // TODO: get participation from user
+                participation: course.courseParticipations[0].role,  // should only be one
             };
-        });
+            });
+        }
         res.status(200).json({ message: "All courses", data });
     } catch (error) {
         res.status(500).json({ message: error.message });

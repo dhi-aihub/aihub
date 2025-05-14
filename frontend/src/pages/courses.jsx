@@ -22,7 +22,7 @@ const CoursePage = () => {
     axios(
       {
         method: "get", url: CATALOG_SERVICE_BASE_URL + "/courses/", headers: {
-          "Authorization": "Token " + sessionStorage.getItem("token")
+          "authorization": "Token " + sessionStorage.getItem("token")
         }
       }
     ).then(resp => {
