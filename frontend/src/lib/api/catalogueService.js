@@ -14,7 +14,7 @@ api.interceptors.request.use(
   config => {
     const token = getItem("token");
     if (token) {
-      config.headers.Authorization = `Token ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -45,7 +45,7 @@ api.interceptors.response.use(
         setItem("token", token);
 
         // Retry the original request with the new token
-        originalRequest.headers.Authorization = `Token ${token}`;
+        originalRequest.headers.Authorization = `Bearer ${token}`;
         return axios(originalRequest);
       } catch (error) {
         // Handle refresh token error or redirect to login

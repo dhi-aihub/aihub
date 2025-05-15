@@ -6,7 +6,7 @@ export function verifyAccessToken(req, res, next) {
         return res.status(401).json({ message: "Authentication failed" });
     }
   
-    // request auth header: `authorization: Token + <access_token>`
+    // request auth header: `authorization: Bearer + <access_token>`
     const token = authHeader.split(" ")[1];
     if (!token) {
         return res.status(401).json({ message: "Authentication failed" });

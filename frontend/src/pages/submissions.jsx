@@ -35,7 +35,7 @@ const markForGrading = sid => {
     method: "get",
     url: API_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
     headers: {
-      authorization: "Token " + sessionStorage.getItem("token"),
+      authorization: "Bearer " + sessionStorage.getItem("token"),
     },
   })
     .then(() => {
@@ -72,7 +72,7 @@ const Submissions = () => {
         ordering: "-created_at", // latest first
       },
       headers: {
-        authorization: "Token " + sessionStorage.getItem("token"),
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     })
       .then(resp => {
@@ -101,7 +101,7 @@ const Submissions = () => {
         ordering: "-created_at",
       },
       headers: {
-        authorization: "Token " + sessionStorage.getItem("token"),
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     })
       .then(resp => {

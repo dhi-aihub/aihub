@@ -142,7 +142,7 @@ const CourseDetail = () => {
       data: bodyForm,
       headers: {
         "Content-Type": "multipart/form-data",
-        authorization: "Token " + sessionStorage.getItem("token"),
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     })
       .then(resp => {

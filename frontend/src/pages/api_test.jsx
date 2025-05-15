@@ -41,7 +41,7 @@ const ApiTest = () => {
       method: "get",
       url: API_BASE_URL + data.endpoint,
       headers: {
-        authorization: "Token " + sessionStorage.getItem("token"),
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     })
       .then(resp => {
