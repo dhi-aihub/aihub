@@ -20,6 +20,7 @@ import AdminPanel from "./pages/adminPanel";
 import CourseAdminPanel from "./pages/courseAdminPanel";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
+import { ColorModeContext } from "./contexts/colorModeContext";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -49,6 +50,7 @@ const MyApp = () => {
         <Route path="/reset_password" element={<ResetPassword />} />
         <Route path="/api_test" element={<ApiTest />} />
         <Route path="/course_admin/:id" element={<CourseAdminPanel />} />
+        <Route path="/course_admin" element={<Navigate to="/courses" />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/courses/:id/:task_id" element={<Submissions />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
@@ -69,10 +71,6 @@ const MyApp = () => {
     </>
   );
 };
-
-export const ColorModeContext = React.createContext({
-  setColorMode: isDark => {},
-});
 
 export default function ToggleColorMode() {
   const isDark = useSelector(selectIsDark);

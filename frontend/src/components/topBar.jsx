@@ -8,7 +8,7 @@ import { useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { DarkModeSwitch } from "./darkModeSwitch";
-import { ColorModeContext } from "../App";
+import { ColorModeContext } from "../contexts/colorModeContext";
 
 const topBar = ({ setOpenDrawer }) => {
   const isLoggedIn = useSelector(selectLoggedIn);

@@ -17,7 +17,8 @@ const MuiBreadcrumbs = props => {
   // Helper functions to determine breadcrumb names
   const getBreadcrumbName = pathname => {
     const breadcrumbMap = [
-      { pattern: "/course_admin/:id", name: "Course Admin" },
+      { pattern: "/course_admin/:id", name: "Admin" },
+      { pattern: "/course_admin", name: "Courses" },
       { pattern: "/admin", name: "Admin" },
       { pattern: "/courses/:id/:task_id", name: "Submissions" },
       { pattern: "/courses/:id", name: "Tasks" },
