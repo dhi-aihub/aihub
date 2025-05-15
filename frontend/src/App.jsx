@@ -1,28 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  AppBar,
   Box,
-  Button,
   Divider,
   Drawer,
-  IconButton,
-  Link,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
 } from "@mui/material";
-import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout, selectLoggedIn, selectUsername } from "./redux/authSlice";
-import { Link as RouterLink, Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { login } from "./redux/authSlice";
+import { Link as RouterLink, Route, Routes, Navigate } from "react-router-dom";
 import Cookie from "js-cookie";
-import MenuIcon from "@mui/icons-material/Menu";
 import SignIn from "./pages/signin";
 import ApiTest from "./pages/api_test";
-import { DarkModeSwitch } from "./components/darkModeSwitch";
 import CoursePage from "./pages/courses";
 import CourseDetail from "./pages/course_detail";
 import MuiBreadcrumbs from "./components/breadcrumbs";
@@ -30,29 +22,16 @@ import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
 import { AccountBox, DeveloperMode, MenuBook } from "@mui/icons-material";
 import Home from "./pages/home";
 import Submissions from "./pages/submissions";
-import { cleanAuthStorage } from "./lib/auth";
 import VerifyEmail from "./pages/verifyEmail";
 import Signup from "./pages/signup";
 import ResetPassword from "./pages/resetPassword";
 import ResetPasswordConfirm from "./pages/resetPasswordConfirm";
 import AdminPanel from "./pages/adminPanel";
+import TopBar from "./components/topBar";
+import SideBar from "./components/sideBar";
 
 const MyApp = () => {
-  const isLoggedIn = useSelector(selectLoggedIn);
-  const loggedInUsername = useSelector(selectUsername);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    cleanAuthStorage();
-    dispatch(logout());
-    navigate("/signin");
-  };
-  const theme = useTheme();
-  const colorMode = useContext(ColorModeContext);
-  const onSwitchChange = event => {
-    colorMode.setColorMode(event.target.checked);
-    sessionStorage.setItem("mode", event.target.checked ? "dark" : "light");
-  };
   const [openDrawer, setOpenDrawer] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,35 +49,7 @@ const MyApp = () => {
 
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            size="large"
-            sx={{ marginRight: 2 }}
-            onClick={() => setOpenDrawer(true)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "left" }}>
-            <Link color="inherit" underline={"none"} component={RouterLink} to="/">
-              AiRENA
-            </Link>
-          </Typography>
-          {!isLoggedIn ? (
-            <Button color="inherit" component={RouterLink} to="/signin">
-              Login
-            </Button>
-          ) : (
-            <Button color="inherit" onClick={handleLogout}>
-              {loggedInUsername}
-            </Button>
-          )}
-          <DarkModeSwitch checked={theme.palette.mode === "dark"} onChange={onSwitchChange} />
-        </Toolbar>
-      </AppBar>
+      <TopBar setOpenDrawer={setOpenDrawer} />
       <MuiBreadcrumbs />
       <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <Box
@@ -159,7 +110,7 @@ const MyApp = () => {
   );
 };
 
-const ColorModeContext = React.createContext({
+export const ColorModeContext = React.createContext({
   setColorMode: isDark => {},
 });
 
