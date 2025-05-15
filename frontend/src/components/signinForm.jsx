@@ -4,15 +4,16 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import React, {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
-import axios from "axios";
 import Cookie from "js-cookie";
 import {useDispatch} from "react-redux";
 import {login} from "../redux/authSlice";
 import {SigninSnackBarType} from "../pages/signin";
 import {Grid, styled} from "@mui/material";
-import {USER_SERVICE_BASE_URL} from "../constants";
 import Link from "@mui/material/Link";
 import {Link as RouterLink} from "react-router-dom";
+
+import {setItem} from "../lib/auth";
+import userService from "../lib/api/userService";
 
 const Form = styled('form')(({theme}) => ({
     width: '100%', // Fix IE 11 issue.
@@ -40,22 +41,17 @@ const SigninForm = (props) => {
     bodyForm.append("username", data.username);
     bodyForm.append("password", data.password);
     setDisable(true);
-    axios(
-      {
-        method: "post",
-        url: USER_SERVICE_BASE_URL + "/auth/login/",
-        data: bodyForm,
-        headers: {"Content-Type": "multipart/form-data"}
+
+    userService.post("/auth/login/", bodyForm, {
+      headers: {
+        "Content-Type": "multipart/form-data"
       }
-    ).then(resp => {
-      sessionStorage.setItem("token", resp.data["access"]);
-      //sessionStorage.setItem("user_id", resp.data["user"]);
-      sessionStorage.setItem("username", data.username);
-      if (Cookie.get("remember") === "true") {
-        localStorage.setItem("token", resp.data["access"]);
-        //localStorage.setItem("user_id", resp.data["user"]);
-        localStorage.setItem("username", data.username);
-      }
+    }).then(resp => {
+      setItem("token", resp.data["access"]);
+      setItem("refresh", resp.data["refresh"]);
+      //setItem("user_id", resp.data["user"]);
+      setItem("username", data.username);
+
       dispatch(login(data.username));
       props.setSnackBarType(SigninSnackBarType.Success);
       props.setOpenSnackBar(true);
@@ -78,7 +74,7 @@ const SigninForm = (props) => {
       localStorage.clear();
     }).finally(() => {
       setDisable(false);
-    })
+    });
   };
   return (
     <React.Fragment>

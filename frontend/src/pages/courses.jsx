@@ -4,10 +4,8 @@ import {CourseCard} from "../components/courseCard";
 import {useDispatch, useSelector} from "react-redux";
 import {logout, selectLoggedIn} from "../redux/authSlice";
 import {useNavigate} from "react-router-dom";
-import axios from "axios";
-import {CATALOG_SERVICE_BASE_URL} from "../constants";
 import {cleanAuthStorage} from "../lib/auth";
-
+import catalogueService from "../lib/api/catalogueService";
 
 const CoursePage = () => {
   const isLoggedIn = useSelector(selectLoggedIn);
@@ -19,13 +17,7 @@ const CoursePage = () => {
     if (!isLoggedIn) {
       return;
     }
-    axios(
-      {
-        method: "get", url: CATALOG_SERVICE_BASE_URL + "/courses/", headers: {
-          "authorization": "Token " + sessionStorage.getItem("token")
-        }
-      }
-    ).then(resp => {
+    catalogueService.get("/courses/").then(resp => {
       const courses = resp.data["data"];
       setCourses(courses);
       setLoading(false);
