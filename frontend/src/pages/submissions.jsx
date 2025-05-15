@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Accordion,
   AccordionActions,
@@ -16,39 +16,39 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Typography
+  Typography,
 } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {logout, selectLoggedIn} from "../redux/authSlice";
-import {useDispatch, useSelector} from "react-redux";
+import { logout, selectLoggedIn } from "../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import {API_BASE_URL, JobErrorMap, JobStatusMap} from "../constants";
+import { API_BASE_URL, JobErrorMap, JobStatusMap } from "../constants";
 // import ReactJson from "react-json-view";
-import {useTheme} from "@mui/material/styles";
-import {cleanAuthStorage} from "../lib/auth";
-import {CheckCircle} from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import { cleanAuthStorage } from "../lib/auth";
+import { CheckCircle } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 
-const markForGrading = (sid) => {
-  axios(
-    {
-      method: "get",
-      url: API_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
-      headers: {
-        "authorization": "Token " + sessionStorage.getItem("token")
-      },
-    }
-  ).then(() => {
-    // console.log(resp);
-    window.location.reload();
-  }).catch(e => {
-    console.log(e);
-  });
+const markForGrading = sid => {
+  axios({
+    method: "get",
+    url: API_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
+    headers: {
+      authorization: "Token " + sessionStorage.getItem("token"),
+    },
+  })
+    .then(() => {
+      // console.log(resp);
+      window.location.reload();
+    })
+    .catch(e => {
+      console.log(e);
+    });
 };
 
 const Submissions = () => {
-  const {id, task_id} = useParams();
+  const { id, task_id } = useParams();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectLoggedIn);
   const navigate = useNavigate();
@@ -63,24 +63,25 @@ const Submissions = () => {
     if (!isLoggedIn) {
       return;
     }
-    axios(
-      {
-        method: "get", url: API_BASE_URL + `/api/v1/submissions/`,
-        params: {
-          user: sessionStorage.getItem("user_id"),
-          task: task_id,
-          ordering: "-created_at", // latest first
-        },
-        headers: {
-          "authorization": "Token " + sessionStorage.getItem("token")
-        }
-      }
-    ).then(resp => {
-      setSubmissions(resp.data);
-      setLoading(false);
-    }).catch(e => {
-      console.log(e);
-    });
+    axios({
+      method: "get",
+      url: API_BASE_URL + `/api/v1/submissions/`,
+      params: {
+        user: sessionStorage.getItem("user_id"),
+        task: task_id,
+        ordering: "-created_at", // latest first
+      },
+      headers: {
+        authorization: "Token " + sessionStorage.getItem("token"),
+      },
+    })
+      .then(resp => {
+        setSubmissions(resp.data);
+        setLoading(false);
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }, [id, isLoggedIn, task_id]);
 
   if (!isLoggedIn) {
@@ -90,57 +91,62 @@ const Submissions = () => {
     return null;
   }
 
-  const loadJobStatus = (id) => {
-    setLoadingJobStatus(true)
-    axios(
-      {
-        method: "get", url: API_BASE_URL + `/api/v1/jobs/`,
-        params: {
-          submission: id,
-          ordering: "-created_at",
-        },
-        headers: {
-          "authorization": "Token " + sessionStorage.getItem("token")
-        }
-      }
-    ).then(resp => {
-      const response = resp.data
-      if (response.count === 0) {
-        console.log(`job related to submission ID ${id} is not found`)
-      } else {
-        setJobStatus(response.results[0])
-        setOpenJobStatus(true)
-      }
-    }).catch(e => {
-      console.log(e)
-    }).finally(() => {
-      setLoadingJobStatus(false)
+  const loadJobStatus = id => {
+    setLoadingJobStatus(true);
+    axios({
+      method: "get",
+      url: API_BASE_URL + `/api/v1/jobs/`,
+      params: {
+        submission: id,
+        ordering: "-created_at",
+      },
+      headers: {
+        authorization: "Token " + sessionStorage.getItem("token"),
+      },
     })
-  }
+      .then(resp => {
+        const response = resp.data;
+        if (response.count === 0) {
+          console.log(`job related to submission ID ${id} is not found`);
+        } else {
+          setJobStatus(response.results[0]);
+          setOpenJobStatus(true);
+        }
+      })
+      .catch(e => {
+        console.log(e);
+      })
+      .finally(() => {
+        setLoadingJobStatus(false);
+      });
+  };
 
   return (
     <>
       <Container component="main" maxWidth="lg">
-        <CssBaseline/>
-        {
-          loading ? <CircularProgress/> :
-            submissions.map((submission, index) => {
-              return <Accordion key={`submission_${index}`}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+        <CssBaseline />
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          submissions.map((submission, index) => {
+            return (
+              <Accordion key={`submission_${index}`}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Stack>
                     <Stack direction={"row"}>
                       <Typography variant={"h6"}>
                         Attempt at {new Date(submission["created_at"]).toLocaleString()}
                       </Typography>
-                      {submission["marked_for_grading"] ?
-                        <CheckCircle sx={{color: "success.light", marginLeft: 0.5}}/> : null}
+                      {submission["marked_for_grading"] ? (
+                        <CheckCircle sx={{ color: "success.light", marginLeft: 0.5 }} />
+                      ) : null}
                     </Stack>
-                    {
-                      submission["point"] ? <div>
+                    {submission["point"] ? (
+                      <div>
                         <Typography variant={"button"}>Score: </Typography>
                         <Typography variant={"button"}>{submission["point"]}</Typography>
-                      </div> : null
-                    }
+                      </div>
+                    ) : null}
                   </Stack>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -149,26 +155,31 @@ const Submissions = () => {
                              collapsed={true}/>
                   */}
                 </AccordionDetails>
-                <AccordionActions sx={{justifyContent: "left"}}>
-                  <Button onClick={() => markForGrading(submission["id"])}>
-                    Mark For Grading
-                  </Button>
-                  <Button onClick={() => {
-                    loadJobStatus(submission["id"])
-                  }} disabled={loadingJobStatus}>
+                <AccordionActions sx={{ justifyContent: "left" }}>
+                  <Button onClick={() => markForGrading(submission["id"])}>Mark For Grading</Button>
+                  <Button
+                    onClick={() => {
+                      loadJobStatus(submission["id"]);
+                    }}
+                    disabled={loadingJobStatus}
+                  >
                     Fetch Job Status
                   </Button>
                 </AccordionActions>
               </Accordion>
-            })
-        }
-        <Dialog open={openJobStatus} onClose={() => setOpenJobStatus(false)} maxWidth="md" fullWidth>
-          <DialogTitle>
-            Latest Job Status
-          </DialogTitle>
+            );
+          })
+        )}
+        <Dialog
+          open={openJobStatus}
+          onClose={() => setOpenJobStatus(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>Latest Job Status</DialogTitle>
           <DialogContent>
-            {
-              jobStatus ? <Table>
+            {jobStatus ? (
+              <Table>
                 <TableBody>
                   <TableRow>
                     <TableCell>Worker Name</TableCell>
@@ -183,18 +194,18 @@ const Submissions = () => {
                     <TableCell>{jobStatus.error ? JobErrorMap[jobStatus.error] : "None"}</TableCell>
                   </TableRow>
                 </TableBody>
-              </Table> : "Loading"
-            }
+              </Table>
+            ) : (
+              "Loading"
+            )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenJobStatus(false)}>
-              Close
-            </Button>
+            <Button onClick={() => setOpenJobStatus(false)}>Close</Button>
           </DialogActions>
         </Dialog>
       </Container>
     </>
-  )
-}
+  );
+};
 
 export default Submissions;

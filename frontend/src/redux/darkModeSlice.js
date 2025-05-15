@@ -1,9 +1,9 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 export const darkModeSlice = createSlice({
   name: "darkMode",
   initialState: {
-    isDark: sessionStorage.getItem("mode") === "dark"
+    isDark: sessionStorage.getItem("mode") === "dark",
   },
   reducers: {
     setDark: state => {
@@ -11,12 +11,12 @@ export const darkModeSlice = createSlice({
     },
     setLight: state => {
       state.isDark = false;
-    }
-  }
+    },
+  },
 });
 
-export const {setDark, setLight} = darkModeSlice.actions;
+export const { setDark, setLight } = darkModeSlice.actions;
 // Other code such as selectors can use the imported `RootState` type
-export const selectIsDark = (state) => state.darkMode.isDark;
+export const selectIsDark = state => state.darkMode.isDark;
 
 export default darkModeSlice.reducer;

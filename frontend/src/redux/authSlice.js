@@ -1,12 +1,13 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
     loggedIn: sessionStorage.getItem("token") !== null,
-    username: sessionStorage.getItem("username") === null
-      ? "not_logged_in"
-      : sessionStorage.getItem("username")
+    username:
+      sessionStorage.getItem("username") === null
+        ? "not_logged_in"
+        : sessionStorage.getItem("username"),
   },
   reducers: {
     login: (state, username) => {
@@ -15,13 +16,13 @@ export const authSlice = createSlice({
     },
     logout: state => {
       state.loggedIn = false;
-    }
-  }
+    },
+  },
 });
 
-export const {login, logout} = authSlice.actions;
+export const { login, logout } = authSlice.actions;
 // Other code such as selectors can use the imported `RootState` type
-export const selectLoggedIn = (state) => state.auth.loggedIn;
-export const selectUsername = (state) => state.auth.username;
+export const selectLoggedIn = state => state.auth.loggedIn;
+export const selectUsername = state => state.auth.username;
 
 export default authSlice.reducer;

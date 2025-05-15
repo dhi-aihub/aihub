@@ -1,21 +1,21 @@
-import * as React from 'react';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
-import {useMatch, useNavigate, matchPath} from "react-router-dom";
-import {Typography} from "@mui/material";
+import * as React from "react";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Link from "@mui/material/Link";
+import { useMatch, useNavigate, matchPath } from "react-router-dom";
+import { Typography } from "@mui/material";
 
-const MuiBreadcrumbs = (props) => {
+const MuiBreadcrumbs = props => {
   const navigate = useNavigate();
-  const pathnames = window.location.pathname.split("/").filter((x) => x);
+  const pathnames = window.location.pathname.split("/").filter(x => x);
 
   // Unconditionally call all useMatch hooks
-  const matchVerifyEmail = useMatch({path: "/account/verify_email/"});
-  const matchSignUp = useMatch({path: "/signup/"});
-  const matchResetPassword = useMatch({path: "/reset_password/"});
-  const matchConfirmResetPassword = useMatch({path: "/account/reset_password_confirm/"});
+  const matchVerifyEmail = useMatch({ path: "/account/verify_email/" });
+  const matchSignUp = useMatch({ path: "/signup/" });
+  const matchResetPassword = useMatch({ path: "/reset_password/" });
+  const matchConfirmResetPassword = useMatch({ path: "/account/reset_password_confirm/" });
 
   // Helper functions to determine breadcrumb names
-  const getBreadcrumbName = (pathname) => {
+  const getBreadcrumbName = pathname => {
     const breadcrumbMap = [
       { pattern: "/course_admin/:id", name: "Admin" },
       { pattern: "/course_admin", name: "Courses" },
@@ -25,12 +25,12 @@ const MuiBreadcrumbs = (props) => {
       { pattern: "/signin", name: "Sign In" },
       { pattern: "/api_test", name: "API Tester" },
     ];
-  
+
     for (const { pattern, name } of breadcrumbMap) {
       const match = matchPath({ path: pattern, end: true }, pathname);
       if (match) return name;
     }
-  
+
     return "Unknown";
   };
 
@@ -49,17 +49,13 @@ const MuiBreadcrumbs = (props) => {
     links = <Typography key={`link_0`}>{special}</Typography>;
   } else {
     links = pathnames.map((_, index) => {
-      const to = `/${pathnames.slice(0, index+1).join('/')}`;
+      const to = `/${pathnames.slice(0, index + 1).join("/")}`;
       const last = index === pathnames.length - 1;
       const displayName = getBreadcrumbName(to);
       return last ? (
         <Typography key={`link_${index}`}>{displayName}</Typography>
       ) : (
-        <Link
-          key={`link_${index}`}
-          underline="hover"
-          onClick={() => navigate(to)}
-        >
+        <Link key={`link_${index}`} underline="hover" onClick={() => navigate(to)}>
           {displayName}
         </Link>
       );
@@ -67,8 +63,10 @@ const MuiBreadcrumbs = (props) => {
   }
 
   return (
-    <Breadcrumbs aria-label="breadcrumb" sx={{marginTop: 2, marginLeft: 4, marginBottom: 3}}>
-      <Link underline="hover" onClick={() => navigate("/")}>Home</Link>
+    <Breadcrumbs aria-label="breadcrumb" sx={{ marginTop: 2, marginLeft: 4, marginBottom: 3 }}>
+      <Link underline="hover" onClick={() => navigate("/")}>
+        Home
+      </Link>
       {links}
     </Breadcrumbs>
   );
