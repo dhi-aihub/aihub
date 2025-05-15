@@ -57,10 +57,12 @@ const MyApp = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user_id = localStorage.getItem("user_id");
-    if (Cookie.get("remember") === "true" && token !== null && user_id !== null) {
-      dispatch(login());
+    const username = localStorage.getItem("username");
+    if (Cookie.get("remember") === "true" && token !== null) {
+      dispatch(login(username));
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("user_id", user_id);
+      sessionStorage.setItem("username", username);
     }
   }, [dispatch]);
 
