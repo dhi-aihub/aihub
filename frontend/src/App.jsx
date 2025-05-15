@@ -3,7 +3,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/authSlice";
 import { Route, Routes, Navigate } from "react-router-dom";
-import Cookie from "js-cookie";
 import SignIn from "./pages/signin";
 import ApiTest from "./pages/api_test";
 import CoursePage from "./pages/courses";
@@ -21,21 +20,21 @@ import CourseAdminPanel from "./pages/courseAdminPanel";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
 import { ColorModeContext } from "./contexts/colorModeContext";
+import { getItem } from "./lib/auth";
+import userService from "./lib/api/userService";
 
 const MyApp = () => {
   const dispatch = useDispatch();
   const [openDrawer, setOpenDrawer] = useState(false);
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const refresh = localStorage.getItem("refresh");
-    const user_id = localStorage.getItem("user_id");
-    const username = localStorage.getItem("username");
-    if (Cookie.get("remember") === "true" && token !== null) {
-      dispatch(login(username));
-      sessionStorage.setItem("token", token);
-      sessionStorage.setItem("refresh", refresh);
-      sessionStorage.setItem("user_id", user_id);
-      sessionStorage.setItem("username", username);
+    const token = getItem("token");
+    if (token !== null) {
+      userService.get("/users/me/").then(resp => {
+        const data = resp.data;
+        if (data) {
+          dispatch(login(data));
+        }
+      });
     }
   }, [dispatch]);
 

@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { cleanAuthStorage } from "../lib/auth";
-import { logout, selectLoggedIn, selectUsername } from "../redux/authSlice";
+import { logout, selectLoggedIn, selectUser } from "../redux/authSlice";
 import { AppBar, Button, IconButton, Toolbar, Typography, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
@@ -10,9 +10,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { DarkModeSwitch } from "./darkModeSwitch";
 import { ColorModeContext } from "../contexts/colorModeContext";
 
-const topBar = ({ setOpenDrawer }) => {
+const TopBar = ({ setOpenDrawer }) => {
   const isLoggedIn = useSelector(selectLoggedIn);
-  const loggedInUsername = useSelector(selectUsername);
+  const loggedInUser = useSelector(selectUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -50,7 +50,7 @@ const topBar = ({ setOpenDrawer }) => {
           </Button>
         ) : (
           <Button color="inherit" onClick={handleLogout}>
-            {loggedInUsername}
+            {loggedInUser.username}
           </Button>
         )}
         <DarkModeSwitch checked={theme.palette.mode === "dark"} onChange={onSwitchChange} />
@@ -59,4 +59,4 @@ const topBar = ({ setOpenDrawer }) => {
   );
 };
 
-export default topBar;
+export default TopBar;

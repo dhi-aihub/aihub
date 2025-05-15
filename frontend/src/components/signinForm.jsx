@@ -50,10 +50,19 @@ const SigninForm = props => {
       .then(resp => {
         setItem("token", resp.data["access"]);
         setItem("refresh", resp.data["refresh"]);
-        //setItem("user_id", resp.data["user"]);
-        setItem("username", data.username);
 
-        dispatch(login(data.username));
+        // get user data
+        userService
+          .get("/users/me/")
+          .then(resp => {
+            const data = resp.data;
+            if (data) {
+              dispatch(login(data));
+            }
+          })
+          .catch(e => {
+            console.log("Error getting user data:", e);
+          });
         props.setSnackBarType(SigninSnackBarType.Success);
         props.setOpenSnackBar(true);
       })

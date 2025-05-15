@@ -39,7 +39,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = getItem("refresh");
         const response = await axios.post(USER_SERVICE_BASE_URL + "/auth/refresh-token/", {
-          refreshToken,
+          refresh: refreshToken,
         });
         const { token } = response.data;
         setItem("token", token);

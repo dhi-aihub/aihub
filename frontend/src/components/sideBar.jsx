@@ -11,8 +11,24 @@ import {
 import { AccountBox, MenuBook } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Link as RouterLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/authSlice";
 
-const sideBar = ({ openDrawer, setOpenDrawer }) => {
+const AdminButton = () => {
+  return (
+    <ListItemButton key={"admin"} component={RouterLink} to="/admin">
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      <ListItemText primary={"Admin Panel"} />
+    </ListItemButton>
+  );
+};
+
+const SideBar = ({ openDrawer, setOpenDrawer }) => {
+  const loggedInUser = useSelector(selectUser);
+  const isAdmin = loggedInUser.isAdmin;
+
   return (
     <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
       <Box
@@ -28,14 +44,7 @@ const sideBar = ({ openDrawer, setOpenDrawer }) => {
             </ListItemIcon>
             <ListItemText primary={"Courses"} />
           </ListItemButton>
-        </List>
-        <List>
-          <ListItemButton key={"admin"} component={RouterLink} to="/admin">
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Admin Panel"} />
-          </ListItemButton>
+          {isAdmin && <AdminButton />}
         </List>
         <Divider />
         <List>
@@ -51,4 +60,4 @@ const sideBar = ({ openDrawer, setOpenDrawer }) => {
   );
 };
 
-export default sideBar;
+export default SideBar;

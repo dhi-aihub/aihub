@@ -1,21 +1,33 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+function fromJson(json) {
+  return {
+    id: json.id,
+    username: json.username,
+    isAdmin: json.is_staff,
+  };
+}
+
+const emptyUser = {
+  id: null,
+  username: null,
+  isAdmin: false,
+};
+
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
     loggedIn: sessionStorage.getItem("token") !== null,
-    username:
-      sessionStorage.getItem("username") === null
-        ? "not_logged_in"
-        : sessionStorage.getItem("username"),
+    user: emptyUser,
   },
   reducers: {
-    login: (state, username) => {
+    login: (state, user) => {
       state.loggedIn = true;
-      state.username = username.payload;
+      state.user = fromJson(user.payload);
     },
     logout: state => {
       state.loggedIn = false;
+      state.user = emptyUser;
     },
   },
 });
@@ -23,6 +35,6 @@ export const authSlice = createSlice({
 export const { login, logout } = authSlice.actions;
 // Other code such as selectors can use the imported `RootState` type
 export const selectLoggedIn = state => state.auth.loggedIn;
-export const selectUsername = state => state.auth.username;
+export const selectUser = state => state.auth.user;
 
 export default authSlice.reducer;
