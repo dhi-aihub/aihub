@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Divider,
-  Drawer,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/authSlice";
-import { Link as RouterLink, Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Cookie from "js-cookie";
 import SignIn from "./pages/signin";
 import ApiTest from "./pages/api_test";
@@ -19,7 +10,6 @@ import CoursePage from "./pages/courses";
 import CourseDetail from "./pages/course_detail";
 import MuiBreadcrumbs from "./components/breadcrumbs";
 import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
-import { AccountBox, DeveloperMode, MenuBook } from "@mui/icons-material";
 import Home from "./pages/home";
 import Submissions from "./pages/submissions";
 import VerifyEmail from "./pages/verifyEmail";
@@ -51,38 +41,7 @@ const MyApp = () => {
     <>
       <TopBar setOpenDrawer={setOpenDrawer} />
       <MuiBreadcrumbs />
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
-        <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={() => setOpenDrawer(false)}
-          onKeyDown={() => setOpenDrawer(false)}
-        >
-          <List>
-            <ListItemButton key={"course"} component={RouterLink} to="/courses">
-              <ListItemIcon>
-                <MenuBook />
-              </ListItemIcon>
-              <ListItemText primary={"Courses"} />
-            </ListItemButton>
-            <ListItemButton key={"api_tool"} component={RouterLink} to="/api_test">
-              <ListItemIcon>
-                <DeveloperMode />
-              </ListItemIcon>
-              <ListItemText primary={"API Test Tool"} />
-            </ListItemButton>
-          </List>
-          <Divider />
-          <List>
-            <ListItemButton key={"signup"} component={RouterLink} to="/signup">
-              <ListItemIcon>
-                <AccountBox />
-              </ListItemIcon>
-              <ListItemText primary={"Sign Up"} />
-            </ListItemButton>
-          </List>
-        </Box>
-      </Drawer>
+      <SideBar openDrawer={openDrawer} setOpenDrawer={setOpenDrawer} />
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
