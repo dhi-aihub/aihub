@@ -2,10 +2,9 @@ import * as Yup from 'yup';
 import {useForm} from "react-hook-form";
 import {useState} from "react";
 import {Button, styled, TextField, Typography} from "@mui/material";
-import axios from "axios";
-import {USER_SERVICE_BASE_URL} from "../constants";
 import {useYupValidationResolver} from "../lib/yupValidationResolver";
 import {SignUpSnackbarType} from "../pages/signup";
+import userService from "../lib/api/userService";
 
 const Form = styled('form')(({theme}) => ({
     width: '100%', // Fix IE 11 issue.
@@ -34,14 +33,12 @@ const SignupForm = (props) => {
     //bodyForm.append("password2", data.confirmPassword);
     bodyForm.append("email", data.email);
     setDisable(true);
-    axios(
-      {
-        method: "post",
-        url: USER_SERVICE_BASE_URL + "/auth/register/",
-        data: bodyForm,
-        headers: {"Content-Type": "multipart/form-data"}
+
+    userService.post("/auth/register/", bodyForm, {
+      headers: {
+        "Content-Type": "multipart/form-data"
       }
-    ).then(resp => {
+    }).then(resp => {
       if (resp.status === 201) {
         props.setSnackBarType(SignUpSnackbarType.Success);
         props.setOpenSnackBar(true);
@@ -68,7 +65,7 @@ const SignupForm = (props) => {
       }
     }).finally(() => {
       setDisable(false);
-    })
+    });
   };
   if (showForm) {
     return (

@@ -56,11 +56,13 @@ const MyApp = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const refresh = localStorage.getItem("refresh");
     const user_id = localStorage.getItem("user_id");
     const username = localStorage.getItem("username");
     if (Cookie.get("remember") === "true" && token !== null) {
       dispatch(login(username));
       sessionStorage.setItem("token", token);
+      sessionStorage.setItem("refresh", refresh);
       sessionStorage.setItem("user_id", user_id);
       sessionStorage.setItem("username", username);
     }

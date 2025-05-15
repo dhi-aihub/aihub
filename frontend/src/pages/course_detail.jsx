@@ -33,6 +33,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useForm} from "react-hook-form";
 import {Alert} from "../components/alert";
+import catalogueService from "../lib/api/catalogueService";
 
 class Task {
   id;
@@ -172,13 +173,7 @@ const CourseDetail = () => {
     if (!isLoggedIn) {
       return;
     }
-    axios(
-      {
-        method: "get", url: CATALOG_SERVICE_BASE_URL + `/courses/${id}/tasks/`, headers: {
-          "authorization": "Token " + sessionStorage.getItem("token")
-        }
-      }
-    ).then(resp => {
+    catalogueService.get(`/courses/${id}/tasks/`).then(resp => {
       const tasks = /** @type {Task[]} */ resp.data["data"].map((value) => new Task(value));
       setTasks(tasks);
       setLoading(false);
