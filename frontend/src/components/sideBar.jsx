@@ -8,7 +8,8 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { AccountBox, DeveloperMode, MenuBook } from "@mui/icons-material";
+import { AccountBox, MenuBook } from "@mui/icons-material";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { Link as RouterLink } from "react-router-dom";
 
 const sideBar = ({ openDrawer, setOpenDrawer }) => {
@@ -27,11 +28,13 @@ const sideBar = ({ openDrawer, setOpenDrawer }) => {
             </ListItemIcon>
             <ListItemText primary={"Courses"} />
           </ListItemButton>
-          <ListItemButton key={"api_tool"} component={RouterLink} to="/api_test">
+        </List>
+        <List>
+          <ListItemButton key={"admin"} component={RouterLink} to="/admin">
             <ListItemIcon>
-              <DeveloperMode />
+              <SettingsIcon />
             </ListItemIcon>
-            <ListItemText primary={"API Test Tool"} />
+            <ListItemText primary={"Admin Panel"} />
           </ListItemButton>
         </List>
         <Divider />

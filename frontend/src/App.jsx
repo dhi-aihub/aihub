@@ -17,6 +17,7 @@ import Signup from "./pages/signup";
 import ResetPassword from "./pages/resetPassword";
 import ResetPasswordConfirm from "./pages/resetPasswordConfirm";
 import AdminPanel from "./pages/adminPanel";
+import CourseAdminPanel from "./pages/courseAdminPanel";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
 
@@ -47,8 +48,8 @@ const MyApp = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset_password" element={<ResetPassword />} />
         <Route path="/api_test" element={<ApiTest />} />
-        <Route path="/course_admin/:id" element={<AdminPanel />} />
-        <Route path="/course_admin" element={<Navigate to="/courses" />} />
+        <Route path="/course_admin/:id" element={<CourseAdminPanel />} />
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="/courses/:id/:task_id" element={<Submissions />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/courses" element={<CoursePage />} />

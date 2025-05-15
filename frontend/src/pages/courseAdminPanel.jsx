@@ -1,9 +1,12 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
 import { API_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
 
-const AdminPanel = () => {
+const CourseAdminPanel = () => {
+  const { id } = useParams();
+
   const AdminButton = styled(Button)(({ theme }) => ({
     margin: theme.spacing(1),
   }));
@@ -13,7 +16,7 @@ const AdminPanel = () => {
       <Container component="main" maxWidth="lg">
         <CssBaseline />
         <Typography variant="h4" gutterBottom>
-          Links to admin pages
+          Links to course admin pages
         </Typography>
         <Typography variant="body1" gutterBottom>
           Buttons below will redirect to aiVLE Web API pages. Use the same username and password for
@@ -21,21 +24,21 @@ const AdminPanel = () => {
         </Typography>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/tasks/?course="}
+          href={API_BASE_URL + "/api/v1/tasks/?course=" + id}
           target="_blank"
         >
           Manage Tasks
         </AdminButton>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/participations/?course="}
+          href={API_BASE_URL + "/api/v1/participations/?course=" + id}
           target="_blank"
         >
           Manage Participations
         </AdminButton>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/invitations/?course="}
+          href={API_BASE_URL + "/api/v1/invitations/?course=" + id}
           target="_blank"
         >
           Manage Invitations
@@ -55,4 +58,4 @@ const AdminPanel = () => {
   );
 };
 
-export default AdminPanel;
+export default CourseAdminPanel;
