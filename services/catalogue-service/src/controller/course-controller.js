@@ -86,6 +86,19 @@ export async function deleteCourse(req, res) {
 // get all tasks associated with a course
 export async function getCourseTasks(req, res) {
     try {
+        if (!req.user.isAdmin) {
+            // if user is not admin, check if user is a participant in the course
+            const participation = await CourseParticipation.findOne({
+                where: {
+                    courseId: req.params.id,
+                    userId: req.user.id,
+                },
+            });
+            if (!participation) {
+                return res.status(403).json({ message: "Not authorized to access this resource" });
+            }
+        }
+
         const course = await Course.findByPk(req.params.id, { include: "tasks" });
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
