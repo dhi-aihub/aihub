@@ -17,6 +17,7 @@ import ResetPassword from "./pages/resetPassword";
 import ResetPasswordConfirm from "./pages/resetPasswordConfirm";
 import AdminPanel from "./pages/adminPanel";
 import CourseAdminPanel from "./pages/courseAdminPanel";
+import CreateCourse from "./pages/createCourse";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
 import { ColorModeContext } from "./contexts/colorModeContext";
@@ -51,6 +52,7 @@ const MyApp = () => {
         <Route path="/course_admin/:id" element={<CourseAdminPanel />} />
         <Route path="/course_admin" element={<Navigate to="/courses" />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/create_course" element={<CreateCourse />} />
         <Route path="/courses/:id/:task_id" element={<Submissions />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/courses" element={<CoursePage />} />

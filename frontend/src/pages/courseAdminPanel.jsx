@@ -1,15 +1,47 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/authSlice";
+import catalogueService from "../lib/api/catalogueService";
+
+const AdminButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(1),
+}));
+
+const DeleteCourseButton = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const handleDeleteCourse = () => {
+    catalogueService
+      .delete(`/courses/${id}/`)
+      .then(resp => {
+        const data = resp.data;
+        if (data) {
+          alert("Course deleted successfully");
+        }
+        navigate("/courses");
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error deleting course");
+      });
+  };
+
+  return (
+    <AdminButton variant={"outlined"} onClick={handleDeleteCourse}>
+      Delete Course
+    </AdminButton>
+  );
+};
 
 const CourseAdminPanel = () => {
   const { id } = useParams();
-
-  const AdminButton = styled(Button)(({ theme }) => ({
-    margin: theme.spacing(1),
-  }));
+  const user = useSelector(selectUser);
+  const isAdmin = user.isAdmin;
 
   return (
     <React.Fragment>
@@ -19,8 +51,7 @@ const CourseAdminPanel = () => {
           Links to course admin pages
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Buttons below will redirect to aiVLE Web API pages. Use the same username and password for
-          this website if credential is prompted.
+          Buttons below will open course admin pages.
         </Typography>
         <AdminButton
           variant={"outlined"}
@@ -53,6 +84,7 @@ const CourseAdminPanel = () => {
         <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
           View Jobs
         </AdminButton>
+        {isAdmin && <DeleteCourseButton />}
       </Container>
     </React.Fragment>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { API_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
 
@@ -16,39 +17,17 @@ const AdminPanel = () => {
           Links to admin pages
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Buttons below will redirect to aiVLE Web API pages. Use the same username and password for
-          this website if credential is prompted.
+          Buttons below will open the admin pages.
         </Typography>
-        <AdminButton
-          variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/tasks/?course="}
-          target="_blank"
-        >
-          Manage Tasks
+        <AdminButton variant={"outlined"} component={RouterLink} to="/admin/create_course">
+          Create Course
         </AdminButton>
         <AdminButton
           variant={"outlined"}
           href={API_BASE_URL + "/api/v1/participations/?course="}
           target="_blank"
         >
-          Manage Participations
-        </AdminButton>
-        <AdminButton
-          variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/invitations/?course="}
-          target="_blank"
-        >
-          Manage Invitations
-        </AdminButton>
-        <AdminButton
-          variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/submissions/"}
-          target="_blank"
-        >
-          View Submissions
-        </AdminButton>
-        <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
-          View Jobs
+          Manage Roles
         </AdminButton>
       </Container>
     </React.Fragment>
