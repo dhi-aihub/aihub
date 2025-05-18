@@ -3,13 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectLoggedIn } from "../redux/authSlice";
 import axios from "axios";
-import { CATALOG_SERVICE_BASE_URL } from "../constants";
 import Cookie from "js-cookie";
 import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
   Button,
   CircularProgress,
   Container,
@@ -18,21 +13,18 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   InputLabel,
   Snackbar,
-  Stack,
   styled,
   Table,
   TableBody,
   TableCell,
   TableRow,
   TextField,
-  Typography,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useForm } from "react-hook-form";
 import { Alert } from "../components/alert";
+import TaskCard from "../components/taskCard";
 import catalogueService from "../lib/api/catalogueService";
 
 class Task {
@@ -103,6 +95,7 @@ const CourseDetail = () => {
   const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
   const [tasks, setTasks] = /** @type [Task[], any] */ useState([]);
   const [openTaskDetail, setOpenTaskDetail] = useState(false);
   const [openTaskSubmit, setOpenTaskSubmit] = useState(false);
@@ -170,10 +163,8 @@ const CourseDetail = () => {
         onCloseSubmitDialog();
       });
   };
-  useEffect(() => {
-    if (!isLoggedIn) {
-      return;
-    }
+
+  function fetchTasks() {
     catalogueService
       .get(`/courses/${id}/tasks/`)
       .then(resp => {
@@ -184,6 +175,22 @@ const CourseDetail = () => {
       .catch(e => {
         console.log(e);
       });
+  }
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+    catalogueService
+      .get(`/courses/${id}/`)
+      .then(resp => {
+        const course = resp.data["data"];
+        setCourse(course);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    fetchTasks();
   }, [id, isLoggedIn]);
 
   if (!isLoggedIn) {
@@ -202,45 +209,16 @@ const CourseDetail = () => {
         ) : (
           tasks.map((task, index) => {
             return (
-              <Accordion key={`task_${index}`}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Stack direction={"column"} spacing={1} sx={{ width: "auto", display: "block" }}>
-                    <Typography variant={"h5"}>{task.name}</Typography>
-                    <Typography>Deadline: {task.deadlineAt.toLocaleString()}</Typography>
-                  </Stack>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography sx={{ color: "text.secondary" }}>{task.description}</Typography>
-                </AccordionDetails>
-                <Divider />
-                <AccordionActions>
-                  <Button
-                    onClick={() => {
-                      setActiveTaskIndex(index);
-                      setOpenTaskDetail(true);
-                    }}
-                  >
-                    Details
-                  </Button>
-                  {task.hasTemplate ? (
-                    <Button
-                      href={`${CATALOG_SERVICE_BASE_URL}/api/v1/tasks/${task.id}/download_template/`}
-                    >
-                      Template
-                    </Button>
-                  ) : null}
-                  <div style={{ flexGrow: 1 }} />
-                  <Button
-                    onClick={() => {
-                      setActiveTaskIndex(index);
-                      setOpenTaskSubmit(true);
-                    }}
-                  >
-                    Submit
-                  </Button>
-                  <Button onClick={() => navigate(`/courses/${id}/${task.id}`)}>Submissions</Button>
-                </AccordionActions>
-              </Accordion>
+              <TaskCard
+                key={`task_${index}`}
+                course={course}
+                task={task}
+                index={index}
+                setOpenTaskDetail={setOpenTaskDetail}
+                setOpenTaskSubmit={setOpenTaskSubmit}
+                setActiveTaskIndex={setActiveTaskIndex}
+                refreshTasks={fetchTasks}
+              />
             );
           })
         )}

@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.get("/", verifyAccessToken, getAllCourses);
 
-router.get("/:id", verifyAccessToken, getCourseById);
+router.get("/:courseId", verifyAccessToken, verifyIsCourseParticipant, getCourseById);
 
 router.post("/", verifyAccessToken, verifyIsAdmin, createCourse);
 
