@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import CourseParticipation from "../models/courseParticipation-model.js";
 
 export function verifyAccessToken(req, res, next) {
     const authHeader = req.headers["authorization"];
@@ -31,4 +32,39 @@ export function verifyIsAdmin(req, res, next) {
     } else {
         return res.status(403).json({ message: "Not authorized to access this resource" });
     }
+}
+
+export async function verifyIsCourseParticipant(req, res, next) {
+    if (!req.user.isAdmin) {
+        // if user is not admin, check if user is a participant in the course
+        const participation = await CourseParticipation.findOne({
+            where: {
+                courseId: req.params.courseId,
+                userId: req.user.id,
+            },
+        });
+        if (!participation) {
+            return res.status(403).json({ message: "Not authorized to access this resource" });
+        }
+    }
+
+    next();
+}
+
+export async function verifyIsCourseAdmin(req, res, next) {
+    if (!req.user.isAdmin) {
+        // if user is not admin, check if user is a course admin
+        const participation = await CourseParticipation.findOne({
+            where: {
+                courseId: req.params.courseId,
+                userId: req.user.id,
+                role: "ADM",
+            },
+        });
+        if (!participation) {
+            return res.status(403).json({ message: "Not authorized to access this resource" });
+        }
+    }
+
+    next();
 }

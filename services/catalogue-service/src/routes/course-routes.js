@@ -9,7 +9,12 @@ import {
     getCourseTasks,
     getCourseGroups
 } from "../controller/course-controller.js";
-import { verifyAccessToken, verifyIsAdmin } from "../middleware/basic-access-control.js";
+import { 
+    verifyAccessToken,
+    verifyIsAdmin,
+    verifyIsCourseParticipant,
+    verifyIsCourseAdmin
+} from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
@@ -19,12 +24,12 @@ router.get("/:id", verifyAccessToken, getCourseById);
 
 router.post("/", verifyAccessToken, verifyIsAdmin, createCourse);
 
-router.put("/:id", verifyAccessToken, updateCourse);
+router.put("/:courseId", verifyAccessToken, verifyIsCourseAdmin, updateCourse);
 
 router.delete("/:id", verifyAccessToken, verifyIsAdmin, deleteCourse);
 
-router.get("/:id/tasks", verifyAccessToken, getCourseTasks);
+router.get("/:courseId/tasks", verifyAccessToken, verifyIsCourseParticipant, getCourseTasks);
 
-router.get("/:id/groups", verifyAccessToken, getCourseGroups);
+router.get("/:courseId/groups", verifyAccessToken, getCourseGroups);
 
 export default router;

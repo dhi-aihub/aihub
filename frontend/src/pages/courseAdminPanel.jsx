@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { API_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
 import { useSelector } from "react-redux";
@@ -53,12 +53,8 @@ const CourseAdminPanel = () => {
         <Typography variant="body1" gutterBottom>
           Buttons below will open course admin pages.
         </Typography>
-        <AdminButton
-          variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/tasks/?course=" + id}
-          target="_blank"
-        >
-          Manage Tasks
+        <AdminButton variant={"outlined"} component={RouterLink} to={`/courses/${id}/create_task`}>
+          Add Task
         </AdminButton>
         <AdminButton
           variant={"outlined"}

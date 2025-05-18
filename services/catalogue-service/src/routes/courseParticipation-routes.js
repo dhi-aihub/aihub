@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-router.post("/", createCourseParticipation);
+router.post("/:courseId", createCourseParticipation);
 
 router.delete("/:userId/:courseId", deleteCourseParticipation);
 
