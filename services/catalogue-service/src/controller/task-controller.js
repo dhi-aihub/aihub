@@ -1,6 +1,6 @@
 import Task from '../models/task-model.js';
 
-// for testing purposes
+// unused
 export async function getAllTasks(req, res) {
     try {
         const tasks = await Task.findAll();
@@ -30,7 +30,7 @@ export async function createTask(req, res) {
 
 export async function updateTask(req, res) {
     try {
-        const task = await Task.findByPk(req.params.id);
+        const task = await Task.findByPk(req.params.taskId);
         task.update(req.body);
         res.status(200).json({ message: 'Task updated', data: task });
     } catch (error) {
@@ -40,7 +40,7 @@ export async function updateTask(req, res) {
 
 export async function deleteTask(req, res) {
     try {
-        const task = await Task.findByPk(req.params.id);
+        const task = await Task.findByPk(req.params.taskId);
         task.destroy();
         res.status(200).json({ message: 'Task deleted' });
     } catch (error) {

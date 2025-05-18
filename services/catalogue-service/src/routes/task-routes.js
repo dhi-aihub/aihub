@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
     createTask,
     deleteTask,
@@ -7,17 +6,21 @@ import {
     getAllTasks,
     getTaskById
 } from "../controller/task-controller.js";
+import { 
+    verifyAccessToken,
+    verifyIsCourseAdmin
+} from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getAllTasks);
+router.get("/", getAllTasks); // unused
 
 router.get("/:id", getTaskById);
 
-router.post("/", createTask);
+router.post("/:courseId", verifyAccessToken, verifyIsCourseAdmin, createTask);
 
-router.put("/:id", updateTask);
+router.put("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, updateTask);
 
-router.delete("/:id", deleteTask);
+router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
 
 export default router;

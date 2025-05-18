@@ -1,128 +1,66 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {
-  AppBar,
-  Box,
-  Button,
-  Divider,
-  Drawer,
-  IconButton,
-  Link,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography
-} from "@mui/material";
-import {createTheme, ThemeProvider, useTheme} from "@mui/material/styles";
-import {useDispatch, useSelector} from "react-redux";
-import {login, logout, selectLoggedIn, selectUsername} from "./redux/authSlice";
-import {Link as RouterLink, Route, Routes, useNavigate, Navigate} from "react-router-dom";
-import Cookie from "js-cookie";
-import MenuIcon from "@mui/icons-material/Menu";
+import React, { useEffect, useState } from "react";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "./redux/authSlice";
+import { Route, Routes, Navigate } from "react-router-dom";
 import SignIn from "./pages/signin";
 import ApiTest from "./pages/api_test";
-import {DarkModeSwitch} from "./components/darkModeSwitch";
 import CoursePage from "./pages/courses";
 import CourseDetail from "./pages/course_detail";
 import MuiBreadcrumbs from "./components/breadcrumbs";
-import {selectIsDark, setDark, setLight} from "./redux/darkModeSlice";
-import {AccountBox, DeveloperMode, MenuBook} from "@mui/icons-material";
+import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
 import Home from "./pages/home";
 import Submissions from "./pages/submissions";
-import {cleanAuthStorage} from "./lib/auth";
 import VerifyEmail from "./pages/verifyEmail";
 import Signup from "./pages/signup";
 import ResetPassword from "./pages/resetPassword";
 import ResetPasswordConfirm from "./pages/resetPasswordConfirm";
 import AdminPanel from "./pages/adminPanel";
+import CourseAdminPanel from "./pages/courseAdminPanel";
+import CreateCourse from "./pages/createCourse";
+import CreateTask from "./pages/createTask";
+import TopBar from "./components/topBar";
+import SideBar from "./components/sideBar";
+import { ColorModeContext } from "./contexts/colorModeContext";
+import { getItem } from "./lib/auth";
+import userService from "./lib/api/userService";
 
 const MyApp = () => {
-  const isLoggedIn = useSelector(selectLoggedIn);
-  const loggedInUsername = useSelector(selectUsername);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    cleanAuthStorage();
-    dispatch(logout());
-    navigate("/signin");
-  }
-  const theme = useTheme();
-  const colorMode = useContext(ColorModeContext);
-  const onSwitchChange = (event) => {
-    colorMode.setColorMode(event.target.checked);
-    sessionStorage.setItem("mode", event.target.checked ? "dark" : "light");
-  };
   const [openDrawer, setOpenDrawer] = useState(false);
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const refresh = localStorage.getItem("refresh");
-    const user_id = localStorage.getItem("user_id");
-    const username = localStorage.getItem("username");
-    if (Cookie.get("remember") === "true" && token !== null) {
-      dispatch(login(username));
-      sessionStorage.setItem("token", token);
-      sessionStorage.setItem("refresh", refresh);
-      sessionStorage.setItem("user_id", user_id);
-      sessionStorage.setItem("username", username);
+    const token = getItem("token");
+    if (token !== null) {
+      userService.get("/users/me/").then(resp => {
+        const data = resp.data;
+        if (data) {
+          dispatch(login(data));
+        }
+      });
     }
   }, [dispatch]);
 
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" size="large" sx={{marginRight: 2}}
-                      onClick={() => setOpenDrawer(true)}>
-            <MenuIcon/>
-          </IconButton>
-          <Typography variant="h6" sx={{flexGrow: 1, textAlign: "left"}}>
-            <Link color="inherit" underline={"none"} component={RouterLink} to="/">AiRENA</Link>
-          </Typography>
-          {
-            !isLoggedIn
-              ? <Button color="inherit" component={RouterLink} to="/signin">Login</Button>
-              : <Button color="inherit" onClick={handleLogout}>{loggedInUsername}</Button>
-          }
-          <DarkModeSwitch checked={theme.palette.mode === "dark"} onChange={onSwitchChange}/>
-        </Toolbar>
-      </AppBar>
-      <MuiBreadcrumbs/>
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
-        <Box sx={{width: 250}} role="presentation" onClick={() => setOpenDrawer(false)}
-             onKeyDown={() => setOpenDrawer(false)}>
-          <List>
-            <ListItemButton key={"course"} component={RouterLink} to="/courses">
-              <ListItemIcon><MenuBook/></ListItemIcon>
-              <ListItemText primary={"Courses"}/>
-            </ListItemButton>
-            <ListItemButton key={"api_tool"} component={RouterLink} to="/api_test">
-              <ListItemIcon><DeveloperMode/></ListItemIcon>
-              <ListItemText primary={"API Test Tool"}/>
-            </ListItemButton>
-          </List>
-          <Divider/>
-          <List>
-            <ListItemButton key={"signup"} component={RouterLink} to="/signup">
-              <ListItemIcon><AccountBox/></ListItemIcon>
-              <ListItemText primary={"Sign Up"}/>
-            </ListItemButton>
-          </List>
-        </Box>
-      </Drawer>
+      <TopBar setOpenDrawer={setOpenDrawer} />
+      <MuiBreadcrumbs />
+      <SideBar openDrawer={openDrawer} setOpenDrawer={setOpenDrawer} />
       <Routes>
-        <Route path="/signin" element={<SignIn/>}/>
-        <Route path="/signup" element={<Signup/>}/>
-        <Route path="/reset_password" element={<ResetPassword/>}/>
-        <Route path="/api_test" element={<ApiTest/>}/>
-        <Route path="/course_admin/:id" element={<AdminPanel/>}/>
-        <Route path="/course_admin" element={<Navigate to="/courses"/>}/>
-        <Route path="/courses/:id/:task_id" element={<Submissions/>}/>
-        <Route path="/courses/:id" element={<CourseDetail/>}/>
-        <Route path="/courses" element={<CoursePage/>}/>
-        <Route path="/account/verify_email" element={<VerifyEmail/>}/>
-        <Route path="/account/reset_password_confirm" element={<ResetPasswordConfirm/>}/>
-        <Route path="/" element={<Home/>}/>
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/reset_password" element={<ResetPassword />} />
+        <Route path="/api_test" element={<ApiTest />} />
+        <Route path="/course_admin/:id" element={<CourseAdminPanel />} />
+        <Route path="/course_admin" element={<Navigate to="/courses" />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/create_course" element={<CreateCourse />} />
+        <Route path="/courses/:id/create_task" element={<CreateTask />} />
+        <Route path="/courses/:id/:task_id" element={<Submissions />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/courses" element={<CoursePage />} />
+        <Route path="/account/verify_email" element={<VerifyEmail />} />
+        <Route path="/account/reset_password_confirm" element={<ResetPasswordConfirm />} />
+        <Route path="/" element={<Home />} />
       </Routes>
       {/*<footer>*/}
       {/*    <Container maxWidth="lg">*/}
@@ -135,22 +73,17 @@ const MyApp = () => {
       {/*</footer>*/}
     </>
   );
-}
-
-const ColorModeContext = React.createContext({
-  setColorMode: (isDark) => {
-  }
-});
+};
 
 export default function ToggleColorMode() {
   const isDark = useSelector(selectIsDark);
   const dispatch = useDispatch();
   const colorMode = React.useMemo(
     () => ({
-      setColorMode: (isDark) => {
+      setColorMode: isDark => {
         if (isDark) dispatch(setDark());
         else dispatch(setLight());
-      }
+      },
     }),
     [dispatch],
   );
@@ -168,7 +101,7 @@ export default function ToggleColorMode() {
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
-        <MyApp/>
+        <MyApp />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

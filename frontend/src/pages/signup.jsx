@@ -1,18 +1,18 @@
-import {Avatar, Container, CssBaseline, Snackbar, Typography} from "@mui/material";
+import { Avatar, Container, CssBaseline, Snackbar, Typography } from "@mui/material";
 import FixedWidthPaper from "../components/fixedWidthPaper";
 import SignupForm from "../components/signupForm";
-import {AccountCircle} from "@mui/icons-material";
+import { AccountCircle } from "@mui/icons-material";
 import React from "react";
-import {Alert} from "../components/alert";
+import { Alert } from "../components/alert";
 
 export const SignUpSnackbarType = {
   Success: "success",
   ExistingEmail: "existing_email",
   ExistingUsername: "existing_username",
   ExistingBoth: "existing_both",
-}
+};
 
-const getSnackbarText = (snackbarType) => {
+const getSnackbarText = snackbarType => {
   switch (snackbarType) {
     case SignUpSnackbarType.Success:
       return "Success!";
@@ -25,7 +25,7 @@ const getSnackbarText = (snackbarType) => {
     default:
       return snackbarType;
   }
-}
+};
 
 const Signup = () => {
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
@@ -40,26 +40,28 @@ const Signup = () => {
   return (
     <>
       <Container component="main" maxWidth="xs">
-        <CssBaseline/>
+        <CssBaseline />
         <FixedWidthPaper>
-          <Avatar sx={{margin: 1, backgroundColor: "secondary.main"}}>
-            <AccountCircle/>
+          <Avatar sx={{ margin: 1, backgroundColor: "secondary.main" }}>
+            <AccountCircle />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <SignupForm setOpenSnackBar={setOpenSnackBar} setSnackBarType={setSnackBarType}/>
+          <SignupForm setOpenSnackBar={setOpenSnackBar} setSnackBarType={setSnackBarType} />
         </FixedWidthPaper>
       </Container>
       <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose}
-               severity={snackBarType === SignUpSnackbarType.Success ? "success" : "error"}
-               sx={{width: '100%'}}>
+        <Alert
+          onClose={handleClose}
+          severity={snackBarType === SignUpSnackbarType.Success ? "success" : "error"}
+          sx={{ width: "100%" }}
+        >
           {getSnackbarText(snackBarType)}
         </Alert>
       </Snackbar>
     </>
   );
-}
+};
 
 export default Signup;

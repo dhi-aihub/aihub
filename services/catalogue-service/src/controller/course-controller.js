@@ -47,8 +47,42 @@ export async function getAllCourses(req, res) {
 
 export async function getCourseById(req, res) {
     try {
-        const course = await Course.findByPk(req.params.id);
-        res.status(200).json({ message: "Course found", data: course });
+        let data = {};
+        if (req.user.isAdmin) {
+            const course = await Course.findByPk(req.params.courseId);
+            if (!course) {
+                return res.status(404).json({ message: "Course not found" });
+            }
+            data = {
+                id: course.id,
+                code: course.code,
+                semester: course.semester,
+                participation: "ADM",
+            };
+        } else {
+            const course = await Course.findByPk(req.params.courseId, {
+                include: [
+                    {
+                        model: CourseParticipation,
+                        as: "courseParticipations",
+                        where: {
+                            userId: req.user.id,
+                        },
+                    },
+                ],
+            });
+            if (!course) {
+                return res.status(404).json({ message: "Course not found" });
+            }
+            data = {
+                id: course.id,
+                code: course.code,
+                semester: course.semester,
+                participation: course.courseParticipations[0].role,  // should only be one
+            };
+        }
+        
+        res.status(200).json({ message: "Course found", data });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -86,7 +120,7 @@ export async function deleteCourse(req, res) {
 // get all tasks associated with a course
 export async function getCourseTasks(req, res) {
     try {
-        const course = await Course.findByPk(req.params.id, { include: "tasks" });
+        const course = await Course.findByPk(req.params.courseId, { include: "tasks" });
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
         }
@@ -99,7 +133,7 @@ export async function getCourseTasks(req, res) {
 // get all groups associated with a course
 export async function getCourseGroups(req, res) {
     try {
-        const course = await Course.findByPk(req.params.id, { include: "groups" });
+        const course = await Course.findByPk(req.params.courseId, { include: "groups" });
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
         }
