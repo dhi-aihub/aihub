@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useForm } from "react-hook-form";
@@ -18,6 +19,7 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 const CourseForm = () => {
   const { register, handleSubmit } = useForm();
   const [disable, setDisable] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = data => {
     setDisable(true);
@@ -33,6 +35,7 @@ const CourseForm = () => {
         const data = resp.data;
         if (data) {
           alert("Course created successfully");
+          navigate("/courses");
         }
       })
       .catch(err => {
