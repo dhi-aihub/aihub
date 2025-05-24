@@ -81,6 +81,13 @@ const CourseAdminPanel = () => {
           View Jobs
         </AdminButton>
         {isAdmin && <DeleteCourseButton />}
+        <AdminButton
+          variant={"outlined"}
+          component={RouterLink}
+          to={`/courses/${id}/create_group_set`}
+        >
+          Create Group Set
+        </AdminButton>
       </Container>
     </React.Fragment>
   );

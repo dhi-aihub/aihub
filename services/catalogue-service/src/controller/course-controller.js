@@ -140,14 +140,14 @@ export async function getCourseTasks(req, res) {
     }
 }
 
-// get all groups associated with a course
-export async function getCourseGroups(req, res) {
+// get all groupSets associated with a course
+export async function getCourseGroupSets(req, res) {
     try {
-        const course = await Course.findByPk(req.params.courseId, { include: "groups" });
+        const course = await Course.findByPk(req.params.courseId, { include: "groupSets" });
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
         }
-        res.status(200).json({ message: "Course groups", data: course.groups });
+        res.status(200).json({ message: "Course groupSets", data: course.groupSets });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

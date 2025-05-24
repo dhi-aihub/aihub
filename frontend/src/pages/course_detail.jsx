@@ -202,7 +202,7 @@ const CourseDetail = () => {
   }
 
   const isLoading = loading[0] || loading[1];
-  
+
   return (
     <>
       <Container component="main" maxWidth="lg">

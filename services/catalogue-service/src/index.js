@@ -3,6 +3,7 @@ import cors from "cors";
 
 import courseRoutes from "./routes/course-routes.js";
 import taskRoutes from "./routes/task-routes.js";
+import groupSetRoutes from "./routes/groupSet-routes.js";
 import groupRoutes from "./routes/group-routes.js";
 import courseParticipationRoutes from "./routes/courseParticipation-routes.js";
 
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/courses", courseRoutes);
 app.use("/tasks", taskRoutes);
+app.use("/groupSets", groupSetRoutes);
 app.use("/groups", groupRoutes);
 app.use("/courseParticipations", courseParticipationRoutes);
 
