@@ -26,7 +26,6 @@ const MuiBreadcrumbs = props => {
       { pattern: "/courses/:id/create_group_set", name: "Create Group Set" },
       { pattern: "/courses/:id/:task_id", name: "Submissions" },
       { pattern: "/signin", name: "Sign In" },
-      { pattern: "/api_test", name: "API Tester" },
     ];
 
     for (const { pattern, name } of breadcrumbMap) {

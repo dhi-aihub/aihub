@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/authSlice";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import SignIn from "./pages/signin";
-import ApiTest from "./pages/api_test";
 import CoursePage from "./pages/courses";
-import CourseDetail from "./pages/course_detail";
+import CourseDetail from "./pages/courseDetail";
 import MuiBreadcrumbs from "./components/breadcrumbs";
 import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
 import Home from "./pages/home";
@@ -50,7 +49,6 @@ const MyApp = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset_password" element={<ResetPassword />} />
-        <Route path="/api_test" element={<ApiTest />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin/create_course" element={<CreateCourse />} />
         <Route path="/courses" element={<CoursePage />} />
