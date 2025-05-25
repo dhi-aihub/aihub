@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/authSlice";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import SignIn from "./pages/signin";
 import CoursePage from "./pages/courses";
 import CourseDetail from "./pages/courseDetail";
@@ -24,18 +24,23 @@ import SideBar from "./components/sideBar";
 import { ColorModeContext } from "./contexts/colorModeContext";
 import { getItem } from "./lib/auth";
 import userService from "./lib/api/userService";
+import ManageParticipations from "./pages/manageParticipations";
 
 const MyApp = () => {
   const dispatch = useDispatch();
   const [openDrawer, setOpenDrawer] = useState(false);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const token = getItem("token");
     if (token !== null) {
       userService.get("/users/me/").then(resp => {
         const data = resp.data;
-        if (data) {
-          dispatch(login(data));
-        }
+        dispatch(login(data));
+      }).catch(err => {
+        console.error("Failed to fetch user data:", err);
+        dispatch(logout());
+        navigate("/signin");
       });
     }
   }, [dispatch]);
@@ -53,8 +58,9 @@ const MyApp = () => {
         <Route path="/admin/create_course" element={<CreateCourse />} />
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
-        <Route path="/courses/:id/create_task" element={<CreateTask />} />
-        <Route path="/courses/:id/create_group_set" element={<CreateGroupSet />} />
+        <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
+        <Route path="/courses/:id/admin/create_group_set" element={<CreateGroupSet />} />
+        <Route path="/courses/:id/admin/manage_participations" element={<ManageParticipations />} />
         <Route path="/courses/:id/:task_id" element={<Submissions />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/account/verify_email" element={<VerifyEmail />} />

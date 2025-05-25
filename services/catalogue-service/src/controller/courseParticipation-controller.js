@@ -1,9 +1,35 @@
+import axios from "axios";
 import CourseParticipation from "../models/courseParticipation-model.js";
 
 export async function createCourseParticipation(req, res) {
     try {
         const participation = await CourseParticipation.create(req.body);
         res.status(201).json({ message: 'CourseParticipation created', data: participation });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export async function createCourseParticipationBulk(req, res) {
+    try {
+        const { courseId } = req.params;
+
+        // body format: [[email1, role1], [email2, role2], ...]
+        const emails = req.body.map(item => item[0]);
+
+        // get userId from user service
+        const response = await axios.post('http://user-service:PORT/api/users/ids', emails);
+        const userIds = response.data.userIds;
+
+        // Prepare data for bulk create
+        const data = userIds.map((userId, index) => ({
+            userId,
+            courseId,
+            role: req.body[index][1]
+        }));
+
+        await CourseParticipation.bulkCreate(data);
+        res.status(201).json({ message: 'CourseParticipations created' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

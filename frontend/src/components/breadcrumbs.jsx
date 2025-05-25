@@ -22,8 +22,9 @@ const MuiBreadcrumbs = props => {
       { pattern: "/courses", name: "Courses" },
       { pattern: "/courses/:id", name: "Course Detail" },
       { pattern: "/courses/:id/admin", name: "Admin" },
-      { pattern: "/courses/:id/create_task", name: "Create Task" },
-      { pattern: "/courses/:id/create_group_set", name: "Create Group Set" },
+      { pattern: "/courses/:id/admin/create_task", name: "Create Task" },
+      { pattern: "/courses/:id/admin/create_group_set", name: "Create Group Set" },
+      { pattern: "/courses/:id/admin/manage_invitations", name: "Manage Invitations" },
       { pattern: "/courses/:id/:task_id", name: "Submissions" },
       { pattern: "/signin", name: "Sign In" },
     ];

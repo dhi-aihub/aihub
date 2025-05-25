@@ -38,7 +38,7 @@ GroupSet.hasMany(Task, {
         name: "groupSetId",
         allowNull: false,
     },
-    onDelete: "CASCADE",
+    onDelete: "SET NULL",
 });
 Task.belongsTo(GroupSet);
 

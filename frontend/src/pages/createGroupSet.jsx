@@ -59,11 +59,13 @@ const GroupSetForm = () => {
         fullWidth
         required
         autoComplete="off"
+        autoFocus
       />
       <TextField
         {...register("groupSize", { required: true })}
         id="groupSize"
         label="Group Size"
+        type="number"
         variant="outlined"
         margin="normal"
         fullWidth
@@ -79,9 +81,9 @@ const GroupSetForm = () => {
 
 const CreateGroupSet = () => {
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <Typography component="h1" variant="h5">
+      <Typography variant="h4" gutterBottom>
         Create Group Set
       </Typography>
       <GroupSetForm />
