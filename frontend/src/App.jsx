@@ -25,6 +25,7 @@ import { ColorModeContext } from "./contexts/colorModeContext";
 import { getItem } from "./lib/auth";
 import userService from "./lib/api/userService";
 import ManageParticipations from "./pages/manageParticipations";
+import CourseLayout from "./layouts/courseLayout";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -34,14 +35,17 @@ const MyApp = () => {
   useEffect(() => {
     const token = getItem("token");
     if (token !== null) {
-      userService.get("/users/me/").then(resp => {
-        const data = resp.data;
-        dispatch(login(data));
-      }).catch(err => {
-        console.error("Failed to fetch user data:", err);
-        dispatch(logout());
-        navigate("/signin");
-      });
+      userService
+        .get("/users/me/")
+        .then(resp => {
+          const data = resp.data;
+          dispatch(login(data));
+        })
+        .catch(err => {
+          console.error("Failed to fetch user data:", err);
+          dispatch(logout());
+          navigate("/signin");
+        });
     }
   }, [dispatch]);
 
@@ -57,12 +61,17 @@ const MyApp = () => {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin/create_course" element={<CreateCourse />} />
         <Route path="/courses" element={<CoursePage />} />
-        <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
+        <Route path="/courses/:id" element={<CourseLayout />}>
+          <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
+          <Route path="/courses/:id/:task_id" element={<Submissions />} />
+          <Route path="/courses/:id" element={<CourseDetail />} />
+        </Route>
         <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
         <Route path="/courses/:id/admin/create_group_set" element={<CreateGroupSet />} />
-        <Route path="/courses/:id/admin/manage_participations" element={<ManageParticipations />} />
-        <Route path="/courses/:id/:task_id" element={<Submissions />} />
-        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route
+          path="/courses/:id/admin/manage_participations"
+          element={<ManageParticipations />}
+        />
         <Route path="/account/verify_email" element={<VerifyEmail />} />
         <Route path="/account/reset_password_confirm" element={<ResetPasswordConfirm />} />
         <Route path="/" element={<Home />} />
