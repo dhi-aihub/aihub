@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import AssignRoleView, ChangePasswordView, CreateAdminView, CustomTokenObtainPairView, DeactivateUserView, GetUserRolesView, LogoutView, ReactivateUserView, RegisterUserView, RevokeRoleView, UserDetailView, UserListView
+from .views import AssignRoleView, ChangePasswordView, CreateAdminView, CustomTokenObtainPairView, DeactivateUserView, GetUserRolesView, LogoutView, ReactivateUserView, RegisterUserView, RevokeRoleView, UserDetailView, UserListView, UserIdsFromEmailsView
 
 urlpatterns = [
     path("create-admin/", CreateAdminView.as_view(), name="create-admin"),
@@ -17,4 +17,5 @@ urlpatterns = [
     path('users/<int:user_id>/assign-role/', AssignRoleView.as_view(), name='assign-role'),
     path('users/<int:user_id>/revoke-role/', RevokeRoleView.as_view(), name='revoke-role'),
     path('users/<int:user_id>/roles/', GetUserRolesView.as_view(), name='get-user-roles'),
+    path('users/ids-from-emails/', UserIdsFromEmailsView.as_view(), name='user_ids_from_emails'),
 ]

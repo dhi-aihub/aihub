@@ -8,7 +8,7 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  server:
+  user-service:
     build:
       context: .
     environment:
@@ -23,7 +23,7 @@ services:
     depends_on:
       - users_db
     networks:
-      - app_network
+      - aihub-network
 
   users_db:
     image: postgres:latest
@@ -37,13 +37,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - app_network
-
-networks:
-  app_network:
-    driver: bridge
+      - aihub-network
 
 volumes:
   postgres_data:
     driver: local
   
+networks:
+  aihub-network:
+    external: true

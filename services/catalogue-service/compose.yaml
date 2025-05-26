@@ -17,19 +17,22 @@
 
 
 services:
-  server:
+  catalogue-service:
     build:
       context: .
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgres://admin:secret@db:5432/catalogue-service
+      DATABASE_URL: postgres://admin:secret@catalogue_db:5432/catalogue-service
       JWT_SECRET: secret
     ports:
       - 3001:3001
     depends_on:
-      db:
+      catalogue_db:
         condition: service_healthy
-  db:
+    networks:
+      - aihub-network
+      
+  catalogue_db:
     image: postgres:latest
     restart: always
     user: postgres
@@ -46,6 +49,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - aihub-network
+
 volumes:
   db-data:
+    driver: local
+
+networks:
+  aihub-network:
+    external: true
 

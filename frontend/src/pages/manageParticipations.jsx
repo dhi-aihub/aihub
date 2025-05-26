@@ -25,9 +25,9 @@ const ManageParticipations = () => {
 
   function handleSubmit() {
     setDisabled(true);
-    console.log("Submitting CSV Data:", csvData["data"]);
+    console.log("Submitting CSV Data:", { data: csvData["data"] });
     catalogueService
-      .post(`/courseParticipations/${id}/bulk/`, csvData["data"])
+      .post(`/courseParticipations/${id}/bulk/`, { data: csvData["data"] })
       .then(response => {
         alert("Participations submitted successfully");
         setCsvData([]);
