@@ -3,7 +3,7 @@ import { Box, Divider, Paper, List, ListItemButton, ListItemText } from "@mui/ma
 import { Link as RouterLink } from "react-router-dom";
 import { ROLE_ADMIN, ROLE_LECTURER } from "../constants";
 
-const WIDTH = 200;
+const WIDTH = 160;
 
 const CourseSideBar = ({ course }) => {
   const id = course.id;

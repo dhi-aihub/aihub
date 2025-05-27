@@ -5,6 +5,7 @@ import courseRoutes from "./routes/course-routes.js";
 import taskRoutes from "./routes/task-routes.js";
 import groupSetRoutes from "./routes/groupSet-routes.js";
 import groupRoutes from "./routes/group-routes.js";
+import groupParticipationRoutes from "./routes/groupParticipation-routes.js";
 import courseParticipationRoutes from "./routes/courseParticipation-routes.js";
 
 import swaggerUi from "swagger-ui-express";
@@ -41,6 +42,7 @@ app.use("/courses", courseRoutes);
 app.use("/tasks", taskRoutes);
 app.use("/groupSets", groupSetRoutes);
 app.use("/groups", groupRoutes);
+app.use("/groupParticipations", groupParticipationRoutes);
 app.use("/courseParticipations", courseParticipationRoutes);
 
 // add route for swagger document API

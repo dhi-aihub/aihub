@@ -23,13 +23,14 @@ const CourseLayout = () => {
   }, [id]);
 
   return (
-    course &&
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <CourseSideBar course={course} />
-      <Box sx={{ flex: 1 }}>
-        <Outlet />
+    course && (
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        <CourseSideBar course={course} />
+        <Box sx={{ flex: 1 }}>
+          <Outlet />
+        </Box>
       </Box>
-    </Box>
+    )
   );
 };
 

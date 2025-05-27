@@ -5,6 +5,7 @@ import { styled } from "@mui/material/styles";
 import { useForm } from "react-hook-form";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import CSVReader from "../components/CSVReader";
 import catalogueService from "../lib/api/catalogueService";
 
 const Form = styled("form")(({ theme }) => ({
@@ -19,10 +20,19 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 const GroupSetForm = () => {
   const { id } = useParams();
   const { register, handleSubmit } = useForm();
+  const [csvData, setCsvData] = useState([]);
   const [disable, setDisable] = useState(false);
   const navigate = useNavigate();
 
-  const onSubmit = data => {
+  function handleFileUpload(data) {
+    setCsvData(data);
+  }
+
+  function handleFileRemove() {
+    setCsvData([]);
+  }
+
+  const onSubmit = async data => {
     setDisable(true);
     const groupSetData = {
       name: data.name,
@@ -30,22 +40,25 @@ const GroupSetForm = () => {
       groupSize: data.groupSize,
     };
 
-    catalogueService
-      .post("/groupSets/", groupSetData)
-      .then(resp => {
-        const data = resp.data;
-        if (data) {
+    try {
+      const response = await catalogueService.post("/groupSets/", groupSetData);
+      const groupSet = response.data["data"];
+      // Process CSV data and add it to the group set
+      catalogueService
+        .post(`/groups/bulk/${groupSet.id}`, { data: csvData["data"] })
+        .then(() => {
           alert("Group set created successfully");
-          navigate("/courses"); // TODO: redirect to groups page
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Error creating group set");
-      })
-      .finally(() => {
-        setDisable(false);
-      });
+          navigate(`/courses/${id}/groups`);
+        })
+        .catch(error => {
+          console.error("Error creating groups:", error);
+          alert("Error creating groups from CSV data");
+        });
+    } catch (error) {
+      console.error(error);
+      alert("Error creating group set");
+    }
+    setDisable(false);
   };
 
   return (
@@ -72,7 +85,12 @@ const GroupSetForm = () => {
         required
         autoComplete="off"
       />
-      <SubmitButton type="submit" variant="contained" disabled={disable}>
+      <Typography variant="body1" gutterBottom style={{ marginTop: "16px" }}>
+        Upload a CSV file containing email addresses of users and group names to be added to the
+        group set.
+      </Typography>
+      <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
+      <SubmitButton type="submit" variant="contained" disabled={disable || csvData.length === 0}>
         Create Group Set
       </SubmitButton>
     </Form>

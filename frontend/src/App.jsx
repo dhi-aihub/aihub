@@ -26,6 +26,7 @@ import { getItem } from "./lib/auth";
 import userService from "./lib/api/userService";
 import ManageParticipations from "./pages/manageParticipations";
 import CourseLayout from "./layouts/courseLayout";
+import ManageGroups from "./pages/manageGroups";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -65,13 +66,11 @@ const MyApp = () => {
           <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
           <Route path="/courses/:id/:task_id" element={<Submissions />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
+          <Route path="/courses/:id/groups" element={<ManageGroups />} />
         </Route>
         <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
-        <Route path="/courses/:id/admin/create_group_set" element={<CreateGroupSet />} />
-        <Route
-          path="/courses/:id/admin/manage_participations"
-          element={<ManageParticipations />}
-        />
+        <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />
+        <Route path="/courses/:id/admin/manage_participations" element={<ManageParticipations />} />
         <Route path="/account/verify_email" element={<VerifyEmail />} />
         <Route path="/account/reset_password_confirm" element={<ResetPasswordConfirm />} />
         <Route path="/" element={<Home />} />

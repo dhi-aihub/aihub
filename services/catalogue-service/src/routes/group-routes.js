@@ -2,6 +2,7 @@ import express from "express";
 
 import {
     createGroup,
+    createGroupsBulk,
     deleteGroup,
     updateGroup,
     getAllGroups,
@@ -15,6 +16,8 @@ router.get("/", getAllGroups);
 router.get("/:id", getGroupById);
 
 router.post("/", createGroup);
+
+router.post("/bulk/:groupSetId", createGroupsBulk);
 
 router.put("/:id", updateGroup);
 

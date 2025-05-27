@@ -77,13 +77,6 @@ const CourseAdminPanel = () => {
         <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
           View Jobs
         </AdminButton>
-        <AdminButton
-          variant={"outlined"}
-          component={RouterLink}
-          to={`/courses/${id}/admin/create_group_set`}
-        >
-          Create Group Set
-        </AdminButton>
         {isAdmin && <DeleteCourseButton />}
       </Container>
     </React.Fragment>
