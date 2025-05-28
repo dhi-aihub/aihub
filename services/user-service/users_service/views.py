@@ -139,8 +139,7 @@ class UserDetailView(APIView):
         - Authenticated users can retrieve and update their own details.
         - Admins can retrieve and delete any user's details.
     """
-
-
+    
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id=None):

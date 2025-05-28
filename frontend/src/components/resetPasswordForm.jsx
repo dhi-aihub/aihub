@@ -34,7 +34,7 @@ const ResetPasswordForm = props => {
       method: "post",
       url: API_BASE_URL + "/dj-rest-auth/password/reset/",
       data: bodyForm,
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "application/json" },
     })
       .then(resp => {
         if (resp.status === 200) {

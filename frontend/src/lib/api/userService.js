@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => {
     // modify the response data
-    // console.log("Response interceptor: ", response.data);
+    console.log("Response interceptor: ", response.data);
     return response;
   },
   async error => {

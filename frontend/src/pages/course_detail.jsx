@@ -134,7 +134,7 @@ const CourseDetail = () => {
       url: "/api/v1/submissions/", // TODO
       data: bodyForm,
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
         authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     })

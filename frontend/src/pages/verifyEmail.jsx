@@ -18,7 +18,7 @@ const VerifyEmail = () => {
       method: "post",
       url: API_BASE_URL + "/dj-rest-auth/registration/verify-email/",
       data: bodyForm,
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "application/json" },
     })
       .then(resp => {
         if (resp.status === 200) {

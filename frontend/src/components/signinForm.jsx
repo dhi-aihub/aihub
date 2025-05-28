@@ -44,7 +44,7 @@ const SigninForm = props => {
     userService
       .post("/auth/login/", bodyForm, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       })
       .then(resp => {
