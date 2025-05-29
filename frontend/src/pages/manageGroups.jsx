@@ -1,7 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link as RouterLink, useSearchParams } from "react-router-dom";
 import { Box, Button, CircularProgress, Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -49,6 +53,64 @@ const ControlPanel = () => {
   );
 };
 
+const GroupCard = ({ group }) => {
+  return (
+    <Accordion>
+      <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+        <Typography variant="h6">{group.name}</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {group.groupParticipations.map(participation => (
+          <Typography key={participation.id}>
+            {participation.userDetail.username}
+          </Typography>
+        ))}
+      </AccordionDetails>
+    </Accordion>
+  );
+};
+
+const GroupsList = () => {
+  const [searchParams] = useSearchParams();
+  const groupSetId = searchParams.get("groupSetId");
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (groupSetId === null) {
+      return;
+    }
+    setLoading(true);
+    catalogueService
+      .get(`/groups/groupSet/${groupSetId}/`)
+      .then(resp => {
+        const groupsData = resp.data["data"];
+        console.log(groupsData);
+        setGroups(groupsData);
+        setLoading(false);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }, [groupSetId]);
+
+  return (
+    groupSetId === null ? (
+      <Typography>Please select a group set.</Typography>
+    ) : (
+      loading ? (
+        <CircularProgress />
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", marginTop: 5 }}>
+          {groups.map(group => (
+            <GroupCard group={group} key={group.id} />
+          ))}
+        </Box>
+      )
+    )
+  );
+}
+
 const ManageGroups = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -67,9 +129,6 @@ const ManageGroups = () => {
         setCourse(courseResponse.data["data"]);
         const groupSetsResponse = await catalogueService.get(`/courses/${id}/groupSets/`);
         setGroupSets(groupSetsResponse.data["data"]);
-        if (groupSetId && !groupSetsResponse.data["data"].some(set => set.id === groupSetId)) {
-          navigate(`/courses/${id}/groups`);
-        }
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch course data:", error);
@@ -111,6 +170,7 @@ const ManageGroups = () => {
             </FormControl>
             {isAdmin && <ControlPanel />}
           </Box>
+          <GroupsList />
         </Box>
       )}
     </Container>

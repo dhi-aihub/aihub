@@ -12,6 +12,32 @@ export async function getAllGroups(req, res) {
     }
 }
 
+export async function getGroupsByGroupSetId(req, res) {
+    try {
+        const groupSetId = req.params.groupSetId;
+        let groups = await Group.findAll({ where: { groupSetId }, include: GroupParticipation });
+        groups = groups.map(group => group.toJSON());
+        // get users using group participations
+        const userIds = groups.flatMap(group =>
+            group.groupParticipations.map(participation => participation.userId)
+        );
+        // fetch user details from user service
+        const response = await axios.post('http://user-service:8000/users/details-from-ids/', { userIds });
+        const userDetails = response.data.users;
+        // map user details to group participations
+        groups.forEach(group => {
+            group.groupParticipations.forEach(participation => {
+                const userDetail = userDetails.find(user => user.id === participation.userId);
+                participation.userDetail = userDetail;
+            });
+        });
+
+        res.status(200).json({ message: "Groups found", data: groups });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 export async function getGroupById(req, res) {
     try {
         const group = await Group.findByPk(req.params.id);

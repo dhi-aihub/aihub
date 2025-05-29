@@ -275,6 +275,36 @@ class UserIdsFromEmailsView(APIView):
         email_to_id = {user.email: user.id for user in users}
         user_ids = [email_to_id.get(email) for email in emails]
         return Response({"userIds": user_ids}, status=status.HTTP_200_OK)
+    
+class UserDetailsFromIdsView(APIView):
+    """
+    API view for retrieving user details from a list of user IDs.
+
+    Permissions:
+        - Only admin users can access this endpoint.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """
+        Returns a list of user details for the given list of user IDs.
+
+        Args:
+            request (Request): The HTTP request containing a list of user IDs.
+
+        Returns:
+            Response: A list of user details corresponding to the user IDs.
+            - HTTP 200: Success.
+            - HTTP 400: Invalid input.
+        """
+        user_ids = request.data.get("userIds")
+        if not isinstance(user_ids, list):
+            return Response({"error": "A list of user IDs is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        users = User.objects.filter(id__in=user_ids)
+        serializer = UserSerializer(users, many=True)
+        return Response({"users": serializer.data}, status=status.HTTP_200_OK)
 
 class ChangePasswordView(APIView):
     """

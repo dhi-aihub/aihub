@@ -7,11 +7,14 @@ import {
     updateGroup,
     getAllGroups,
     getGroupById,
+    getGroupsByGroupSetId
 } from "../controller/group-controller.js";
 
 const router = express.Router();
 
 router.get("/", getAllGroups);
+
+router.get("/groupSet/:groupSetId", getGroupsByGroupSetId);
 
 router.get("/:id", getGroupById);
 
