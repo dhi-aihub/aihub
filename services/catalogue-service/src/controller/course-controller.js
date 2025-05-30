@@ -1,6 +1,6 @@
 import Course from "../models/course-model.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
-import { generateToken } from "../lib/token.js";
+//import { generateToken } from "../lib/token.js";
 
 export async function getAllCourses(req, res) {
     try {
@@ -83,6 +83,8 @@ export async function getCourseById(req, res) {
             };
         }
 
+        /*
+        // Note: The token generation is commented out as it may not be needed
         // generate authorization token for course
         const payload = {
             courseId: data.id,
@@ -91,6 +93,7 @@ export async function getCourseById(req, res) {
         };
         const token = generateToken(payload);
         data.token = token;
+        */
         
         res.status(200).json({ message: "Course found", data });
     } catch (error) {
