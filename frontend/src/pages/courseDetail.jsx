@@ -100,7 +100,7 @@ const CourseDetail = () => {
   const [openTaskDetail, setOpenTaskDetail] = useState(false);
   const [openTaskSubmit, setOpenTaskSubmit] = useState(false);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState([true, true]);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [snackBarType, setSnackBarType] = React.useState(SubmitTaskSnackbarType.Success);
   const handleCloseSnackbar = (event, reason) => {
@@ -170,7 +170,7 @@ const CourseDetail = () => {
       .then(resp => {
         const tasks = /** @type {Task[]} */ resp.data["data"].map(value => new Task(value));
         setTasks(tasks);
-        setLoading(false);
+        setLoading(loading => [false, loading[1]]);
       })
       .catch(e => {
         console.log(e);
@@ -186,6 +186,7 @@ const CourseDetail = () => {
       .then(resp => {
         const course = resp.data["data"];
         setCourse(course);
+        setLoading(loading => [loading[0], false]);
       })
       .catch(e => {
         console.log(e);
@@ -200,11 +201,13 @@ const CourseDetail = () => {
     return null;
   }
 
+  const isLoading = loading[0] || loading[1];
+
   return (
     <>
       <Container component="main" maxWidth="lg">
         <CssBaseline />
-        {loading ? (
+        {isLoading ? (
           <CircularProgress />
         ) : (
           tasks.map((task, index) => {

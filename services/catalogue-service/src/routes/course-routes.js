@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
     createCourse,
     deleteCourse,
@@ -7,7 +6,7 @@ import {
     getAllCourses,
     getCourseById,
     getCourseTasks,
-    getCourseGroups
+    getCourseGroupSets
 } from "../controller/course-controller.js";
 import { 
     verifyAccessToken,
@@ -30,6 +29,6 @@ router.delete("/:id", verifyAccessToken, verifyIsAdmin, deleteCourse);
 
 router.get("/:courseId/tasks", verifyAccessToken, verifyIsCourseParticipant, getCourseTasks);
 
-router.get("/:courseId/groups", verifyAccessToken, getCourseGroups);
+router.get("/:courseId/groupSets", verifyAccessToken, verifyIsCourseParticipant, getCourseGroupSets);
 
 export default router;

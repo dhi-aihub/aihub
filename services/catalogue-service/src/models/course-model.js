@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
 import CourseParticipation from "./courseParticipation-model.js";
 import Task from "./task-model.js";
-import Group from "./group-model.js";
+import GroupSet from "./groupSet-model.js";
 
 const Course = sequelize.define("course", {
     code: {
@@ -45,14 +45,14 @@ Course.hasMany(Task, {
 });
 Task.belongsTo(Course);
 
-Course.hasMany(Group, {
+Course.hasMany(GroupSet, {
     foreignKey: {
         name: "courseId",
         allowNull: false,
     },
     onDelete: "CASCADE",
 });
-Group.belongsTo(Course);
+GroupSet.belongsTo(Course);
 
 
 export default Course;

@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import catalogueService from "../lib/api/catalogueService";
 
 const Form = styled("form")(({ theme }) => ({
@@ -18,9 +22,22 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 const TaskForm = () => {
   const { id } = useParams();
-  const { register, handleSubmit } = useForm();
+  const [groupSets, setGroupSets] = useState([]);
+  const { register, handleSubmit, control } = useForm();
   const [disable, setDisable] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    catalogueService
+      .get(`/courses/${id}/groupSets/`)
+      .then(resp => {
+        const data = resp.data["data"];
+        setGroupSets(data);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, [id]);
 
   const onSubmit = data => {
     setDisable(true);
@@ -30,6 +47,7 @@ const TaskForm = () => {
       description: data.description,
       deadlineAt: data.deadline,
       dailySubmissionLimit: data.dailySubmissionLimit,
+      groupSetId: data.groupSetId,
     };
 
     catalogueService
@@ -97,6 +115,24 @@ const TaskForm = () => {
         required
         autoComplete="off"
       />
+      <FormControl fullWidth variant="outlined" margin="normal" required>
+        <InputLabel id="groupSetId-label">Group Set</InputLabel>
+        <Controller
+          name="groupSetId"
+          control={control}
+          defaultValue=""
+          rules={{ required: true }}
+          render={({ field }) => (
+            <Select {...field} labelId="groupSetId-label" id="groupSetId" label="Group Set">
+              {groupSets.map(groupSet => (
+                <MenuItem key={groupSet.id} value={groupSet.id}>
+                  {groupSet.name}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
+      </FormControl>
       <SubmitButton type="submit" variant="contained" disabled={disable}>
         Create Task
       </SubmitButton>
