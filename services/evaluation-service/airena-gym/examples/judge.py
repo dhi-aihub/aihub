@@ -20,17 +20,14 @@ class CartPoleJudgeEnv(JudgeEnv):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self):
-        return self.env.reset()
+    def reset(self, seed=None):
+        return self.env.reset(seed=seed)
 
     def render(self):
         return self.env.render()
 
     def close(self):
         self.env.close()
-
-    def seed(self, seed=None):
-        self.env.seed(seed)
 
 
 class CartPoleEnvSerializer(EnvSerializer):

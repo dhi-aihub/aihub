@@ -53,7 +53,7 @@ class JudgeEnv(JudgeEnvBase, metaclass=abc.ABCMeta):
                 }
                 self.socket.send_string(json.dumps(resp))
             elif method == "reset":
-                obs, info = self.reset()
+                obs, info = self.reset(seed=req.get("seed", None))
                 self.socket.send_string(
                     json.dumps(
                         {
@@ -65,9 +65,6 @@ class JudgeEnv(JudgeEnvBase, metaclass=abc.ABCMeta):
             elif method == "render":
                 resp = self.render()
                 self.socket.send_string(json.dumps({"resp": resp}))
-            elif method == "seed":
-                self.seed(req["seed"])
-                self.socket.send_string("ACK")
             elif method == "close":
                 self.close()
                 self.socket.send_string("ACK")

@@ -37,7 +37,7 @@ class JudgeEnvBase(gym.Env):
         pass
 
     @abc.abstractmethod
-    def reset(self):
+    def reset(self, seed=None):
         pass
 
     @abc.abstractmethod
@@ -46,8 +46,4 @@ class JudgeEnvBase(gym.Env):
 
     @abc.abstractmethod
     def close(self):
-        pass
-
-    @abc.abstractmethod
-    def seed(self, seed=None):
         pass

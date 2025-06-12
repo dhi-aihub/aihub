@@ -44,8 +44,8 @@ class AgentEnv(gym.Env):
     def step(self, action):
         return self._remote_step(action)
 
-    def reset(self):
-        ok, obs = self._remote_reset()
+    def reset(self, seed=None) -> Any:
+        ok, obs = self._remote_reset(seed)
         if ok:
             return obs
         else:
@@ -56,9 +56,6 @@ class AgentEnv(gym.Env):
 
     def close(self) -> None:
         self._remote_close()
-
-    def seed(self, seed=None) -> None:
-        self._remote_seed(seed)
 
     def _remote_step(self, action) -> Tuple[Any, float, bool, bool, dict]:
         """Request remote to take an action
@@ -85,15 +82,15 @@ class AgentEnv(gym.Env):
         )
         return obs, reward, terminated, truncated, info
 
-    def _remote_reset(self) -> Tuple[bool, Any]:
+    def _remote_reset(self, seed) -> Tuple[bool, Any]:
         """Request remote to reset the environment
 
         Returns: (accepted, observation)
             accepted (bool): whether the reset request is accepted by the remote\n
             observation (object): if accepted, initial observation will be returned
         """
-        logging.debug(f"[AgentEnv {self.uid}| _remote_reset] requesting")
-        self.socket.send_string(json.dumps({"uid": self.uid, "method": "reset"}))
+        logging.debug(f"[AgentEnv {self.uid}| _remote_reset] requesting, seed: {seed}")
+        self.socket.send_string(json.dumps({"uid": self.uid, "method": "reset", "seed": seed}))
         msg = self.socket.recv_string()
         obj = json.loads(msg)
         logging.debug(f"[AgentEnv {self.uid}| _remote_reset] response: {obj}")
@@ -113,13 +110,6 @@ class AgentEnv(gym.Env):
     def _remote_close(self) -> None:
         logging.debug(f"[AgentEnv {self.uid}| _remote_close] requesting")
         self.socket.send_string(json.dumps({"uid": self.uid, "method": "close"}))
-        _ = self.socket.recv_string()
-
-    def _remote_seed(self, seed) -> None:
-        logging.debug(f"[AgentEnv {self.uid}| _remote_seed] seed: {seed}")
-        self.socket.send_string(
-            json.dumps({"uid": self.uid, "method": "seed", "seed": seed})
-        )
         _ = self.socket.recv_string()
 
     def _json_to_ordi(self, ordi_json) -> Tuple[Any, float, bool, bool, dict]:
