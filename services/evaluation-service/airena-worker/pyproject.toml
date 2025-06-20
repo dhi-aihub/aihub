@@ -3,7 +3,7 @@ requires = ["setuptools>=77.0.3", "gymnasium==1.1.1", "pyzmq==26.4.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "airena-gym"
+name = "airena-worker"
 version = "0.0.1"
 authors = [
   { name="Yifeng Li", email="author@example.com" },
