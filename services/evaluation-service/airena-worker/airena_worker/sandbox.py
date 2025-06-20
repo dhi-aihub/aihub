@@ -62,24 +62,36 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
     """
     # if task_id is -1, then we're running with sandbox only, no need to communicate with warden
     sandbox_only = task_id == SANDBOX_ONLY_TASK_ID
+    """ # Uncomment this if you want to use Firejail 
     full_cmd = ["firejail",
                 # f"--profile={PROFILE_PATH}",
                 "--read-only=/tmp",
                 f"--env=PATH={os.path.join(TEMP_VENV_FOLDER, env_name)}/bin:/usr/bin",
                 f"--output={os.path.join(home, 'stdout.log')}",
                 f"--output-stderr={os.path.join(home, 'stdout.log')}", ]
-    """
     if rlimit > 0:
         full_cmd.append(f"--rlimit-as={rlimit * 1024 * 1024}")
     if home != "":
         full_cmd.append(f"--private={home}")
     else:
         full_cmd.append("--private")
-    """
     full_cmd.extend(command)
     print(' '.join(full_cmd))
+    """
+
+    venv_path = os.path.join(TEMP_VENV_FOLDER, env_name)
+    venv_bin = os.path.join(venv_path, "bin")
+
+    # Set up environment variables for the command
+    env = os.environ.copy()
+    env["PATH"] = f"{venv_bin}:{env['PATH']}"
+
+    full_cmd = command.copy()
+    
+    print(f"[SANDBOX | run_with_venv] venv_bin: {venv_bin}, command: {full_cmd}")
     logger.debug(f"[SANDBOX | run_with_venv] command: {' '.join(full_cmd)}")
-    proc = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    # remove env and cwd if firejail is used
+    proc = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, env=env, cwd=home)
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     if not sandbox_only:

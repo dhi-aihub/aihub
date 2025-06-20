@@ -111,7 +111,9 @@ def main():
         )
         test_suite = TestSuite(suite_id="cart_pole_test", cases=[test_case])
         res = test_suite.run(create_agent)
-        print(res)
+        #print(pickle.dumps(res))
+        with open("stdout.log", "w") as f:
+            f.write(json.dumps(res))
     finally:
         judge_proc.terminate()
 

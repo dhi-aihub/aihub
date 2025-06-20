@@ -44,6 +44,9 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
                                task_id=s.task_id,
                                job_id=job_id,
                                celery_task_id=celery_task_id)
+    
+    """ 
+    # if using firejail, uncomment the following lines
     with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
         raw_log = f.read()
         stdout_log = raw_log.split("\x07")[1].splitlines()  # raw log with firejail initialization lines removed
@@ -56,6 +59,22 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
             # print(e)
         f.close()
         shutil.rmtree(temp_grading_folder)
+    """
+    # if not using firejail, uncomment the following lines
+    try:
+        with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
+            raw_log = f.read()
+            stdout_log = ""
+            result = raw_log
+            ok = True
+    except FileNotFoundError:
+        raw_log = ""
+        stdout_log = ""
+        result = None
+        ok = False
+    finally:
+        shutil.rmtree(temp_grading_folder)
+        
     if ok:
         return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
     else:
