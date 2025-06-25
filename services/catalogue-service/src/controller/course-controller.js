@@ -1,5 +1,6 @@
 import Course from "../models/course-model.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
+//import { generateToken } from "../lib/token.js";
 
 export async function getAllCourses(req, res) {
     try {
@@ -81,6 +82,18 @@ export async function getCourseById(req, res) {
                 participation: course.courseParticipations[0].role,  // should only be one
             };
         }
+
+        /*
+        // Note: The token generation is commented out as it may not be needed
+        // generate authorization token for course
+        const payload = {
+            courseId: data.id,
+            userId: req.user.id,
+            role: data.participation,
+        };
+        const token = generateToken(payload);
+        data.token = token;
+        */
         
         res.status(200).json({ message: "Course found", data });
     } catch (error) {
@@ -130,14 +143,14 @@ export async function getCourseTasks(req, res) {
     }
 }
 
-// get all groups associated with a course
-export async function getCourseGroups(req, res) {
+// get all groupSets associated with a course
+export async function getCourseGroupSets(req, res) {
     try {
-        const course = await Course.findByPk(req.params.courseId, { include: "groups" });
+        const course = await Course.findByPk(req.params.courseId, { include: "groupSets" });
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
         }
-        res.status(200).json({ message: "Course groups", data: course.groups });
+        res.status(200).json({ message: "Course groupSets", data: course.groupSets });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

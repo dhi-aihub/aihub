@@ -74,7 +74,7 @@ export const CourseCard = ({ id, name, semester, participating, role }) => {
         <CardActionArea
           disabled={!participating}
           onClick={() => {
-            navigate(`/courses/${id}`);
+            navigate(`/courses/${id}/`);
           }}
         >
           <CardContent>
@@ -94,7 +94,7 @@ export const CourseCard = ({ id, name, semester, participating, role }) => {
                   size="small"
                   color="primary"
                   component={RouterLink}
-                  to={`/course_admin/${id}`}
+                  to={`/courses/${id}/admin`}
                 >
                   Admin
                 </Button>

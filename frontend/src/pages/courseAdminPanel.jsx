@@ -32,7 +32,7 @@ const DeleteCourseButton = () => {
   };
 
   return (
-    <AdminButton variant={"outlined"} onClick={handleDeleteCourse}>
+    <AdminButton variant={"outlined"} onClick={handleDeleteCourse} color="error">
       Delete Course
     </AdminButton>
   );
@@ -53,22 +53,19 @@ const CourseAdminPanel = () => {
         <Typography variant="body1" gutterBottom>
           Buttons below will open course admin pages.
         </Typography>
-        <AdminButton variant={"outlined"} component={RouterLink} to={`/courses/${id}/create_task`}>
+        <AdminButton
+          variant={"outlined"}
+          component={RouterLink}
+          to={`/courses/${id}/admin/create_task`}
+        >
           Add Task
         </AdminButton>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/participations/?course=" + id}
-          target="_blank"
+          component={RouterLink}
+          to={`/courses/${id}/admin/manage_participations`}
         >
           Manage Participations
-        </AdminButton>
-        <AdminButton
-          variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/invitations/?course=" + id}
-          target="_blank"
-        >
-          Manage Invitations
         </AdminButton>
         <AdminButton
           variant={"outlined"}
