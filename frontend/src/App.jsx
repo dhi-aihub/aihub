@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "./redux/authSlice";
+import { login, logout } from "./redux/authSlice";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import SignIn from "./pages/signin";
 import CoursePage from "./pages/courses";
