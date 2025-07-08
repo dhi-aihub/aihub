@@ -69,6 +69,7 @@ export async function createGroupsBulk(req, res) {
             groupSetId,
         }));
         const groups = await Group.bulkCreate(groupsData);
+        
         // map group names to group IDs
         const groupMap = {};
         groups.forEach(group => {

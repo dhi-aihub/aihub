@@ -19,6 +19,7 @@ import CourseAdminPanel from "./pages/courseAdminPanel";
 import CreateCourse from "./pages/createCourse";
 import CreateTask from "./pages/createTask";
 import CreateGroupSet from "./pages/createGroupSet";
+import EditTask from "./pages/editTask";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
 import { ColorModeContext } from "./contexts/colorModeContext";
@@ -69,6 +70,7 @@ const MyApp = () => {
           <Route path="/courses/:id/groups" element={<ManageGroups />} />
         </Route>
         <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
+        <Route path="/courses/:id/edit_task/:task_id" element={<EditTask />} />
         <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />
         <Route path="/courses/:id/admin/manage_participations" element={<ManageParticipations />} />
         <Route path="/account/verify_email" element={<VerifyEmail />} />

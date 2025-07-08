@@ -1,6 +1,6 @@
 import Course from "../models/course-model.js";
+import Task from "../models/task-model.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
-//import { generateToken } from "../lib/token.js";
 
 export async function getAllCourses(req, res) {
     try {
@@ -133,11 +133,12 @@ export async function deleteCourse(req, res) {
 // get all tasks associated with a course
 export async function getCourseTasks(req, res) {
     try {
-        const course = await Course.findByPk(req.params.courseId, { include: "tasks" });
-        if (!course) {
-            return res.status(404).json({ message: "Course not found" });
-        }
-        res.status(200).json({ message: "Course tasks", data: course.tasks });
+        const tasks = await Task.findAll({
+            where: { courseId: req.params.courseId },
+            order: [["createdAt", "DESC"]], // Order by creation date
+        });
+
+        res.status(200).json({ message: "Course tasks", data: tasks });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

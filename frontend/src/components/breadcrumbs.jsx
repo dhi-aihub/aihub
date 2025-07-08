@@ -26,7 +26,7 @@ const MuiBreadcrumbs = props => {
       { pattern: "/courses/:id/admin", name: "Admin" },
       { pattern: "/courses/:id/admin/create_task", name: "Create Task" },
       { pattern: "/courses/:id/admin/manage_participations", name: "Manage Participations" },
-      { pattern: "/courses/:id/:task_id", name: "Submissions" },
+      { pattern: "/courses/:id/edit_task/:task_id", name: "Edit Task" },
       { pattern: "/signin", name: "Sign In" },
     ];
 
@@ -56,6 +56,11 @@ const MuiBreadcrumbs = props => {
       const to = `/${pathnames.slice(0, index + 1).join("/")}`;
       const last = index === pathnames.length - 1;
       const displayName = getBreadcrumbName(to);
+
+      if (displayName === "Unknown") {
+        return null; // Skip unknown paths
+      }
+
       return last ? (
         <Typography key={`link_${index}`}>{displayName}</Typography>
       ) : (

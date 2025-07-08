@@ -21,10 +21,14 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 }));
 
 const TaskForm = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params.id;
+  const taskId = params.task_id;
+  const [task, setTask] = useState(null);
   const [groupSets, setGroupSets] = useState([]);
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, control, reset } = useForm();
   const [disable, setDisable] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,11 +37,37 @@ const TaskForm = () => {
       .then(resp => {
         const data = resp.data["data"];
         setGroupSets(data);
+        setLoading(false);
       })
       .catch(err => {
         console.error(err);
       });
   }, [id]);
+
+  useEffect(() => {
+    catalogueService
+      .get(`/tasks/${taskId}/`)
+      .then(resp => {
+        const data = resp.data["data"];
+        setTask(data);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, [taskId]);
+
+  // Reset form values when task is loaded
+  useEffect(() => {
+    if (task) {
+      reset({
+        name: task.name || "",
+        description: task.description || "",
+        deadline: task.deadlineAt ? task.deadlineAt.split("T")[0] : "",
+        dailySubmissionLimit: task.dailySubmissionLimit || "",
+        groupSetId: task.groupSetId || "",
+      });
+    }
+  }, [task, reset]);
 
   const onSubmit = data => {
     setDisable(true);
@@ -51,22 +81,26 @@ const TaskForm = () => {
     };
 
     catalogueService
-      .post(`/tasks/${id}/`, taskData)
+      .put(`/tasks/${id}/${taskId}`, taskData)
       .then(resp => {
         const data = resp.data;
         if (data) {
-          alert("Task created successfully");
+          alert("Task updated successfully");
           navigate(`/courses/${id}`);
         }
       })
       .catch(err => {
         console.error(err);
-        alert("Error creating task");
+        alert("Error updating task");
       })
       .finally(() => {
         setDisable(false);
       });
   };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -80,6 +114,9 @@ const TaskForm = () => {
         required
         autoComplete="off"
         autoFocus
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <TextField
         {...register("description")}
@@ -91,6 +128,9 @@ const TaskForm = () => {
         autoComplete="off"
         multiline
         rows={4}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <TextField
         {...register("deadline", { required: true })}
@@ -116,6 +156,9 @@ const TaskForm = () => {
         fullWidth
         required
         autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <FormControl fullWidth variant="outlined" margin="normal" required>
         <InputLabel id="groupSetId-label">Group Set</InputLabel>
@@ -125,7 +168,12 @@ const TaskForm = () => {
           defaultValue=""
           rules={{ required: true }}
           render={({ field }) => (
-            <Select {...field} labelId="groupSetId-label" id="groupSetId" label="Group Set">
+            <Select
+              {...field}
+              labelId="groupSetId-label"
+              id="groupSetId"
+              label="Group Set"
+            >
               {groupSets.map(groupSet => (
                 <MenuItem key={groupSet.id} value={groupSet.id}>
                   {groupSet.name}
@@ -136,22 +184,22 @@ const TaskForm = () => {
         />
       </FormControl>
       <SubmitButton type="submit" variant="contained" disabled={disable}>
-        Create Task
+        Edit Task
       </SubmitButton>
     </Form>
   );
 };
 
-const CreateTask = () => {
+const EditTask = () => {
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Typography component="h1" variant="h5">
-        Create Task
+        Edit Task
       </Typography>
       <TaskForm />
     </Container>
   );
 };
 
-export default CreateTask;
+export default EditTask;
