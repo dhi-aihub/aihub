@@ -15,6 +15,7 @@ export async function getAllCourses(req, res) {
                 return {
                     id: course.id,
                     code: course.code,
+                    academicYear: course.academicYear,
                     semester: course.semester,
                     participation: "ADM",
                 };
@@ -35,6 +36,7 @@ export async function getAllCourses(req, res) {
             return {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: course.courseParticipations[0].role,  // should only be one
             };
@@ -57,6 +59,7 @@ export async function getCourseById(req, res) {
             data = {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: "ADM",
             };
@@ -78,6 +81,7 @@ export async function getCourseById(req, res) {
             data = {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: course.courseParticipations[0].role,  // should only be one
             };
@@ -112,7 +116,7 @@ export async function createCourse(req, res) {
 
 export async function updateCourse(req, res) {
     try {
-        const course = await Course.findByPk(req.params.id);
+        const course = await Course.findByPk(req.params.courseId);
         course.update(req.body);
         res.status(200).json({ message: "Course updated", data: course });
     } catch (error) {

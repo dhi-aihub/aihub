@@ -17,6 +17,7 @@ import ResetPasswordConfirm from "./pages/resetPasswordConfirm";
 import AdminPanel from "./pages/adminPanel";
 import CourseAdminPanel from "./pages/courseAdminPanel";
 import CreateCourse from "./pages/createCourse";
+import EditCourse from "./pages/editCourse";
 import CreateTask from "./pages/createTask";
 import CreateGroupSet from "./pages/createGroupSet";
 import EditTask from "./pages/editTask";
@@ -65,10 +66,11 @@ const MyApp = () => {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/courses/:id" element={<CourseLayout />}>
           <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
-          <Route path="/courses/:id/:task_id" element={<Submissions />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
           <Route path="/courses/:id/groups" element={<ManageGroups />} />
+          <Route path="/courses/:id/:task_id" element={<Submissions />} />
         </Route>
+        <Route path="/courses/:id/admin/edit" element={<EditCourse />} />
         <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
         <Route path="/courses/:id/edit_task/:task_id" element={<EditTask />} />
         <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />

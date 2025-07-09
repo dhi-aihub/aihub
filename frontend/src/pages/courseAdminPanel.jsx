@@ -41,7 +41,7 @@ const DeleteCourseButton = () => {
 const CourseAdminPanel = () => {
   const { id } = useParams();
   const user = useSelector(selectUser);
-  const isAdmin = user.isAdmin;
+  const isAdmin = user.isAdmin; // is super admin
 
   return (
     <React.Fragment>
@@ -76,6 +76,13 @@ const CourseAdminPanel = () => {
         </AdminButton>
         <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
           View Jobs
+        </AdminButton>
+        <AdminButton
+          variant={"outlined"}
+          component={RouterLink}
+          to={`/courses/${id}/admin/edit`}
+        >
+          Edit Course
         </AdminButton>
         {isAdmin && <DeleteCourseButton />}
       </Container>
