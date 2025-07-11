@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import CourseSideBar from "../components/courseSideBar";
+import CourseSideBar from "./courseSideBar";
 import catalogueService from "../lib/api/catalogueService";
 
 const CourseLayout = () => {

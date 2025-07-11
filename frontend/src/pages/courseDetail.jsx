@@ -178,9 +178,6 @@ const CourseDetail = () => {
   }
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      return;
-    }
     catalogueService
       .get(`/courses/${id}/`)
       .then(resp => {
@@ -192,14 +189,7 @@ const CourseDetail = () => {
         console.log(e);
       });
     fetchTasks();
-  }, [id, isLoggedIn]);
-
-  if (!isLoggedIn) {
-    Cookie.remove("token");
-    dispatch(logout());
-    navigate("/signin");
-    return null;
-  }
+  }, [id]);
 
   const isLoading = loading[0] || loading[1];
 

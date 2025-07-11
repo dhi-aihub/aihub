@@ -1,6 +1,7 @@
 import axios from "axios";
-import { USER_SERVICE_BASE_URL, CATALOG_SERVICE_BASE_URL } from "../../constants";
-import { getItem, setItem, cleanAuthStorage } from "../auth";
+import { CATALOG_SERVICE_BASE_URL } from "../../constants";
+import { getItem } from "../auth";
+import { tokenExpiredErrorHandler } from "./userService";
 
 const api = axios.create({
   baseURL: CATALOG_SERVICE_BASE_URL,
@@ -29,31 +30,11 @@ api.interceptors.response.use(
     return response;
   },
   async error => {
-    const originalRequest = error.config;
-
-    // If the error status is 401 and there is no originalRequest._retry flag,
-    // it means the token has expired and we need to refresh it
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = getItem("refresh");
-        const response = await axios.post(USER_SERVICE_BASE_URL + "/auth/refresh-token/", {
-          refresh: refreshToken,
-        });
-        const { token } = response.data;
-        setItem("token", token);
-
-        // Retry the original request with the new token
-        originalRequest.headers.Authorization = `Bearer ${token}`;
-        return axios(originalRequest);
-      } catch (error) {
-        // Handle refresh token error or redirect to login
-        console.log("Refresh token error: ", error);
-        cleanAuthStorage();
-      }
+    // Handle token expiration
+    if (error.response && error.response.status === 401) {
+      return tokenExpiredErrorHandler(error);
     }
-
+    // If the error is not related to token expiration, reject the promise
     return Promise.reject(error);
   },
 );

@@ -12,7 +12,6 @@ export const getItem = key => {
 };
 
 export const cleanAuthStorage = () => {
-  Cookie.remove("loggedIn");
   sessionStorage.removeItem("token");
   localStorage.removeItem("token");
   sessionStorage.removeItem("refresh");

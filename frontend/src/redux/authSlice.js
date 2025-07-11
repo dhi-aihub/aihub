@@ -17,7 +17,7 @@ const emptyUser = {
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
-    loggedIn: sessionStorage.getItem("token") !== null,
+    loggedIn: false,
     user: emptyUser,
   },
   reducers: {
