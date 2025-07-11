@@ -168,12 +168,7 @@ const TaskForm = () => {
           defaultValue=""
           rules={{ required: true }}
           render={({ field }) => (
-            <Select
-              {...field}
-              labelId="groupSetId-label"
-              id="groupSetId"
-              label="Group Set"
-            >
+            <Select {...field} labelId="groupSetId-label" id="groupSetId" label="Group Set">
               {groupSets.map(groupSet => (
                 <MenuItem key={groupSet.id} value={groupSet.id}>
                   {groupSet.name}

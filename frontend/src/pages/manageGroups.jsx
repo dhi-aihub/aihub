@@ -38,7 +38,12 @@ const ControlPanel = () => {
 
   return (
     <Box>
-      <AdminButton variant={"outlined"} component={RouterLink} to={""} disabled={!groupSetId}>
+      <AdminButton
+        variant={"outlined"}
+        component={RouterLink}
+        to={`/courses/${id}/groups/edit_group_set/${groupSetId}`}
+        disabled={!groupSetId}
+      >
         Edit Group Set
       </AdminButton>
       <AdminButton

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -18,11 +18,29 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 }));
 
 const GroupSetForm = () => {
-  const { id } = useParams();
-  const { register, handleSubmit } = useForm();
+  const params = useParams();
+  const id = params.id;
+  const groupSetId = params.group_set_id;
+  const { register, handleSubmit, reset } = useForm();
   const [csvData, setCsvData] = useState(null);
   const [disable, setDisable] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch existing group set data
+    catalogueService
+      .get(`/groupSets/${groupSetId}`)
+      .then(response => {
+        const groupSet = response.data["data"];
+        reset({
+          name: groupSet.name,
+          groupSize: groupSet.groupSize,
+        });
+      })
+      .catch(error => {
+        console.error("Error fetching group set data:", error);
+      });
+  }, [groupSetId, reset]);
 
   function handleFileUpload(data) {
     setCsvData(data);
@@ -41,22 +59,27 @@ const GroupSetForm = () => {
     };
 
     try {
-      const response = await catalogueService.post("/groupSets/", groupSetData);
-      const groupSet = response.data["data"];
-      // Process CSV data and add it to the group set
-      catalogueService
-        .post(`/groups/bulk/${groupSet.id}`, { data: csvData["data"] })
-        .then(() => {
-          alert("Group set created successfully");
-          navigate(`/courses/${id}/groups`);
-        })
-        .catch(error => {
-          console.error("Error creating groups:", error);
-          alert("Error creating groups from CSV data");
-        });
+      await catalogueService.put(`/groupSets/${groupSetId}`, groupSetData);
+
+      if (csvData) {
+        // Process CSV data and add it to the group set
+        catalogueService
+          .put(`/groups/bulk/${groupSetId}`, { data: csvData["data"] })
+          .then(() => {
+            alert("Groups updated successfully");
+            navigate(`/courses/${id}/groups`);
+          })
+          .catch(error => {
+            console.error("Error creating groups:", error);
+            alert("Error updating groups from CSV data");
+          });
+      } else {
+        alert("Group set updated successfully");
+        navigate(`/courses/${id}/groups`);
+      }
     } catch (error) {
       console.error(error);
-      alert("Error creating group set");
+      alert("Error updating group set");
     }
     setDisable(false);
   };
@@ -73,6 +96,9 @@ const GroupSetForm = () => {
         required
         autoComplete="off"
         autoFocus
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <TextField
         {...register("groupSize", { required: true })}
@@ -84,29 +110,32 @@ const GroupSetForm = () => {
         fullWidth
         required
         autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <Typography variant="body1" gutterBottom style={{ marginTop: "16px" }}>
         Upload a CSV file containing email addresses of users and group names to be added to the
         group set.
       </Typography>
       <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
-      <SubmitButton type="submit" variant="contained" disabled={disable || !csvData}>
-        Create Group Set
+      <SubmitButton type="submit" variant="contained" disabled={disable}>
+        Edit Group Set
       </SubmitButton>
     </Form>
   );
 };
 
-const CreateGroupSet = () => {
+const EditGroupSet = () => {
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
       <Typography variant="h4" gutterBottom>
-        Create Group Set
+        Edit Group Set
       </Typography>
       <GroupSetForm />
     </Container>
   );
 };
 
-export default CreateGroupSet;
+export default EditGroupSet;

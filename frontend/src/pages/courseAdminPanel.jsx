@@ -77,11 +77,7 @@ const CourseAdminPanel = () => {
         <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
           View Jobs
         </AdminButton>
-        <AdminButton
-          variant={"outlined"}
-          component={RouterLink}
-          to={`/courses/${id}/admin/edit`}
-        >
+        <AdminButton variant={"outlined"} component={RouterLink} to={`/courses/${id}/admin/edit`}>
           Edit Course
         </AdminButton>
         {isAdmin && <DeleteCourseButton />}

@@ -5,6 +5,7 @@ import {
     createGroupsBulk,
     deleteGroup,
     updateGroup,
+    updateGroupsBulk,
     getAllGroups,
     getGroupById,
     getGroupsByGroupSetId
@@ -23,6 +24,8 @@ router.post("/", createGroup);
 router.post("/bulk/:groupSetId", createGroupsBulk);
 
 router.put("/:id", updateGroup);
+
+router.put("/bulk/:groupSetId", updateGroupsBulk);
 
 router.delete("/:id", deleteGroup);
 

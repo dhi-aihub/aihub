@@ -19,8 +19,9 @@ import CourseAdminPanel from "./pages/courseAdminPanel";
 import CreateCourse from "./pages/createCourse";
 import EditCourse from "./pages/editCourse";
 import CreateTask from "./pages/createTask";
-import CreateGroupSet from "./pages/createGroupSet";
 import EditTask from "./pages/editTask";
+import CreateGroupSet from "./pages/createGroupSet";
+import EditGroupSet from "./pages/editGroupSet";
 import TopBar from "./components/topBar";
 import SideBar from "./components/sideBar";
 import { ColorModeContext } from "./contexts/colorModeContext";
@@ -74,6 +75,7 @@ const MyApp = () => {
         <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
         <Route path="/courses/:id/edit_task/:task_id" element={<EditTask />} />
         <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />
+        <Route path="/courses/:id/groups/edit_group_set/:group_set_id" element={<EditGroupSet />} />
         <Route path="/courses/:id/admin/manage_participations" element={<ManageParticipations />} />
         <Route path="/account/verify_email" element={<VerifyEmail />} />
         <Route path="/account/reset_password_confirm" element={<ResetPasswordConfirm />} />
