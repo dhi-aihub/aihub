@@ -40,6 +40,10 @@ export async function createCourseParticipationBulk(req, res) {
             role: req.body.data[index][1]
         }));
 
+        // Drop existing participations for the course
+        await CourseParticipation.destroy({ where: { courseId } });
+
+        // Bulk create participations
         await CourseParticipation.bulkCreate(data);
         res.status(201).json({ message: 'CourseParticipations created' });
     } catch (error) {

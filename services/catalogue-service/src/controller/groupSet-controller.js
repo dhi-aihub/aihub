@@ -49,6 +49,13 @@ export async function deleteGroupSet(req, res) {
         if (!groupSet) {
             return res.status(404).json({ message: 'Group set not found' });
         }
+
+        // Check if the group set has any associated tasks
+        const associatedTasks = await groupSet.getTasks();
+        if (associatedTasks.length > 0) {
+            return res.status(400).json({ message: 'Cannot delete group set with associated tasks' });
+        }
+
         await groupSet.destroy();
         res.status(200).json({ message: 'Group set deleted' });
     } catch (error) {

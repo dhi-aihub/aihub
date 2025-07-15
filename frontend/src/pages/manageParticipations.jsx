@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, CssBaseline, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { styled } from "@mui/material";
 import Button from "@mui/material/Button";
 import CSVReader from "../components/CSVReader";
@@ -12,15 +12,16 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 const ManageParticipations = () => {
   const { id } = useParams();
-  const [csvData, setCsvData] = useState([]);
+  const [csvData, setCsvData] = useState(null);
   const [disabled, setDisabled] = useState(false);
+  const navigate = useNavigate();
 
   function handleFileUpload(data) {
     setCsvData(data);
   }
 
   function handleFileRemove() {
-    setCsvData([]);
+    setCsvData(null);
   }
 
   function handleSubmit() {
@@ -29,7 +30,8 @@ const ManageParticipations = () => {
       .post(`/courseParticipations/${id}/bulk/`, { data: csvData["data"] })
       .then(response => {
         alert("Participations submitted successfully");
-        setCsvData([]);
+        setCsvData(null);
+        navigate(`/courses/${id}/admin`);
       })
       .catch(error => {
         alert("Error submitting participations");
@@ -53,7 +55,7 @@ const ManageParticipations = () => {
         variant="contained"
         color="primary"
         onClick={handleSubmit}
-        disabled={disabled || csvData.length === 0}
+        disabled={disabled || !csvData}
       >
         Submit Participations
       </SubmitButton>

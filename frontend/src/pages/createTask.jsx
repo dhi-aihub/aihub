@@ -89,6 +89,8 @@ const TaskForm = () => {
         margin="normal"
         fullWidth
         autoComplete="off"
+        multiline
+        rows={4}
       />
       <TextField
         {...register("deadline", { required: true })}
