@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Op } from "sequelize";
 import Group from "../models/group-model.js";
 import GroupParticipation from "../models/groupParticipation-model.js";
 
@@ -69,6 +70,7 @@ export async function createGroupsBulk(req, res) {
             groupSetId,
         }));
         const groups = await Group.bulkCreate(groupsData);
+        
         // map group names to group IDs
         const groupMap = {};
         groups.forEach(group => {
@@ -96,6 +98,60 @@ export async function updateGroup(req, res) {
         const group = await Group.findByPk(req.params.id);
         group.update(req.body);
         res.status(200).json({ message: "Group updated", data: group });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export async function updateGroupsBulk(req, res) {
+    try {
+        // data format: [["email1", "group name"], ["email2", "group name"]...]
+        const groupSetId = req.params.groupSetId;
+        const emails = req.body.data.map(item => item[0]);
+        const groupNames = [...new Set(req.body.data.map(item => item[1]))];
+
+        // delete old groups not in the new groupNames
+        await Group.destroy({
+            where: {
+                groupSetId,
+                name: {
+                    [Op.notIn]: groupNames,
+                },
+            },
+        });
+
+        // create groups, ignore duplicates
+        await Group.bulkCreate(
+            groupNames.map(name => ({ name, groupSetId })),
+            { ignoreDuplicates: true }
+        );
+
+        // map group names to group IDs
+        const groupMap = {};
+        const groups = await Group.findAll({ where: { groupSetId } });
+        groups.forEach(group => {
+            groupMap[group.name] = group.id;
+        });
+
+        // delete old group participations
+        await GroupParticipation.destroy({
+            where: {
+                groupId: {
+                    [Op.in]: Object.values(groupMap),
+                },
+            },
+        });
+
+        // create or update group memberships
+        const response = await axios.post('http://user-service:8000/users/ids-from-emails/', { emails });
+        const userIds = response.data.userIds;
+        const groupParticipationsData = userIds.map((userId, index) => ({
+            userId,
+            groupId: groupMap[req.body.data[index][1]],
+        }));
+        await GroupParticipation.bulkCreate(groupParticipationsData);
+
+        res.status(200).json({ message: "Groups updated" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -8,7 +8,14 @@ const Group = sequelize.define("group", {
         allowNull: false,
         notEmpty: true,
         unique: true,
-    }
+    },
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ["name", "groupSetId"]
+        }
+    ]
 });
 
 Group.hasMany(GroupParticipation, {

@@ -1,6 +1,6 @@
 import Course from "../models/course-model.js";
+import Task from "../models/task-model.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
-//import { generateToken } from "../lib/token.js";
 
 export async function getAllCourses(req, res) {
     try {
@@ -15,6 +15,7 @@ export async function getAllCourses(req, res) {
                 return {
                     id: course.id,
                     code: course.code,
+                    academicYear: course.academicYear,
                     semester: course.semester,
                     participation: "ADM",
                 };
@@ -35,6 +36,7 @@ export async function getAllCourses(req, res) {
             return {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: course.courseParticipations[0].role,  // should only be one
             };
@@ -57,6 +59,7 @@ export async function getCourseById(req, res) {
             data = {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: "ADM",
             };
@@ -78,6 +81,7 @@ export async function getCourseById(req, res) {
             data = {
                 id: course.id,
                 code: course.code,
+                academicYear: course.academicYear,
                 semester: course.semester,
                 participation: course.courseParticipations[0].role,  // should only be one
             };
@@ -112,7 +116,7 @@ export async function createCourse(req, res) {
 
 export async function updateCourse(req, res) {
     try {
-        const course = await Course.findByPk(req.params.id);
+        const course = await Course.findByPk(req.params.courseId);
         course.update(req.body);
         res.status(200).json({ message: "Course updated", data: course });
     } catch (error) {
@@ -133,11 +137,12 @@ export async function deleteCourse(req, res) {
 // get all tasks associated with a course
 export async function getCourseTasks(req, res) {
     try {
-        const course = await Course.findByPk(req.params.courseId, { include: "tasks" });
-        if (!course) {
-            return res.status(404).json({ message: "Course not found" });
-        }
-        res.status(200).json({ message: "Course tasks", data: course.tasks });
+        const tasks = await Task.findAll({
+            where: { courseId: req.params.courseId },
+            order: [["createdAt", "DESC"]], // Order by creation date
+        });
+
+        res.status(200).json({ message: "Course tasks", data: tasks });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

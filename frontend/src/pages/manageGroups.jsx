@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link as RouterLink, useSearchParams } from "react-router-dom";
 import { Box, Button, CircularProgress, Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -24,21 +24,33 @@ const ControlPanel = () => {
   const groupSetId = searchParams.get("groupSetId");
 
   function handleDeleteGroupSet() {
-    // Implement the logic to delete a group set
     console.log(`Delete group set with ID: ${groupSetId}`);
-    navigate(`/courses/${id}/groups`);
+    catalogueService
+      .delete(`/groupSets/${groupSetId}/`)
+      .then(() => {
+        alert("Group set deleted successfully");
+        navigate(`/courses/${id}/groups`);
+      })
+      .catch(error => {
+        alert("Cannot delete group set with associated tasks");
+      });
   }
 
   return (
     <Box>
-      <AdminButton variant={"outlined"} component={RouterLink} to={""}>
+      <AdminButton
+        variant={"outlined"}
+        component={RouterLink}
+        to={`/courses/${id}/groups/edit_group_set/${groupSetId}`}
+        disabled={!groupSetId}
+      >
         Edit Group Set
       </AdminButton>
       <AdminButton
         variant={"outlined"}
-        component={RouterLink}
         color="error"
         onClick={handleDeleteGroupSet}
+        disabled={!groupSetId}
       >
         Delete Group Set
       </AdminButton>
@@ -61,9 +73,7 @@ const GroupCard = ({ group }) => {
       </AccordionSummary>
       <AccordionDetails>
         {group.groupParticipations.map(participation => (
-          <Typography key={participation.id}>
-            {participation.userDetail.username}
-          </Typography>
+          <Typography key={participation.id}>{participation.userDetail.username}</Typography>
         ))}
       </AccordionDetails>
     </Accordion>
@@ -75,7 +85,7 @@ const GroupsList = () => {
   const groupSetId = searchParams.get("groupSetId");
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     if (groupSetId === null) {
       return;
@@ -85,7 +95,6 @@ const GroupsList = () => {
       .get(`/groups/groupSet/${groupSetId}/`)
       .then(resp => {
         const groupsData = resp.data["data"];
-        console.log(groupsData);
         setGroups(groupsData);
         setLoading(false);
       })
@@ -94,22 +103,18 @@ const GroupsList = () => {
       });
   }, [groupSetId]);
 
-  return (
-    groupSetId === null ? (
-      <Typography>Please select a group set.</Typography>
-    ) : (
-      loading ? (
-        <CircularProgress />
-      ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", marginTop: 5 }}>
-          {groups.map(group => (
-            <GroupCard group={group} key={group.id} />
-          ))}
-        </Box>
-      )
-    )
+  return groupSetId === null ? (
+    <Typography>Please select a group set.</Typography>
+  ) : loading ? (
+    <CircularProgress />
+  ) : (
+    <Box sx={{ display: "flex", flexDirection: "column", marginTop: 5 }}>
+      {groups.map(group => (
+        <GroupCard group={group} key={group.id} />
+      ))}
+    </Box>
   );
-}
+};
 
 const ManageGroups = () => {
   const { id } = useParams();
@@ -127,8 +132,6 @@ const ManageGroups = () => {
       try {
         const courseResponse = await catalogueService.get(`/courses/${id}/`);
         setCourse(courseResponse.data["data"]);
-        const groupSetsResponse = await catalogueService.get(`/courses/${id}/groupSets/`);
-        setGroupSets(groupSetsResponse.data["data"]);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch course data:", error);
@@ -137,6 +140,18 @@ const ManageGroups = () => {
 
     fetchCourse();
   }, [id]);
+
+  useEffect(() => {
+    const fetchGroupSets = async () => {
+      try {
+        const response = await catalogueService.get(`/courses/${id}/groupSets/`);
+        setGroupSets(response.data["data"]);
+      } catch (error) {
+        console.error("Failed to fetch group sets:", error);
+      }
+    };
+    fetchGroupSets();
+  }, [id, groupSetId]);
 
   return (
     <Container component="main" maxWidth="lg">

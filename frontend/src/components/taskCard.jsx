@@ -68,6 +68,11 @@ const TaskCard = ({
         </Button>
         {task.hasTemplate ? <Button>Template</Button> : null}
         {isAdmin ? (
+          <Button onClick={() => navigate(`/courses/${course.id}/edit_task/${task.id}`)}>
+            Edit
+          </Button>
+        ) : null}
+        {isAdmin ? (
           <DeleteButton courseId={course.id} taskId={task.id} refreshTasks={refreshTasks} />
         ) : null}
         <div style={{ flexGrow: 1 }} />

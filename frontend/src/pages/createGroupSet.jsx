@@ -20,7 +20,7 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 const GroupSetForm = () => {
   const { id } = useParams();
   const { register, handleSubmit } = useForm();
-  const [csvData, setCsvData] = useState([]);
+  const [csvData, setCsvData] = useState(null);
   const [disable, setDisable] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ const GroupSetForm = () => {
   }
 
   function handleFileRemove() {
-    setCsvData([]);
+    setCsvData(null);
   }
 
   const onSubmit = async data => {
@@ -90,7 +90,7 @@ const GroupSetForm = () => {
         group set.
       </Typography>
       <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
-      <SubmitButton type="submit" variant="contained" disabled={disable || csvData.length === 0}>
+      <SubmitButton type="submit" variant="contained" disabled={disable || !csvData}>
         Create Group Set
       </SubmitButton>
     </Form>
