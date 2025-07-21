@@ -1,8 +1,8 @@
 import {
-  Column,
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -12,22 +12,13 @@ export class Submission {
   id: string;
 
   @Column()
-  assignmentId: string;
-
-  @Column()
   userId: string;
 
   @Column()
-  filename: string;
+  assignmentId: string;
 
-  @Column()
-  fileSize: number;
-
-  @Column({ default: 'INIT' })
-  status: 'INIT' | 'VALIDATED' | 'QUEUED' | 'GRADED' | 'FAILED';
-
-  @Column({ nullable: true })
-  resultScore: number;
+  @Column({ default: 'PENDING' }) // e.g., 'PENDING', 'ACCEPTED', 'REJECTED'
+  status: string;
 
   @CreateDateColumn()
   createdAt: Date;
