@@ -1,8 +1,6 @@
 import os
-import pickle
 import shutil
 import zipfile
-from ast import literal_eval
 
 import requests
 
@@ -45,34 +43,16 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
                                job_id=job_id,
                                celery_task_id=celery_task_id)
     
-    """ 
-    # if using firejail, uncomment the following lines
     with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
         raw_log = f.read()
-        stdout_log = raw_log.split("\x07")[1].splitlines()  # raw log with firejail initialization lines removed
+        stdout_log = raw_log.splitlines()
         try:
-            result = stdout_log[1]
-            pickle.loads(literal_eval(result))
+            result = stdout_log[3]
             ok = True
         except Exception as e:
             ok = False
             # print(e)
         f.close()
-        shutil.rmtree(temp_grading_folder)
-    """
-    # if not using firejail, uncomment the following lines
-    try:
-        with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
-            raw_log = f.read()
-            stdout_log = ""
-            result = raw_log
-            ok = True
-    except FileNotFoundError:
-        raw_log = ""
-        stdout_log = ""
-        result = None
-        ok = False
-    finally:
         shutil.rmtree(temp_grading_folder)
         
     if ok:
