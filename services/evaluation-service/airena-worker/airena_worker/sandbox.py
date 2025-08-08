@@ -66,7 +66,7 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
     full_cmd = ["firejail",
                 # f"--profile={PROFILE_PATH}",
                 "--noprofile",
-                "--read-only=/tmp"
+                "--read-only=/tmp",
                 f"--env=PATH={os.path.join(TEMP_VENV_FOLDER, env_name)}/bin:/usr/bin",
                 # f"--output={os.path.join(home, 'stdout.log')}",
                 f"--output-stderr={os.path.join(home, 'stdout.log')}", ]
