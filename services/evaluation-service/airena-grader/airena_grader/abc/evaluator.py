@@ -24,7 +24,7 @@ class EvaluationResult:
             "name": self.name,
             "detail": self.results,
             "value": self.value,
-            "error": str(self.error),
+            "error": repr(self.error),
         }
 
 
