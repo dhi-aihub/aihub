@@ -6,7 +6,6 @@ from typing import List
 
 import zmq
 
-from .apis import ERROR_TIME_LIMIT_EXCEEDED, ERROR_RUNTIME_ERROR
 from .constants import SANDBOX_ONLY_TASK_ID
 from .settings import PROFILE_PATH, TEMP_VENV_FOLDER, CREATE_VENV_PATH, ZMQ_PORT
 
@@ -44,7 +43,7 @@ def create_venv(req_path: str, force: bool = False) -> str:
 
 
 def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, celery_task_id: str, home: str = "",
-                  rlimit: int = 0, vram_limit: int = 256, time_limit: int = 0) -> str:
+                  rlimit: int = 0, vram_limit: int = 256, time_limit: int = 0) -> bool:
     """
     Run `command` within venv named `env_name`
 
@@ -108,16 +107,17 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
             },
         })
         _ = socket.recv()
-    error_type = None
+    time_out = False
     if time_limit > 0:
         try:
             proc.wait(time_limit + 30)  # wait 30 more seconds
         except subprocess.TimeoutExpired:
-            error_type = ERROR_TIME_LIMIT_EXCEEDED
+            time_out = True
     else:
         return_code = proc.wait()
         if return_code != 0:
-            error_type = ERROR_RUNTIME_ERROR
+            pass
+        
     # result = subprocess.run(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     # print(result.returncode, result.stderr, result.stdout)
     if not sandbox_only:
@@ -130,4 +130,4 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
             },
         })
         _ = socket.recv()
-    return error_type
+    return time_out

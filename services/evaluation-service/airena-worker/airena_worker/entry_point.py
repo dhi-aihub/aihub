@@ -11,8 +11,8 @@ from .models import Submission
 
 def start_sandbox():
     s = Submission(sid=233,
-                   task_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/aivle-single/grader.zip",
-                   agent_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/aivle-single/agent.zip",
+                   task_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/runtime-error/grader.zip",
+                   agent_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/runtime-error/agent.zip",
                    task_id=SANDBOX_ONLY_TASK_ID)  # negative task ID will return dummy task information
     print(run_submission(s, force=True, celery_task_id="", job_id=-1))
 

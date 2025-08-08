@@ -112,12 +112,11 @@ def main():
         res = test_suite.run(create_agent)
         """
         # firejail
-        print("RESULTS")
         print(json.dumps(res))
         """
         # not using firejail
         with open("stdout.log", "w") as f:
-            f.write("\n\nRESULTS\n" + json.dumps(res))
+            f.write("\n\n" + json.dumps(res))
     finally:
         judge_proc.terminate()
 

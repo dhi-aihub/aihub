@@ -1,14 +1,16 @@
 import os
 import shutil
 import zipfile
+import json
 
 import requests
 
-from .apis import get_task_info, ERROR_RUNTIME_ERROR, ERROR_MEMORY_LIMIT_EXCEEDED
+from .apis import get_task_info
 from .models import Submission, ExecutionOutput
 from .sandbox import create_venv, run_with_venv
 from .settings import LOCAL_FILE, TEMP_GRADING_FOLDER
 from .util import LocalFileAdapter, download_and_save
+from .constants import ERROR_MEMORY_LIMIT_EXCEEDED, ERROR_TIME_LIMIT_EXCEEDED, ERROR_VRAM_LIMIT_EXCEEDED, ERROR_RUNTIME_ERROR
 
 
 def _download_submission(s: Submission) -> str:
@@ -33,7 +35,7 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
     temp_grading_folder = _download_submission(s)
     task_info = get_task_info(s.task_id)
     env_name = create_venv(os.path.join(temp_grading_folder, "requirements.txt"), force=force)
-    error_type = run_with_venv(env_name=env_name,
+    time_out = run_with_venv(env_name=env_name,
                                command=["bash", "./bootstrap.sh"],
                                home=temp_grading_folder,
                                rlimit=task_info["ram_limit"],
@@ -43,24 +45,23 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
                                job_id=job_id,
                                celery_task_id=celery_task_id)
     
-    with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
-        raw_log = f.read()
-        stdout_log = raw_log.splitlines()
-        try:
-            result = stdout_log[3]
-            ok = True
-        except Exception as e:
-            ok = False
-            # print(e)
-        f.close()
+    try:
+        with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
+            raw_log = f.read()
+
+            if time_out:
+                return ExecutionOutput(ok=False, result=None, error=ERROR_TIME_LIMIT_EXCEEDED)
+            elif "VRAM limit exceeded" in raw_log:
+                return ExecutionOutput(ok=False, result=None, error=ERROR_VRAM_LIMIT_EXCEEDED)
+            elif "MemoryError" in raw_log:
+                return ExecutionOutput(ok=False, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
+            
+            result = json.loads(raw_log.splitlines()[2])
+            ok = all(case["result"].get("error") is None for case in result.get("results", []))
+            if ok:
+                return ExecutionOutput(ok=True, result=result, error=None)
+            else:
+                return ExecutionOutput(ok=False, result=result, error=ERROR_RUNTIME_ERROR)
+    finally:
         shutil.rmtree(temp_grading_folder)
         
-    if ok:
-        return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
-    else:
-        if "MemoryError" in stdout_log:
-            return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
-        elif error_type is not None:
-            return ExecutionOutput(ok=False, raw=raw_log, result=None, error=error_type)
-        else:
-            return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_RUNTIME_ERROR)

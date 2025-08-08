@@ -19,14 +19,13 @@ class QueueInfo:
 
 
 class ExecutionOutput:
-    def __init__(self, ok: bool, raw: str, result: Union[str, None], error=Union[str, None]):
+    def __init__(self, ok: bool, result: Union[str, None], error=Union[str, None]):
         self.ok = ok
-        self.raw = raw
         self.result = result
         self.error = error
-
+        
     def __str__(self):
-        return f"ExecOut - {self.ok} - {self.result} - {self.error}"
+        return f"ExecOut - Ok: {self.ok} - Result: {self.result} - Error: {self.error}"
 
 
 class Submission:
