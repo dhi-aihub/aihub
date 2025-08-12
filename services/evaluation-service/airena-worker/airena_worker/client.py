@@ -50,18 +50,18 @@ def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool 
             raw_log = f.read()
 
             if time_out:
-                return ExecutionOutput(ok=False, raw_log=raw_log, result=None, error=ERROR_TIME_LIMIT_EXCEEDED)
+                return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_TIME_LIMIT_EXCEEDED)
             elif "VRAM limit exceeded" in raw_log:
-                return ExecutionOutput(ok=False, raw_log=raw_log, result=None, error=ERROR_VRAM_LIMIT_EXCEEDED)
+                return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_VRAM_LIMIT_EXCEEDED)
             elif "MemoryError" in raw_log:
-                return ExecutionOutput(ok=False, raw_log=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
+                return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
 
             result = json.loads(raw_log.splitlines()[2])
             ok = all(case["result"].get("error") is None for case in result.get("results", []))
             if ok:
-                return ExecutionOutput(ok=True, raw_log=raw_log, result=result, error=None)
+                return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
             else:
-                return ExecutionOutput(ok=False, raw_log=raw_log, result=result, error=ERROR_RUNTIME_ERROR)
+                return ExecutionOutput(ok=False, raw=raw_log, result=result, error=ERROR_RUNTIME_ERROR)
     finally:
         shutil.rmtree(temp_grading_folder)
         

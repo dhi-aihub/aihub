@@ -19,9 +19,9 @@ class QueueInfo:
 
 
 class ExecutionOutput:
-    def __init__(self, ok: bool, raw_log: str, result: Union[str, None], error: Union[str, None]):
+    def __init__(self, ok: bool, raw: str, result: Union[str, None], error: Union[str, None]):
         self.ok = ok
-        self.raw_log = raw_log
+        self.raw = raw
         self.result = result
         self.error = error
         
