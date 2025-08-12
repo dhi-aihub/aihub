@@ -1,5 +1,6 @@
 export const USER_SERVICE_BASE_URL = "http://127.0.0.1:8000";
 export const CATALOG_SERVICE_BASE_URL = "http://127.0.1:3001";
+export const SUBMISSION_SERVICE_BASE_URL = "http://127.0.1:3002";
 export const API_BASE_URL = "http://127.0.1:8000";
 
 export const ROLE_ADMIN = "ADM";

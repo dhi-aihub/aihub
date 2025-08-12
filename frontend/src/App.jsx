@@ -10,6 +10,7 @@ import MuiBreadcrumbs from "./components/breadcrumbs";
 import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
 import Home from "./pages/home";
 import Submissions from "./pages/submissions";
+import TaskSubmissions from "./pages/taskSubmissions";
 import VerifyEmail from "./pages/verifyEmail";
 import Signup from "./pages/signup";
 import ResetPassword from "./pages/resetPassword";
@@ -71,9 +72,10 @@ const MyApp = () => {
             <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/courses/:id/groups" element={<ManageGroups />} />
-            <Route path="/courses/:id/:task_id" element={<Submissions />} />
+            <Route path="/courses/:id/:task_id" element={<TaskSubmissions />} />
           </Route>
           <Route path="/courses/:id/admin/edit" element={<EditCourse />} />
+          <Route path="/courses/:id/admin/submissions" element={<Submissions />} />
           <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
           <Route path="/courses/:id/edit_task/:task_id" element={<EditTask />} />
           <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />
