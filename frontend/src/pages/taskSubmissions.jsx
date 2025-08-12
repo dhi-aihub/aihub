@@ -47,8 +47,8 @@ const markForGrading = sid => {
     });
 };
 
-const Submissions = () => {
-  const { id } = useParams(); // Only course id, not task_id
+const TaskSubmissions = () => {
+  const { id, task_id } = useParams();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectLoggedIn);
   const navigate = useNavigate();
@@ -67,7 +67,8 @@ const Submissions = () => {
       method: "get",
       url: SUBMISSION_SERVICE_BASE_URL + `/submission/`,
       params: {
-        course: id, // Filter by course instead of task
+        user: sessionStorage.getItem("user_id"),
+        task: task_id,
         ordering: "-created_at", // latest first
       },
       headers: {
@@ -81,7 +82,7 @@ const Submissions = () => {
       .catch(e => {
         console.log(e);
       });
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, task_id]);
 
   if (!isLoggedIn) {
     cleanAuthStorage();
@@ -124,12 +125,6 @@ const Submissions = () => {
     <>
       <Container component="main" maxWidth="lg">
         <CssBaseline />
-        <Typography variant="h4" gutterBottom>
-          Course Submissions
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          View and manage all submissions for this course.
-        </Typography>
         {loading ? (
           <CircularProgress />
         ) : (
@@ -138,7 +133,7 @@ const Submissions = () => {
               <Accordion key={`submission_${index}`}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Stack>
-                    <Stack direction={"row"} spacing={2}>
+                    <Stack direction={"row"}>
                       <Typography variant={"h6"}>
                         Attempt at {new Date(submission["created_at"]).toLocaleString()}
                       </Typography>
@@ -146,9 +141,6 @@ const Submissions = () => {
                         <CheckCircle sx={{ color: "success.light", marginLeft: 0.5 }} />
                       ) : null}
                     </Stack>
-                    <Typography variant={"body2"} color="textSecondary">
-                      User: {submission["user"]} | Task: {submission["task"]}
-                    </Typography>
                     {submission["point"] ? (
                       <div>
                         <Typography variant={"button"}>Score: </Typography>
@@ -216,4 +208,4 @@ const Submissions = () => {
   );
 };
 
-export default Submissions;
+export default TaskSubmissions;

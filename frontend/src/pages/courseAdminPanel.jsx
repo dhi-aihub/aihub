@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
-import { API_BASE_URL } from "../constants";
+import { API_BASE_URL, SUBMISSION_SERVICE_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
@@ -69,8 +69,8 @@ const CourseAdminPanel = () => {
         </AdminButton>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/submissions/"}
-          target="_blank"
+          component={RouterLink}
+          to={`/courses/${id}/admin/submissions`}
         >
           View Submissions
         </AdminButton>
