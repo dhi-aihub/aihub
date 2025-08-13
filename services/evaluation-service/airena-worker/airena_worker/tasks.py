@@ -13,7 +13,7 @@ from .settings import CELERY_BROKER_URI, CELERY_RESULT_BACKEND
 app = Celery("worker", backend=CELERY_RESULT_BACKEND, broker=CELERY_BROKER_URI)
 
 
-@app.task(bind=True, name="aiVLE.submit_eval_task")
+@app.task(bind=True, name="scheduler.submit_eval_task")
 def evaluate(self, job_id):
     celery_task_id = self.request.id
     submission = start_job(job_id, celery_task_id)
