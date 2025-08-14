@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import multer from "multer";
 import axios from "axios";
-import { Submission } from "../../models/Submission";
+import { Submission } from "../models/Submission";
 import { cuid } from "../lib/ids";
 import { sha256 } from "../lib/hash";
 

@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../src/db";
+import { sequelize } from "../db";
 
 export interface SubmissionAttrs {
   id: string;

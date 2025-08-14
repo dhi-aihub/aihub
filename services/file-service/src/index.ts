@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
+
 import submissionRoutes from "./routes/submission.routes";
-// import graderRoutes from "./routes/grader.routes";
+import taskAssetRoutes from "./routes/taskAsset.routes";
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -11,8 +12,9 @@ app.options("*", cors());
 
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
+// routes
 app.use("/submission", submissionRoutes);
-// app.use("/api/v1", graderRoutes);
+app.use("/taskAsset", taskAssetRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
