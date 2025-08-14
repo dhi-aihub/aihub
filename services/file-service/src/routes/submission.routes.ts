@@ -10,10 +10,10 @@ import {
 
 const router = Router();
 
-router.get("/submissions", listSubmissions);
-router.post("/submissions", submissionUploadMulter, createSubmission);
-router.get("/submissions/:id/download", downloadSubmission);
-router.get("/submissions/:id/mark_for_grading", markForGrading);
-router.get("/submissions/:id/rerun", rerunSubmission);
+router.get("/", listSubmissions);
+router.post("/", submissionUploadMulter, createSubmission);
+router.get("/:id/download", downloadSubmission);
+router.get("/:id/mark_for_grading", markForGrading);
+router.get("/:id/rerun", rerunSubmission);
 
 export default router;
