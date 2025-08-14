@@ -16,7 +16,7 @@ def create_celery_task_with_job(sender, instance: Job, created, **kwargs):
         return  # prevent dead lock
 
     if CELERY_ENABLE:
-        result = evaluate.apply_async(args=[instance.pk], queue=instance.task.eval_queue.name)
+        result = evaluate.apply_async(args=[instance.pk], queue='default') # instance.task.eval_queue.name
         instance.celery_task_id = result.id
     else:
         instance.celery_task_id = "dummy_task_id"
