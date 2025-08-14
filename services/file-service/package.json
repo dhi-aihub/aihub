@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc -p .",
+    "build": "npx tsc -p .",
     "start": "node dist/server.js",
     "lint": "eslint . --ext .ts",
     "migrate": "sequelize db:migrate"
@@ -15,8 +15,10 @@
   "description": "",
   "dependencies": {
     "axios": "^1.11.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
     "pg": "^8.16.3",
     "sequelize": "^6.37.7"
   },
@@ -27,6 +29,5 @@
     "@types/node": "^24.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
-  },
-  "type": "module"
+  }
 }
