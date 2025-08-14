@@ -1,22 +1,21 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
 import app from "./app";
-import { sequelize } from "./db";
+import { initDb } from "./db";
 
-const PORT = process.env.PORT || 3002;
+import "./models/Submission";
+import "./models/TaskAsset";
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("✅ Database connected successfully.");
+const PORT = Number(process.env.PORT || 3002);
 
-    // Start HTTP server
+(async () => {
+  try {
+    await initDb();
     app.listen(PORT, () => {
       console.log(`🚀 File-service running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error("❌ Unable to connect to the database:", err);
+  } catch (err) {
+    console.error("❌ Failed to start:", err);
     process.exit(1);
-  });
+  }
+})();

@@ -17,7 +17,7 @@ export async function initDb() {
     await sequelize.authenticate();
     console.log("[db] connected");
 
-    await sequelize.sync({ alter: false });
+    await sequelize.sync({ alter: true });
 
     console.log("[db] synchronised");
   } catch (err) {
