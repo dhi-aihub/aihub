@@ -1,5 +1,4 @@
 import json
-import pickle
 import time
 import multiprocessing
 from multiprocessing import Process, Queue
@@ -111,9 +110,13 @@ def main():
         )
         test_suite = TestSuite(suite_id="cart_pole_test", cases=[test_case])
         res = test_suite.run(create_agent)
-        #print(pickle.dumps(res))
+        """
+        # firejail
+        print(json.dumps(res))
+        """
+        # not using firejail
         with open("stdout.log", "w") as f:
-            f.write(json.dumps(res))
+            f.write("\n\n" + json.dumps(res))
     finally:
         judge_proc.terminate()
 
