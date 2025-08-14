@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-// import submissionRoutes from "./routes/submission.routes";
+import submissionRoutes from "./routes/submission.routes";
 // import graderRoutes from "./routes/grader.routes";
 
 const app = express();
@@ -11,7 +11,7 @@ app.options("*", cors());
 
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// app.use("/api/v1", submissionRoutes);
+app.use("/submission", submissionRoutes);
 // app.use("/api/v1", graderRoutes);
 
 // 404 handler
