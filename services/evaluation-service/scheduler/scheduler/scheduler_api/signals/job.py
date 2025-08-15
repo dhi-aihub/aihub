@@ -7,7 +7,7 @@ from scheduler.settings import CELERY_ENABLE
 from scheduler_api.models import Job
 from scheduler_api.celery_app import evaluate
 
-#logger = logging.getLogger('django')
+logger = logging.getLogger('django')
 
 
 @receiver(post_save, sender=Job)
@@ -22,4 +22,4 @@ def create_celery_task_with_job(sender, instance: Job, created, **kwargs):
         instance.celery_task_id = "dummy_task_id"
     # instance.status = Job.STATUS_QUEUED
     instance.save()
-    #logger.info(f"{instance} created")
+    logger.info(f"{instance} created")

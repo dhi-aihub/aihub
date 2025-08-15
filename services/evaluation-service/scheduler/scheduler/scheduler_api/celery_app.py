@@ -17,7 +17,6 @@ app.conf.task_queues = (
     Queue("private", routing_key="private.#"),
 )
 
-
 @app.task(bind=True, name="scheduler.submit_eval_task")
 def evaluate(self, job_id):
     pass
