@@ -44,3 +44,15 @@ class Submission:
 
     def __str__(self):
         return f"Submission-{self.sid}-<{self.task_url}>-<{self.agent_url}>-<{self.task_id}>"
+
+
+class Job:
+    def __init__(self, job_id: int, submission: Submission, run_time_limit: int, ram_limit: int, vram_limit: int):
+        self.job_id = job_id
+        self.submission = submission
+        self.run_time_limit = run_time_limit
+        self.ram_limit = ram_limit
+        self.vram_limit = vram_limit
+
+    def __str__(self):
+        return f"Job-{self.job_id}"
