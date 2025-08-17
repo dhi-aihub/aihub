@@ -20,10 +20,8 @@ services:
   catalogue-service:
     build:
       context: .
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgres://admin:secret@catalogue_db:5432/catalogue-service
-      JWT_SECRET: secret
+    env_file:
+      - .env
     ports:
       - 3001:3001
     depends_on:
