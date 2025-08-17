@@ -6,44 +6,23 @@ import requests
 
 from .constants import SANDBOX_ONLY_TASK_ID
 from .errors import QueueInfoNotFound, StopConsumingError, ResumeConsumingError
-from .models import QueueInfo, Submission, ExecutionOutput
+from .models import QueueInfo, Submission, ExecutionOutput, Job
 from .settings import SCHEDULER_BASE_URL, FILE_SERVICE_BASE_URL, ACCESS_TOKEN, WORKER_NAME, FULL_WORKER_NAME
 
 logger = logging.getLogger("root")
 
 
 def get_task_url(task_id: int):
+    raise NotImplementedError("Implement get_task_url")
     return FILE_SERVICE_BASE_URL + f"/tasks/{task_id}/download_grader/"
 
 
 def get_agent_url(submission_id: int):
+    raise NotImplementedError("Implement get_agent_url")
     return FILE_SERVICE_BASE_URL + f"/submissions/{submission_id}/download/"
 
 
-def get_task_info(task_id: int):
-    # return dummy data for negative task ID (local test)
-    return {
-        "id": 1,
-        "grader": "courses/2/tasks/asdasd/grader/grader.zip",
-        "template": "courses/2/tasks/asdasd/template/agent.zip",
-        "daily_submission_limit": 100,
-        "max_upload_size": 5120,
-        "run_time_limit": 60,
-        "course": 1,
-        "name": "asdasd",
-        "description": "asdasd",
-        "ram_limit": 256,
-        "vram_limit": 256,
-        "opened_at": "2022-01-30T01:47:31+08:00",
-        "deadline_at": "2022-01-30T01:47:30+08:00",
-        "closed_at": "2022-01-30T01:47:30+08:00",
-        "created_at": "2022-01-30T01:47:53.223015+08:00",
-        "updated_at": "2022-02-07T22:03:11.244212+08:00",
-        "eval_queue": 1
-    }
-
-
-def start_job(job_id, celery_task_id) -> Submission:
+def start_job(job_id, celery_task_id) -> Job:
     worker_name = WORKER_NAME
     resp = requests.get(SCHEDULER_BASE_URL + f"/api/jobs/{job_id}/start/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
@@ -54,8 +33,11 @@ def start_job(job_id, celery_task_id) -> Submission:
     if resp.status_code != 200:
         raise Exception(resp.content)
     obj = json.loads(resp.content)
-    return Submission(sid=obj["agent"], task_url=get_task_url(obj["task"]),
+    submission = Submission(sid=obj["agent"], task_url=get_task_url(obj["task"]),
                       agent_url=get_agent_url(obj["agent"]), task_id=int(obj["task"]))
+
+    return Job(id=obj["id"], submission=submission, run_time_limit=obj["run_time_limit"], 
+               ram_limit=obj["ram_limit"], vram_limit=obj["vram_limit"])
 
 
 def submit_job(job_id, task_id, output: ExecutionOutput):

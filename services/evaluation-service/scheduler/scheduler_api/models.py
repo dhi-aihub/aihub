@@ -17,6 +17,9 @@ class Job(models.Model):
     agent_id = models.PositiveIntegerField()
     celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=2, choices=STATUSES, default=STATUS_QUEUED)
+    run_time_limit = models.PositiveIntegerField(default=60)
+    ram_limit = models.PositiveIntegerField(default=256)
+    vram_limit = models.PositiveIntegerField(default=256)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

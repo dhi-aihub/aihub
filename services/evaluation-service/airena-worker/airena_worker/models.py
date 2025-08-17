@@ -47,12 +47,16 @@ class Submission:
 
 
 class Job:
-    def __init__(self, job_id: int, submission: Submission, run_time_limit: int, ram_limit: int, vram_limit: int):
-        self.job_id = job_id
+    def __init__(self, id: int, submission: Submission, run_time_limit: int, ram_limit: int, vram_limit: int):
+        self.id = id
         self.submission = submission
         self.run_time_limit = run_time_limit
         self.ram_limit = ram_limit
         self.vram_limit = vram_limit
 
     def __str__(self):
-        return f"Job-{self.job_id}"
+        return f"Job-{self.id}"
+
+    @classmethod
+    def dummy(cls, submission: Submission, run_time_limit: int = 60, ram_limit: int = 256, vram_limit: int = 256) -> "Job":
+        return cls(id=-1, submission=submission, run_time_limit=run_time_limit, ram_limit=ram_limit, vram_limit=vram_limit)

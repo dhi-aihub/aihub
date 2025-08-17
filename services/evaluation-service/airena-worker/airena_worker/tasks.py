@@ -4,7 +4,7 @@ from celery import Celery
 from celery.signals import celeryd_after_setup
 
 from .apis import start_job, submit_job
-from .client import run_submission
+from .client import run_job
 from .settings import CELERY_BROKER_URI, CELERY_RESULT_BACKEND
 
 # set the default Django settings module for the 'celery' program.
@@ -14,10 +14,9 @@ app = Celery("worker", backend=CELERY_RESULT_BACKEND, broker=CELERY_BROKER_URI)
 @app.task(bind=True, name="scheduler.submit_eval_task")
 def evaluate(self, job_id):
     celery_task_id = self.request.id
-    submission = start_job(job_id, celery_task_id)
-    raise NotImplementedError("Implement evaluation logic")
-    result = run_submission(s=submission, job_id=job_id, celery_task_id=celery_task_id)
-    submit_job(job_id, celery_task_id, result)
+    job = start_job(job_id, celery_task_id)
+    result = run_job(job=job, celery_task_id=celery_task_id)
+    submit_job(job.id, celery_task_id, result)
     return {
         "ok": result.ok,
         "raw_log": result.raw,
