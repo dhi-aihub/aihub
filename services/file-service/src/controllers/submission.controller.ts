@@ -41,21 +41,7 @@ export async function createSubmission(req: Request, res: Response) {
     metadata: metadata ?? null,
     userId,
     taskId,
-    point: null,
-    notes: null,
-    markedForGrading: false,
   });
-
-  // TODO: Trigger the downstream evaluation (fire-and-forget)
-  // const evalURL = process.env.EVALUATION_BASE_URL;
-
-  // axios
-  //   .post(`${evalURL}/api/v1/evaluations/start`, {
-  //     submissionId: created.id,
-  //     userId,
-  //     taskId,
-  //   })
-  //   .catch(console.error);
 
   return res.status(201).json({
     id: created.id,
@@ -124,28 +110,6 @@ export async function downloadSubmission(req: Request, res: Response) {
   );
 
   return res.send(Buffer.from(submission.content));
-}
-
-/**
- * GET /api/v1/submissions/:id/mark_for_grading
- * Clears marked_for_grading for that user+task, and then marks this one.
- */
-export async function markForGrading(req: Request, res: Response) {
-  const { id } = req.params;
-  const submission = await Submission.findByPk(id);
-
-  if (!submission) {
-    return res.status(404).json({ error: "Not found" });
-  }
-
-  await Submission.update(
-    { markedForGrading: false },
-    { where: { userId: submission.userId, taskId: submission.taskId } }
-  );
-  submission.markedForGrading = true;
-  await submission.save();
-
-  return res.status(200).json({ ok: true });
 }
 
 /**

@@ -9,7 +9,7 @@ export interface SubmissionAttrs {
   filename: string;
   mimetype: string;
   sizeBytes: number;
-  content: Buffer; // BYTEA (BLOB)
+  content: Buffer;
   checksumSha256: string;
 
   metadata?: string | null; // JSON string
@@ -17,22 +17,12 @@ export interface SubmissionAttrs {
   userId: string;
   taskId: string;
 
-  point?: number | null;
-  notes?: string | null;
-
   createdAt?: Date;
-  markedForGrading: boolean;
 }
 
 type SubmissionCreation = Optional<
   SubmissionAttrs,
-  | "id"
-  | "description"
-  | "metadata"
-  | "point"
-  | "notes"
-  | "createdAt"
-  | "markedForGrading"
+  "id" | "description" | "metadata" | "createdAt"
 >;
 
 export class Submission
@@ -49,10 +39,7 @@ export class Submission
   declare metadata: string | null;
   declare userId: string;
   declare taskId: string;
-  declare point: number | null;
-  declare notes: string | null;
   declare createdAt: Date;
-  declare markedForGrading: boolean;
 }
 
 Submission.init(
@@ -70,18 +57,10 @@ Submission.init(
     userId: { type: DataTypes.STRING, allowNull: false },
     taskId: { type: DataTypes.STRING, allowNull: false },
 
-    point: { type: DataTypes.DECIMAL(9, 3), allowNull: true },
-    notes: { type: DataTypes.TEXT, allowNull: true },
-
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
-    },
-    markedForGrading: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
     },
   },
   {
@@ -92,7 +71,6 @@ Submission.init(
       { fields: ["userId"] },
       { fields: ["taskId"] },
       { fields: ["createdAt"] },
-      { fields: ["markedForGrading"] },
     ],
   }
 );
