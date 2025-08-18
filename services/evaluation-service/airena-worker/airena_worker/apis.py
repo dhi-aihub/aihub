@@ -13,11 +13,13 @@ logger = logging.getLogger("root")
 
 
 def get_task_url(task_id: int):
+    # TODO: Implement get_task_url
     raise NotImplementedError("Implement get_task_url")
     return FILE_SERVICE_BASE_URL + f"/tasks/{task_id}/download_grader/"
 
 
 def get_agent_url(submission_id: int):
+    # TODO: Implement get_agent_url
     raise NotImplementedError("Implement get_agent_url")
     return FILE_SERVICE_BASE_URL + f"/submissions/{submission_id}/download/"
 
@@ -46,10 +48,10 @@ def submit_job(job_id, task_id, output: ExecutionOutput):
                         data={
                             "task_id": task_id,
                             "ok": output.ok,
-                            "raw_log": output.raw,
-                            "result": output.result,
-                            "error": output.error,
                         })
+    
+    # TODO: submit to result service
+
     return resp
 
 
