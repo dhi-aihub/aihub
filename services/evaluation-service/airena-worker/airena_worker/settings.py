@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from .errors import DotEnvFileNotFound, MissingDotEnvField
 
+
 DOTENV_PATH = "./.env"
 if not os.path.exists(DOTENV_PATH):
     raise DotEnvFileNotFound()
@@ -27,23 +28,24 @@ if not os.path.isdir(TEMP_GRADING_FOLDER):
 LOCAL_FILE = True
 
 # API config
-if os.getenv("API_BASE_URL") is None:
-    raise MissingDotEnvField("API_BASE_URL")
-API_BASE_URL = os.getenv("API_BASE_URL")
-if os.getenv("ACCESS_TOKEN") is None:
-    raise MissingDotEnvField("ACCESS_TOKEN")
-ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-if os.getenv("BROKER_URI") is None:
-    raise MissingDotEnvField("BROKER_URI")
-CELERY_BROKER_URI = os.getenv("BROKER_URI")
+def get_env_variable(var_name: str, default: str = None) -> str:
+    value = os.getenv(var_name)
+    if value is None and default is None:
+        raise MissingDotEnvField(var_name)
+    return value if value is not None else default
+
+SCHEDULER_BASE_URL = get_env_variable("SCHEDULER_BASE_URL")
+FILE_SERVICE_BASE_URL = get_env_variable("FILE_SERVICE_BASE_URL")
+ACCESS_TOKEN = get_env_variable("ACCESS_TOKEN")
+CELERY_BROKER_URI = get_env_variable("BROKER_URI")
 CELERY_RESULT_BACKEND = "rpc"
-CELERY_QUEUE = os.getenv("TASK_QUEUE") if os.getenv("TASK_QUEUE") is not None else "default"
-CELERY_CONCURRENCY = os.getenv("CELERY_CONCURRENCY") if os.getenv("CELERY_CONCURRENCY") is not None else "1"
-WORKER_NAME = os.getenv("WORKER_NAME") if os.getenv("WORKER_NAME") is not None else "celery"
+CELERY_QUEUE = get_env_variable("TASK_QUEUE", "default")
+CELERY_CONCURRENCY = get_env_variable("CELERY_CONCURRENCY", "1")
+WORKER_NAME = get_env_variable("WORKER_NAME", "celery")
 FULL_WORKER_NAME = f"{WORKER_NAME}@{socket.gethostname()}"
 
 # Monitor config
-ZMQ_PORT = os.getenv("ZMQ_PORT") if os.getenv("ZMQ_PORT") is not None else "15921"
+ZMQ_PORT = get_env_variable("ZMQ_PORT", "15921")
 
 
 def update_queue(val: str):

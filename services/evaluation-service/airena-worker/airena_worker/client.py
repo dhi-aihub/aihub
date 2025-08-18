@@ -5,8 +5,7 @@ import json
 
 import requests
 
-from .apis import get_task_info
-from .models import Submission, ExecutionOutput
+from .models import Submission, ExecutionOutput, Job
 from .sandbox import create_venv, run_with_venv
 from .settings import LOCAL_FILE, TEMP_GRADING_FOLDER
 from .util import LocalFileAdapter, download_and_save
@@ -31,18 +30,17 @@ def _download_submission(s: Submission) -> str:
     return temp_grading_folder
 
 
-def run_submission(s: Submission, job_id: int, celery_task_id: str, force: bool = False) -> ExecutionOutput:
-    temp_grading_folder = _download_submission(s)
-    task_info = get_task_info(s.task_id)
+def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutput:
+    temp_grading_folder = _download_submission(job.submission)
     env_name = create_venv(os.path.join(temp_grading_folder, "requirements.txt"), force=force)
     time_out = run_with_venv(env_name=env_name,
                                command=["bash", "./bootstrap.sh"],
                                home=temp_grading_folder,
-                               rlimit=task_info["ram_limit"],
-                               vram_limit=task_info["vram_limit"],
-                               time_limit=task_info["run_time_limit"],
-                               task_id=s.task_id,
-                               job_id=job_id,
+                               rlimit=job.ram_limit,
+                               vram_limit=job.vram_limit,
+                               time_limit=job.run_time_limit,
+                               task_id=job.submission.task_id,
+                               job_id=job.id,
                                celery_task_id=celery_task_id)
     
     try:

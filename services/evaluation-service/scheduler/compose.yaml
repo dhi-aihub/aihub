@@ -8,36 +8,48 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  user-service:
+  scheduler:
     build:
       context: .
     env_file:
       - .env
     ports:
-      - 8000:8000
+      - 8001:8000
     depends_on:
-      - users_db
+      - scheduler_db
+      - rabbitmq
     networks:
       - aihub-network
 
-  users_db:
+  scheduler_db:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_DB: users_db
+      POSTGRES_DB: scheduler_db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
     expose:
       - 5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - aihub-network
+
+  rabbitmq:
+    image: rabbitmq:latest
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - 5673:5672
     networks:
       - aihub-network
 
 volumes:
-  postgres_data:
+  db-data:
     driver: local
-  
+
 networks:
   aihub-network:
     external: true
