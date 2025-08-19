@@ -46,7 +46,7 @@ app.use("/groupParticipations", groupParticipationRoutes);
 app.use("/courseParticipations", courseParticipationRoutes);
 
 // add route for swagger document API
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Default Route
 app.get("/", (req, res, next) => {

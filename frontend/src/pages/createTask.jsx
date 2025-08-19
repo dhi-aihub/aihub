@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material";
@@ -10,6 +10,7 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import catalogueService from "../lib/api/catalogueService";
+import InputFileUpload from "../components/inputFileUpload";
 
 const Form = styled("form")(({ theme }) => ({
   width: "100%", // Fix IE 11 issue.
@@ -25,6 +26,8 @@ const TaskForm = () => {
   const [groupSets, setGroupSets] = useState([]);
   const { register, handleSubmit, control } = useForm();
   const [disable, setDisable] = useState(false);
+  const graderRef = useRef();
+  const templateRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,11 +50,31 @@ const TaskForm = () => {
       description: data.description,
       deadlineAt: data.deadline,
       dailySubmissionLimit: data.dailySubmissionLimit,
+      maxUploadSize: data.maxUploadSize,
+      runtimeLimit: data.runtimeLimit,
+      ramLimit: data.ramLimit,
+      vramLimit: data.vramLimit,
       groupSetId: data.groupSetId,
     };
 
+    if (!graderRef.current || !templateRef.current) {
+      alert("Please upload both grader and template files");
+      setDisable(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("taskData", JSON.stringify(taskData));
+    formData.append("graderFile", graderRef.current);
+    formData.append("templateFile", templateRef.current);
+
     catalogueService
-      .post(`/tasks/${id}/`, taskData)
+      .post(`/tasks/${id}/`, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      })
       .then(resp => {
         const data = resp.data;
         if (data) {
@@ -117,6 +140,50 @@ const TaskForm = () => {
         required
         autoComplete="off"
       />
+      <TextField
+        {...register("maxUploadSize", { required: true })}
+        id="maxUploadSize"
+        label="Max Upload Size (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+      />
+      <TextField
+        {...register("runtimeLimit", { required: true })}
+        id="runtimeLimit"
+        label="Runtime Limit (seconds)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+      />
+      <TextField
+        {...register("ramLimit", { required: true })}
+        id="ramLimit"
+        label="RAM Limit (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+      />
+      <TextField
+        {...register("vramLimit", { required: true })}
+        id="vramLimit"
+        label="VRAM Limit (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+      />
       <FormControl fullWidth variant="outlined" margin="normal" required>
         <InputLabel id="groupSetId-label">Group Set</InputLabel>
         <Controller
@@ -135,9 +202,33 @@ const TaskForm = () => {
           )}
         />
       </FormControl>
-      <SubmitButton type="submit" variant="contained" disabled={disable}>
-        Create Task
-      </SubmitButton>
+      <div style={{ display: "flex", gap: "16px", marginTop: 16, marginBottom: 8 }}>
+        <InputFileUpload
+          text="Upload Grader.zip"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              graderRef.current = files[0];
+              alert("Grader file uploaded successfully");
+            }
+          }}
+        />
+        <InputFileUpload
+          text="Upload Template files"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              templateRef.current = files[0];
+              alert("Template file uploaded successfully");
+            }
+          }}
+        />
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <SubmitButton type="submit" variant="contained" disabled={disable}>
+          Create Task
+        </SubmitButton>
+      </div>
     </Form>
   );
 };

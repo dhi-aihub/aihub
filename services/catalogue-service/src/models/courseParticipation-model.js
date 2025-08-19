@@ -3,24 +3,27 @@ import sequelize from "../db.js";
 
 const ROLES = ["ADM", "LEC", "TA", "STU", "GUE"];
 
-const CourseParticipation = sequelize.define("courseParticipation", {
+const CourseParticipation = sequelize.define(
+  "courseParticipation",
+  {
     userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     role: {
-        type: DataTypes.ENUM,
-        values: ROLES,
-        allowNull: false,
+      type: DataTypes.ENUM,
+      values: ROLES,
+      allowNull: false,
     },
-}, {
+  },
+  {
     indexes: [
-        {
-            unique: true,
-            fields: ["userId", "courseId"]
-        }
-    ]
-});
-
+      {
+        unique: true,
+        fields: ["userId", "courseId"],
+      },
+    ],
+  },
+);
 
 export default CourseParticipation;

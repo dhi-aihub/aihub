@@ -1,7 +1,5 @@
 import express from "express";
-import {
-    getGroupParticipations,
-} from "../controller/groupParticipation-controller.js";
+import { getGroupParticipations } from "../controller/groupParticipation-controller.js";
 
 const router = express.Router();
 

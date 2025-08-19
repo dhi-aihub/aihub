@@ -1,11 +1,11 @@
 import express from "express";
 import {
-    createGroupSet,
-    deleteGroupSet,
-    updateGroupSet,
-    getAllGroupSets,
-    getGroupSetById,
-    getGroupSetGroups
+  createGroupSet,
+  deleteGroupSet,
+  updateGroupSet,
+  getAllGroupSets,
+  getGroupSetById,
+  getGroupSetGroups,
 } from "../controller/groupSet-controller.js";
 
 const router = express.Router();
