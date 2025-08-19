@@ -1,5 +1,7 @@
 import multer from "multer";
+import FormData from "form-data";
 import Task from "../models/task-model.js";
+import { fileService } from "../lib/api.js";
 
 // In-memory upload
 const upload = multer({
@@ -33,17 +35,31 @@ export async function getTaskById(req, res) {
 
 export async function createTask(req, res) {
   try {
-    // get task data
     const taskData = JSON.parse(req.body.taskData);
-
-    // get files
     const graderFile = req.files["graderFile"]?.[0];
     const templateFile = req.files["templateFile"]?.[0];
 
-    // create task
+    if (!taskData || !graderFile || !templateFile) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const task = await Task.create(taskData);
 
-    // upload files to file service
+    // upload grader file to file service
+    const graderFormData = new FormData();
+    graderFormData.append("file", graderFile.buffer, {
+      filename: graderFile.originalname,
+      contentType: graderFile.mimetype,
+    });
+    await fileService.post(`/taskAsset/${task.id}/grader/`, graderFormData);
+
+    // upload template file to file service
+    const templateFormData = new FormData();
+    templateFormData.append("file", templateFile.buffer, {
+      filename: templateFile.originalname,
+      contentType: templateFile.mimetype,
+    });
+    await fileService.post(`/taskAsset/${task.id}/template/`, templateFormData);
 
     res.status(201).json({ message: "Task created", data: task });
   } catch (error) {

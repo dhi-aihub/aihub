@@ -69,11 +69,10 @@ const TaskForm = () => {
     formData.append("templateFile", templateRef.current);
 
     catalogueService
-      .post(`/tasks/${id}/`, {
+      .post(`/tasks/${id}/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        data: formData,
       })
       .then(resp => {
         const data = resp.data;
