@@ -11,8 +11,13 @@ services:
   user-service:
     build:
       context: .
-    env_file:
-      - .env
+    environment:
+      - SECRET_KEY=secret
+      - POSTGRES_DB=users_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_HOST=users_db
+      - POSTGRES_PORT=5432
     ports:
       - 8000:8000
     depends_on:
