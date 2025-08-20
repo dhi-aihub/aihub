@@ -211,6 +211,7 @@ const TaskForm = () => {
               alert("Grader file uploaded successfully");
             }
           }}
+          accept=".zip"
         />
         <InputFileUpload
           text="Upload Template files"
