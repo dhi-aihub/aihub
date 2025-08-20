@@ -13,10 +13,6 @@ export interface SubmissionAttrs {
   checksumSha256: string;
 
   metadata?: string | null; // JSON string
-
-  userId: string;
-  taskId: string;
-
   createdAt?: Date;
 }
 
@@ -37,8 +33,6 @@ export class Submission
   declare content: Buffer;
   declare checksumSha256: string;
   declare metadata: string | null;
-  declare userId: string;
-  declare taskId: string;
   declare createdAt: Date;
 }
 
@@ -53,10 +47,6 @@ Submission.init(
     checksumSha256: { type: DataTypes.STRING(64), allowNull: false },
 
     metadata: { type: DataTypes.TEXT, allowNull: true },
-
-    userId: { type: DataTypes.STRING, allowNull: false },
-    taskId: { type: DataTypes.STRING, allowNull: false },
-
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -67,10 +57,6 @@ Submission.init(
     sequelize,
     tableName: "submissions",
     timestamps: false,
-    indexes: [
-      { fields: ["userId"] },
-      { fields: ["taskId"] },
-      { fields: ["createdAt"] },
-    ],
+    indexes: [{ fields: ["createdAt"] }],
   }
 );

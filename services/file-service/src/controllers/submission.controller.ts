@@ -23,8 +23,8 @@ export async function createSubmission(req: Request, res: Response) {
   const file = (req as any).file as Express.Multer.File | undefined;
   const { userId, taskId, description, metadata } = req.body;
 
-  if (!file || !userId || !taskId) {
-    return res.status(400).json({ error: "Missing file/userId/taskId" });
+  if (!file) {
+    return res.status(400).json({ error: "Missing file" });
   }
 
   const id = cuid();
@@ -39,14 +39,10 @@ export async function createSubmission(req: Request, res: Response) {
     content: file.buffer,
     checksumSha256: checksum,
     metadata: metadata ?? null,
-    userId,
-    taskId,
   });
 
   return res.status(201).json({
     id: created.id,
-    checksum: created.checksumSha256,
-    createdAt: created.createdAt,
   });
 }
 
@@ -112,22 +108,21 @@ export async function downloadSubmission(req: Request, res: Response) {
   return res.send(Buffer.from(submission.content));
 }
 
+// TODO: Rerun function
 /**
  * GET /api/v1/submissions/:id/rerun
  */
-export async function rerunSubmission(req: Request, res: Response) {
-  const { id } = req.params;
-  const submission = await Submission.findByPk(id);
-  if (!submission) return res.status(404).json({ error: "Not found" });
+// export async function rerunSubmission(req: Request, res: Response) {
+//   const { id } = req.params;
+//   const submission = await Submission.findByPk(id);
+//   if (!submission) return res.status(404).json({ error: "Not found" });
 
-  const evalURL = process.env.EVALUATION_BASE_URL;
+//   const evalURL = process.env.EVALUATION_BASE_URL;
 
-  await axios.post(`${evalURL}/api/v1/evaluations/start`, {
-    submissionId: submission.id,
-    userId: submission.userId,
-    taskId: submission.taskId,
-    rerun: true,
-  });
+//   await axios.post(`${evalURL}/api/v1/evaluations/start`, {
+//     submissionId: submission.id,
+//     rerun: true,
+//   });
 
-  return res.status(200).json({ ok: true });
-}
+//   return res.status(200).json({ ok: true });
+// }

@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 
-// import submissionRoutes from "./routes/submission.routes";
-// import taskAssetRoutes from "./routes/taskAsset.routes";
+import resultsRouter from "./routes/results.routes";
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -11,9 +10,8 @@ app.use(cors());
 
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// // routes
-// app.use("/submission", submissionRoutes);
-// app.use("/taskAsset", taskAssetRoutes);
+// routes
+app.use("/results", resultsRouter);
 
 // 404 handler
 app.use((req, res, next) => {

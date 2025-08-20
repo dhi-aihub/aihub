@@ -6,14 +6,6 @@ This document describes the submission-related API endpoints in the file-service
 
 All submission endpoints are prefixed with `/submission` (as configured in [`src/app.ts`](services/file-service/src/app.ts)).
 
-## Authentication
-
-All endpoints require Bearer token authentication. Include the token in the Authorization header:
-
-```
-Authorization: Bearer <your-jwt-token>
-```
-
 ## Endpoints
 
 ### 1. List Submissions
