@@ -3,8 +3,7 @@ import "dotenv/config";
 import app from "./app";
 import { initDb } from "./db";
 
-// import "./models/Submission";
-// import "./models/TaskAsset";
+import "./models/Result";
 
 const PORT = Number(process.env.PORT || 3002);
 
