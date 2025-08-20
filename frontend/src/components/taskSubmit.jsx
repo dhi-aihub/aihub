@@ -9,7 +9,7 @@ import {
   styled,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import catalogueService from "../lib/api/catalogueService";
 
 const Form = styled("form")(({ theme }) => ({
   width: "100%", // Fix IE 11 issue.
@@ -44,15 +44,12 @@ const TaskSubmit = ({
     bodyForm.append("task", taskId);
     bodyForm.append("file", uploadFile);
     bodyForm.append("description", data["description"]);
-    axios({
-      method: "post",
-      url: "/api/v1/submissions/", // TODO
-      data: bodyForm,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-    })
+    catalogueService
+      .post("/api/v1/submissions/", bodyForm, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then(resp => {
         if (resp.status === 201) {
           setSnackBarType(SubmitTaskSnackbarType.Success);

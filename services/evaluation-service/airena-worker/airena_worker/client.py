@@ -24,7 +24,7 @@ def _download_submission(s: Submission) -> str:
     with zipfile.ZipFile(task_zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_grading_folder)
     agent_zip_path = os.path.join(temp_grading_folder, "agent.zip")
-    download_and_save(session, s.agent_url, agent_zip_path)
+    download_and_save(session, s.submission_url, agent_zip_path)
     with zipfile.ZipFile(agent_zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_grading_folder)
     return temp_grading_folder

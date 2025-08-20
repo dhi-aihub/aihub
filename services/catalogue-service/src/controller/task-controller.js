@@ -1,20 +1,13 @@
-import multer from "multer";
 import FormData from "form-data";
 import Task from "../models/task-model.js";
-import { fileService } from "../lib/api.js";
-
-// In-memory upload
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 },
-});
+import { fileService, schedulerService } from "../lib/api.js";
+import upload from "../middleware/file-upload.js";
 
 export const taskFilesUploadMulter = upload.fields([
   { name: "graderFile", maxCount: 1 },
   { name: "templateFile", maxCount: 1 },
 ]);
 
-// unused
 export async function getAllTasks(req, res) {
   try {
     const tasks = await Task.findAll();
@@ -82,6 +75,37 @@ export async function deleteTask(req, res) {
     const task = await Task.findByPk(req.params.taskId);
     task.destroy();
     res.status(200).json({ message: "Task deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export const submissionUploadMulter = upload.single("file");
+
+export async function submitTask(req, res) {
+  try {
+    const formData = new FormData();
+    formData.append("file", req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    });
+
+    const response = await fileService.post("/submissions", formData);
+
+    if (response.status !== 201) {
+      throw new Error("Failed to submit task");
+    }
+
+    // create job in scheduler
+    const jobData = {
+      task_id: req.params.taskId,
+      submission_id: response.data.id,
+      group_id: req.groupId,
+    };
+
+    await schedulerService.post("/jobs", jobData);
+
+    res.status(201).json({ message: "Submission successful" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

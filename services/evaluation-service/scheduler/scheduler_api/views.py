@@ -33,7 +33,7 @@ class JobViewSet(viewsets.ModelViewSet):
         return Response({
             "status": "success",
             "task": job.task_id,
-            "agent": job.agent_id,
+            "submission": job.submission_id,
         })
 
     @action(detail=True)

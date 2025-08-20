@@ -14,7 +14,8 @@ class Job(models.Model):
     ]
 
     task_id = models.PositiveIntegerField()
-    agent_id = models.PositiveIntegerField()
+    submission_id = models.PositiveIntegerField()
+    group_id = models.PositiveIntegerField()
     celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=2, choices=STATUSES, default=STATUS_QUEUED)
     run_time_limit = models.PositiveIntegerField(default=60)
@@ -33,4 +34,4 @@ class Job(models.Model):
 
     def __str__(self):
         status = self._get_status_description(self.status)
-        return f"Job {self.pk} - Task {self.task_id} - Agent {self.agent_id} - Status {status}"
+        return f"Job {self.pk} - Task {self.task_id} - Submission {self.submission_id} - Status {status}"

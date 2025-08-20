@@ -18,9 +18,9 @@ def get_task_url(task_id: int):
     return FILE_SERVICE_BASE_URL + f"/tasks/{task_id}/download_grader/"
 
 
-def get_agent_url(submission_id: int):
-    # TODO: Implement get_agent_url
-    raise NotImplementedError("Implement get_agent_url")
+def get_submission_url(submission_id: int):
+    # TODO: Implement get_submission_url
+    raise NotImplementedError("Implement get_submission_url")
     return FILE_SERVICE_BASE_URL + f"/submissions/{submission_id}/download/"
 
 
@@ -35,8 +35,8 @@ def start_job(job_id, celery_task_id) -> Job:
     if resp.status_code != 200:
         raise Exception(resp.content)
     obj = json.loads(resp.content)
-    submission = Submission(sid=obj["agent"], task_url=get_task_url(obj["task"]),
-                      agent_url=get_agent_url(obj["agent"]), task_id=int(obj["task"]))
+    submission = Submission(sid=obj["submission"], task_url=get_task_url(obj["task"]),
+                      submission_url=get_submission_url(obj["submission"]), task_id=int(obj["task"]))
 
     return Job(id=obj["id"], submission=submission, run_time_limit=obj["run_time_limit"], 
                ram_limit=obj["ram_limit"], vram_limit=obj["vram_limit"])
