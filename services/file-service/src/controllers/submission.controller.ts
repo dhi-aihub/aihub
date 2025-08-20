@@ -43,8 +43,6 @@ export async function createSubmission(req: Request, res: Response) {
 
   return res.status(201).json({
     id: created.id,
-    checksum: created.checksumSha256,
-    createdAt: created.createdAt,
   });
 }
 
