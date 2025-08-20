@@ -21,7 +21,7 @@ export const submissionUploadMulter = upload.single("file");
  */
 export async function createSubmission(req: Request, res: Response) {
   const file = (req as any).file as Express.Multer.File | undefined;
-  const { userId, taskId, description, metadata } = req.body;
+  const { description, metadata } = req.body;
 
   if (!file) {
     return res.status(400).json({ error: "Missing file" });

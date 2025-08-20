@@ -7,7 +7,7 @@ import {
   getTaskById,
   taskFilesUploadMulter,
   submissionUploadMulter,
-  uploadSubmission,
+  submitTask,
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -30,10 +30,10 @@ router.put("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, updateT
 router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
 
 router.post(
-  "/:courseId/:taskId/submit",
+  "/:taskId/submit",
   verifyAccessToken,
   submissionUploadMulter,
-  uploadSubmission,
+  submitTask,
 );
 
 export default router;

@@ -32,8 +32,7 @@ const TaskSubmit = ({
   const onSubmitForm = data => {
     const bodyForm = new FormData();
     const uploadFile = /** @type File */ data["file"][0];
-    const taskId = data["task"];
-    const maxUploadSize = tasks.filter(task => task.id === parseInt(taskId))[0].maxUploadSize;
+    const maxUploadSize = task.maxUploadSize;
     if (uploadFile.size > maxUploadSize * 1024) {
       // File.size is in bytes, max_upload_size is in KiB
       setSnackBarType(SubmitTaskSnackbarType.MaxUploadSizeExceeded);
@@ -41,11 +40,10 @@ const TaskSubmit = ({
       onCloseSubmitDialog();
       return;
     }
-    bodyForm.append("task", taskId);
     bodyForm.append("file", uploadFile);
     bodyForm.append("description", data["description"]);
     catalogueService
-      .post("/api/v1/submissions/", bodyForm, {
+      .post(`/tasks/${task.id}/submit/`, bodyForm, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -97,13 +95,6 @@ const TaskSubmit = ({
             {...register("description")}
             id="description"
             label="Description (optional)"
-          />
-          <input
-            {...register("task", { required: true })}
-            type="text"
-            name="task"
-            value={task.id}
-            hidden
           />
           <Button type={"submit"}>Submit</Button>
         </Form>

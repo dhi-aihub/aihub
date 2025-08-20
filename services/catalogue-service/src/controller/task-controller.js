@@ -1,5 +1,7 @@
 import FormData from "form-data";
 import Task from "../models/task-model.js";
+import Group from "../models/group-model.js";
+import GroupParticipation from "../models/groupParticipation-model.js";
 import { fileService, schedulerService } from "../lib/api.js";
 import upload from "../middleware/file-upload.js";
 
@@ -84,24 +86,41 @@ export const submissionUploadMulter = upload.single("file");
 
 export async function submitTask(req, res) {
   try {
+    const task = await Task.findByPk(req.params.taskId);
+    if (!task) throw new Error("Task not found");
+
     const formData = new FormData();
     formData.append("file", req.file.buffer, {
       filename: req.file.originalname,
       contentType: req.file.mimetype,
     });
+    formData.append("description", req.body.description);
 
-    const response = await fileService.post("/submissions", formData);
+    const response = await fileService.post("/submission/", formData);
 
     if (response.status !== 201) {
       throw new Error("Failed to submit task");
     }
 
+    // Find the groupId for the user in the groupSet associated with the task
+    const userId = req.user.id;
+    const groupSetId = task.groupSetId;
+    const groupId = await Group.findOne({
+      where: { groupSetId },
+      include: [{
+        model: GroupParticipation,
+        where: { userId }
+      }]
+    }).then(group => group?.id);
+
     // create job in scheduler
     const jobData = {
       task_id: req.params.taskId,
       submission_id: response.data.id,
-      group_id: req.groupId,
+      group_id: groupId
     };
+
+    console.log("Job data to be scheduled:", jobData);
 
     await schedulerService.post("/jobs", jobData);
 
