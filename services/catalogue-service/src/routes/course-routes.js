@@ -1,18 +1,18 @@
 import express from "express";
 import {
-    createCourse,
-    deleteCourse,
-    updateCourse,
-    getAllCourses,
-    getCourseById,
-    getCourseTasks,
-    getCourseGroupSets
+  createCourse,
+  deleteCourse,
+  updateCourse,
+  getAllCourses,
+  getCourseById,
+  getCourseTasks,
+  getCourseGroupSets,
 } from "../controller/course-controller.js";
-import { 
-    verifyAccessToken,
-    verifyIsAdmin,
-    verifyIsCourseParticipant,
-    verifyIsCourseAdmin
+import {
+  verifyAccessToken,
+  verifyIsAdmin,
+  verifyIsCourseParticipant,
+  verifyIsCourseAdmin,
 } from "../middleware/basic-access-control.js";
 
 const router = express.Router();
@@ -29,6 +29,11 @@ router.delete("/:id", verifyAccessToken, verifyIsAdmin, deleteCourse);
 
 router.get("/:courseId/tasks", verifyAccessToken, verifyIsCourseParticipant, getCourseTasks);
 
-router.get("/:courseId/groupSets", verifyAccessToken, verifyIsCourseParticipant, getCourseGroupSets);
+router.get(
+  "/:courseId/groupSets",
+  verifyAccessToken,
+  verifyIsCourseParticipant,
+  getCourseGroupSets,
+);
 
 export default router;

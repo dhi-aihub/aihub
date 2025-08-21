@@ -33,7 +33,10 @@ class JobViewSet(viewsets.ModelViewSet):
         return Response({
             "status": "success",
             "task": job.task_id,
-            "agent": job.agent_id,
+            "submission": job.submission_id,
+            "run_time_limit": job.run_time_limit,
+            "ram_limit": job.ram_limit,
+            "vram_limit": job.vram_limit,
         })
 
     @action(detail=True)

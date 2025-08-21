@@ -24,7 +24,7 @@ def _download_submission(s: Submission) -> str:
     with zipfile.ZipFile(task_zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_grading_folder)
     agent_zip_path = os.path.join(temp_grading_folder, "agent.zip")
-    download_and_save(session, s.agent_url, agent_zip_path)
+    download_and_save(session, s.submission_url, agent_zip_path)
     with zipfile.ZipFile(agent_zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_grading_folder)
     return temp_grading_folder
@@ -55,7 +55,7 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
 
             result = json.loads(raw_log.splitlines()[2])
-            ok = all(case["result"].get("error") is None for case in result.get("results", []))
+            ok = all(case["result"].get("error") == "None" for case in result.get("results", []))
             if ok:
                 return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
             else:
