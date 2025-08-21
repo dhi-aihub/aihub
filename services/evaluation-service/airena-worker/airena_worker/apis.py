@@ -1,10 +1,8 @@
 import json
 import logging
-import os
 
 import requests
 
-from .constants import SANDBOX_ONLY_TASK_ID
 from .errors import QueueInfoNotFound, StopConsumingError, ResumeConsumingError
 from .models import QueueInfo, Submission, ExecutionOutput, Job
 from .settings import SCHEDULER_BASE_URL, FILE_SERVICE_BASE_URL, ACCESS_TOKEN, WORKER_NAME, FULL_WORKER_NAME
@@ -13,15 +11,11 @@ logger = logging.getLogger("root")
 
 
 def get_task_url(task_id: int):
-    # TODO: Implement get_task_url
-    raise NotImplementedError("Implement get_task_url")
-    return FILE_SERVICE_BASE_URL + f"/tasks/{task_id}/download_grader/"
+    return FILE_SERVICE_BASE_URL + f"/taskAsset/{task_id}/grader/download/"
 
 
 def get_submission_url(submission_id: int):
-    # TODO: Implement get_submission_url
-    raise NotImplementedError("Implement get_submission_url")
-    return FILE_SERVICE_BASE_URL + f"/submissions/{submission_id}/download/"
+    return FILE_SERVICE_BASE_URL + f"/submission/{submission_id}/download/"
 
 
 def start_job(job_id, celery_task_id) -> Job:
@@ -38,19 +32,22 @@ def start_job(job_id, celery_task_id) -> Job:
     submission = Submission(sid=obj["submission"], task_url=get_task_url(obj["task"]),
                       submission_url=get_submission_url(obj["submission"]), task_id=int(obj["task"]))
 
-    return Job(id=obj["id"], submission=submission, run_time_limit=obj["run_time_limit"], 
+    return Job(id=job_id, submission=submission, run_time_limit=obj["run_time_limit"], 
                ram_limit=obj["ram_limit"], vram_limit=obj["vram_limit"])
 
 
 def submit_job(job_id, task_id, output: ExecutionOutput):
-    resp = requests.get(SCHEDULER_BASE_URL + f"/jobs/{job_id}/complete/",
+    resp = requests.get(SCHEDULER_BASE_URL + f"/api/jobs/{job_id}/complete/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
                         data={
                             "task_id": task_id,
                             "ok": output.ok,
                         })
-    
+
+    print(output)
+
     # TODO: submit to result service
+    raise NotImplementedError("Result service submission not implemented")
 
     return resp
 

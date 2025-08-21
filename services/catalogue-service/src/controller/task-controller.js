@@ -117,12 +117,13 @@ export async function submitTask(req, res) {
     const jobData = {
       task_id: req.params.taskId,
       submission_id: response.data.id,
-      group_id: groupId
+      group_id: groupId,
+      run_time_limit: task.runtimeLimit,
+      ram_limit: task.ramLimit,
+      vram_limit: task.vramLimit,
     };
 
-    console.log("Job data to be scheduled:", jobData);
-
-    await schedulerService.post("/jobs", jobData);
+    await schedulerService.post("/api/jobs/", jobData);
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {

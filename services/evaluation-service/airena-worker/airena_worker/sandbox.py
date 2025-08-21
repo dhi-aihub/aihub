@@ -60,7 +60,7 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
     :return: error type (defined as constants in api)
     """
     # if task_id is -1, then we're running with sandbox only, no need to communicate with warden
-    sandbox_only = task_id == SANDBOX_ONLY_TASK_ID
+    sandbox_only = True #task_id == SANDBOX_ONLY_TASK_ID  (uncomment after implementing warden)
     """ 
     # Uncomment this if you want to use Firejail 
     full_cmd = ["firejail",

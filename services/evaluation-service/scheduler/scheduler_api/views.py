@@ -34,6 +34,9 @@ class JobViewSet(viewsets.ModelViewSet):
             "status": "success",
             "task": job.task_id,
             "submission": job.submission_id,
+            "run_time_limit": job.run_time_limit,
+            "ram_limit": job.ram_limit,
+            "vram_limit": job.vram_limit,
         })
 
     @action(detail=True)

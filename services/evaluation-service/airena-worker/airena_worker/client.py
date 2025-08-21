@@ -55,7 +55,7 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
 
             result = json.loads(raw_log.splitlines()[2])
-            ok = all(case["result"].get("error") is None for case in result.get("results", []))
+            ok = all(case["result"].get("error") == "None" for case in result.get("results", []))
             if ok:
                 return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
             else:
