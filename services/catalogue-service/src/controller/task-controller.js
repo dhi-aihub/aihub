@@ -65,7 +65,33 @@ export async function createTask(req, res) {
 export async function updateTask(req, res) {
   try {
     const task = await Task.findByPk(req.params.taskId);
-    task.update(req.body);
+    const taskData = JSON.parse(req.body.taskData);
+    const graderFile = req.files["graderFile"]?.[0];
+    const templateFile = req.files["templateFile"]?.[0];
+
+    if (!taskData) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    task.update(taskData);
+
+    if (graderFile) {
+      const graderFormData = new FormData();
+      graderFormData.append("file", graderFile.buffer, {
+        filename: graderFile.originalname,
+        contentType: graderFile.mimetype,
+      });
+      await fileService.post(`/taskAsset/${task.id}/grader/`, graderFormData);
+    }
+
+    if (templateFile) {
+      const templateFormData = new FormData();
+      templateFormData.append("file", templateFile.buffer, {
+        filename: templateFile.originalname,
+        contentType: templateFile.mimetype,
+      });
+      await fileService.post(`/taskAsset/${task.id}/template/`, templateFormData);
+    }
+
     res.status(200).json({ message: "Task updated", data: task });
   } catch (error) {
     res.status(500).json({ message: error.message });
