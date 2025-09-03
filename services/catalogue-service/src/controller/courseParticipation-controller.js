@@ -1,3 +1,4 @@
+import { response } from "express";
 import { userService } from "../lib/api.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
 
@@ -12,8 +13,37 @@ export async function getCourseParticipations(req, res) {
 
 export async function createCourseParticipation(req, res) {
   try {
-    const participation = await CourseParticipation.create(req.body);
+    const { courseId } = req.params;
+    const { email, role = "STU" } = req.body;
+
+    // Validation of the required fields
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    console.log("Processing email:", email);
+
+    // Get userId from User Service
+    const response = await userService.post("/users/ids-from-emails/", { 
+      emails: [email] 
+    });
+    const userIds = response.data.userIds;
+
+    // Check if user is valid
+    if (!userIds || userIds.length === 0 || !userIds[0]) {
+      return res.status(404).json({ message: `User with the provided email ${email} not found` });
+    }
+    const userId = userIds[0];
+
+    // Check if the participation already exists
+    const existingParticipation = await CourseParticipation.findOne({ where: { userId, courseId } });
+    if (existingParticipation) {
+      return res.status(409).json({ message: "User is already enrolled in this course" });
+    }
+
+    // Create the participation
+    const participation = await CourseParticipation.create({ userId, courseId, role });
     res.status(201).json({ message: "CourseParticipation created", data: participation });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
