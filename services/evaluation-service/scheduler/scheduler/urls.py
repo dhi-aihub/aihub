@@ -22,6 +22,7 @@ from scheduler_api import views
 
 router = routers.DefaultRouter()
 router.register(r'jobs', views.JobViewSet)
+router.register(r'queues', views.QueueViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
