@@ -113,22 +113,24 @@ const ManageParticipations = () => {
         })
         .catch(error => {
           alert("Error removing participant");
-          console.error("Error removing participant:", error);
+          console.error("Error removing participant:", error.message);
         });
     }
   }
 
   function handleSubmitBulk() {
     setDisabled(true);
+
     catalogueService
       .post(`/courseParticipations/${id}/bulk/`, { data: csvData["data"] })
-      .then(response => {
+      .then(() => {
         alert("Participations submitted successfully");
         setCsvData(null);
         navigate(`/courses/${id}/admin`);
       })
       .catch(error => {
         alert("Error submitting participations");
+        console.error("Error submitting participations:", error.message);
       })
       .finally(() => {
         setDisabled(false);
@@ -154,6 +156,7 @@ const ManageParticipations = () => {
         })
         .catch(error => {
           alert("Error submitting participations.");
+          console.error("Error submitting participations:", error.message);
         })
         .finally(() => {
           setDisabled(false);
