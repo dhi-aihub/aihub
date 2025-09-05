@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
+  Chip,
+  CircularProgress,
   Container,
   CssBaseline,
   Divider,
@@ -8,6 +10,13 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -42,8 +51,32 @@ const ManageParticipations = () => {
   const [disabled, setDisabled] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [userList, setUserList] = useState([]);
+  const [currentParticipants, setCurrentParticipants] = useState([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(true);
   const navigate = useNavigate();
 
+  // Fetching of the current participants
+  useEffect(() => {
+    fetchCurrentParticipants();
+  }, [id]);
+
+  function fetchCurrentParticipants() {
+    setLoadingParticipants(true);
+    catalogueService
+      .get(`/courseParticipations/${id}`)
+      .then(response => {
+        setCurrentParticipants(response.data.data || []);
+      })
+      .catch(error => {
+        console.error("Error fetching participants:", error);
+        setCurrentParticipants([]);
+      })
+      .finally(() => {
+        setLoadingParticipants(false);
+      });
+  }
+
+  // Upload of files to add users
   function handleFileUpload(data) {
     setCsvData(data);
   }
@@ -52,6 +85,7 @@ const ManageParticipations = () => {
     setCsvData(null);
   }
 
+  // Addition of individual users
   function handleAddUser() {
     if (userInput.trim() && !userList.includes(userInput.trim())) {
       setUserList([...userList, userInput.trim()]);
@@ -66,6 +100,21 @@ const ManageParticipations = () => {
   function handleUserInputKeyPress(event) {
     if (event.key === "Enter") {
       handleAddUser();
+    }
+  }
+
+  function handleRemoveParticipant(userId) {
+    if (window.confirm("Are you sure you want to remove this participant from the course?")) {
+      catalogueService
+        .delete(`/courseParticipations/${userId}/${id}`)
+        .then(() => {
+          alert("Participant removed successfully");
+          fetchCurrentParticipants();
+        })
+        .catch(error => {
+          alert("Error removing participant");
+          console.error("Error removing participant:", error);
+        });
     }
   }
 
@@ -114,6 +163,27 @@ const ManageParticipations = () => {
     }
   }
 
+  // Handle role display
+  function getRoleDisplayName(role) {
+    const roleMap = {
+      STU: "Student",
+      INST: "Instructor",
+      TA: "Teaching Assistant",
+      ADMIN: "Administrator",
+    };
+    return roleMap[role] || role;
+  }
+
+  function getRoleColor(role) {
+    const colorMap = {
+      STU: "primary",
+      INST: "secondary",
+      TA: "warning",
+      ADMIN: "error",
+    };
+    return colorMap[role] || "default";
+  }
+
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
@@ -123,6 +193,62 @@ const ManageParticipations = () => {
       <Typography variant="body1" gutterBottom>
         Add participants to this course using bulk CSV upload or individual entries.
       </Typography>
+
+      <SectionContainer>
+        <Typography variant="h5" gutterBottom>
+          Current Participants
+        </Typography>
+        {loadingParticipants ? (
+          <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>User ID</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {currentParticipants.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      No participants found for this course
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  currentParticipants.map(participant => (
+                    <TableRow key={`${participant.userId}-${participant.courseId}`}>
+                      <TableCell>{participant.userId}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={getRoleDisplayName(participant.role)}
+                          color={getRoleColor(participant.role)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          color="error"
+                          onClick={() => handleRemoveParticipant(participant.userId)}
+                          aria-label="remove participant"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </SectionContainer>
+
+      <Divider sx={{ my: 4 }} />
 
       <SectionContainer>
         <Typography variant="h5" gutterBottom>

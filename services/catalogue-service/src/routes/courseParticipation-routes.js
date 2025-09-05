@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   getCourseParticipations,
+  getCourseParticipationsByCourse,
   createCourseParticipation,
   deleteCourseParticipation,
   createCourseParticipationBulk,
@@ -10,6 +11,8 @@ import {
 const router = express.Router();
 
 router.get("/", getCourseParticipations);
+
+router.get("/:courseId", getCourseParticipationsByCourse);
 
 router.post("/:courseId", createCourseParticipation);
 

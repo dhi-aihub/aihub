@@ -5,7 +5,7 @@ let postgresUri = process.env.DATABASE_URL;
 const sequelize = new Sequelize(postgresUri);
 
 sequelize
-  .sync({ force: false })
+  .sync({ alter: true })
   .then(() => {
     console.log("Database synchronized");
   })

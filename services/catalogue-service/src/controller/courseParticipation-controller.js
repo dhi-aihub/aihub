@@ -11,6 +11,20 @@ export async function getCourseParticipations(req, res) {
   }
 }
 
+/**
+ * Get all course participations for a specific course
+ */
+export async function getCourseParticipationsByCourse(req, res) {
+  try {
+    const { courseId } = req.params;
+    const courseParticipations = await CourseParticipation.findAll({ where: { courseId } });
+    res.status(200).json({ message: "CourseParticipations retrieved", data: courseParticipations });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 export async function createCourseParticipation(req, res) {
   try {
     const { courseId } = req.params;
