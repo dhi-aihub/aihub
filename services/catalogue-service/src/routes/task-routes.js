@@ -25,7 +25,12 @@ router.post(
   createTask,
 );
 
-router.put("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, updateTask);
+router.put("/:courseId/:taskId",
+  verifyAccessToken,
+  verifyIsCourseAdmin,
+  taskFilesUploadMulter,
+  updateTask,
+);
 
 router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
 
