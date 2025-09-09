@@ -134,6 +134,7 @@ const CourseDetail = () => {
           })
         )}
       </Container>
+      {/* BUG: Snackbar does not show up */}
       <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert
           onClose={handleCloseSnackbar}

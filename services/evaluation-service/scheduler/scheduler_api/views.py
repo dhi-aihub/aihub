@@ -8,6 +8,9 @@ from .models import Job, Queue
 from .serializers import JobSerializer, QueueSerializer
 from .celery_app import app
 
+import logging
+logger = logging.getLogger('django')
+
 
 class JobViewSet(ModelViewSet):
     queryset = Job.objects.all()
@@ -31,7 +34,7 @@ class JobViewSet(ModelViewSet):
         job.status = Job.STATUS_RUNNING
         #job.worker_name = worker_name
         job.save()
-        #logger.info(f"task started: {celery_task_id} on {worker_name}")
+        logger.info(f"task started: {celery_task_id} on {worker_name}")
         return Response({
             "status": "success",
             "task": job.task_id,
@@ -108,7 +111,7 @@ class QueueViewSet(ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         queue = self.get_object()
         worker = request.query_params["worker"]
-        #logger.info(f"stop consuming from {queue} in {worker}")
+        logger.info(f"stop consuming from {queue} in {worker}")
         app.control.cancel_consumer(queue.name, destination=[worker], reply=True)
         return Response(status=status.HTTP_200_OK)
 
@@ -120,6 +123,6 @@ class QueueViewSet(ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         queue = self.get_object()
         worker = request.query_params["worker"]
-        #logger.info(f"resume consuming from {queue} in {worker}")
+        logger.info(f"resume consuming from {queue} in {worker}")
         app.control.add_consumer(queue.name, destination=[worker], reply=True)
         return Response(status=status.HTTP_200_OK)
