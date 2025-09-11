@@ -53,7 +53,7 @@ def submit_job(job_id, task_id, output: ExecutionOutput):
 
 
 def update_job_error(job_id: int, task_id: str, error: str):
-    resp = requests.get(SCHEDULER_BASE_URL + f"/jobs/{job_id}/update_job_error/",
+    resp = requests.get(SCHEDULER_BASE_URL + f"/api/jobs/{job_id}/update_job_error/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
                         json={
                             "task_id": task_id,
@@ -63,9 +63,9 @@ def update_job_error(job_id: int, task_id: str, error: str):
 
 
 def get_queue_info(queue_name: str) -> QueueInfo:
-    resp = requests.get(SCHEDULER_BASE_URL + f"/queue/", params={"name": queue_name},
+    resp = requests.get(SCHEDULER_BASE_URL + f"/api/queues/", params={"name": queue_name},
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"})
-    results = resp.json()["results"]
+    results = resp.json()
     if len(results) == 0:
         raise QueueInfoNotFound()
     result = results[0]
@@ -74,14 +74,14 @@ def get_queue_info(queue_name: str) -> QueueInfo:
 
 
 def stop_consuming(queue: QueueInfo):
-    resp = requests.get(SCHEDULER_BASE_URL + f"/queue/{queue.pk}/stop_consuming/", params={"worker": FULL_WORKER_NAME},
+    resp = requests.get(SCHEDULER_BASE_URL + f"/api/queues/{queue.pk}/stop_consuming/", params={"worker": FULL_WORKER_NAME},
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"})
     if resp.status_code != 200:
         raise StopConsumingError(f"stop consuming failed [{resp.status_code}]: {resp.content}")
 
 
 def resume_consuming(queue: QueueInfo):
-    resp = requests.get(SCHEDULER_BASE_URL + f"/queue/{queue.pk}/resume_consuming/", params={"worker": FULL_WORKER_NAME},
+    resp = requests.get(SCHEDULER_BASE_URL + f"/api/queues/{queue.pk}/resume_consuming/", params={"worker": FULL_WORKER_NAME},
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"})
     if resp.status_code != 200:
         raise ResumeConsumingError(f"resume consuming failed [{resp.status_code}]: {resp.content}")

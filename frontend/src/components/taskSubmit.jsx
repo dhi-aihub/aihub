@@ -50,6 +50,7 @@ const TaskSubmit = ({
       })
       .then(resp => {
         if (resp.status === 201) {
+          alert("Submission created successfully!");
           setSnackBarType(SubmitTaskSnackbarType.Success);
           setOpenSnackBar(true);
         } else {

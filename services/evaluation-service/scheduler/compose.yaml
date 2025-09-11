@@ -49,11 +49,15 @@ services:
       RABBITMQ_DEFAULT_PASS: secret
     ports:
       - 5673:5672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - aihub-network
 
 volumes:
   db-data:
+    driver: local
+  rabbitmq-data:
     driver: local
 
 networks:

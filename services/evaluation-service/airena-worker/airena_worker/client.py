@@ -49,8 +49,6 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
 
             if time_out:
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_TIME_LIMIT_EXCEEDED)
-            elif "VRAM limit exceeded" in raw_log:
-                return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_VRAM_LIMIT_EXCEEDED)
             elif "MemoryError" in raw_log:
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
 

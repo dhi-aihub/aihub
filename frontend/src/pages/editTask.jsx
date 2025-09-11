@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material";
@@ -10,6 +10,8 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import catalogueService from "../lib/api/catalogueService";
+import InputFileUpload from "../components/inputFileUpload";
+
 
 const Form = styled("form")(({ theme }) => ({
   width: "100%", // Fix IE 11 issue.
@@ -29,6 +31,8 @@ const TaskForm = () => {
   const { register, handleSubmit, control, reset } = useForm();
   const [disable, setDisable] = useState(false);
   const [loading, setLoading] = useState(true);
+  const graderRef = useRef();
+  const templateRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +68,10 @@ const TaskForm = () => {
         description: task.description || "",
         deadline: task.deadlineAt ? task.deadlineAt.split("T")[0] : "",
         dailySubmissionLimit: task.dailySubmissionLimit || "",
+        maxUploadSize: task.maxUploadSize || "",
+        runtimeLimit: task.runtimeLimit || "",
+        ramLimit: task.ramLimit || "",
+        vramLimit: task.vramLimit || "",
         groupSetId: task.groupSetId || "",
       });
     }
@@ -77,11 +85,24 @@ const TaskForm = () => {
       description: data.description,
       deadlineAt: data.deadline,
       dailySubmissionLimit: data.dailySubmissionLimit,
+      maxUploadSize: data.maxUploadSize,
+      runtimeLimit: data.runtimeLimit,
+      ramLimit: data.ramLimit,
+      vramLimit: data.vramLimit,
       groupSetId: data.groupSetId,
     };
 
+    const formData = new FormData();
+    formData.append("taskData", JSON.stringify(taskData));
+    formData.append("graderFile", graderRef.current);
+    formData.append("templateFile", templateRef.current);
+
     catalogueService
-      .put(`/tasks/${id}/${taskId}`, taskData)
+      .put(`/tasks/${id}/${taskId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then(resp => {
         const data = resp.data;
         if (data) {
@@ -160,6 +181,62 @@ const TaskForm = () => {
           shrink: true,
         }}
       />
+      <TextField
+        {...register("maxUploadSize", { required: true })}
+        id="maxUploadSize"
+        label="Max Upload Size (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        {...register("runtimeLimit", { required: true })}
+        id="runtimeLimit"
+        label="Runtime Limit (seconds)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        {...register("ramLimit", { required: true })}
+        id="ramLimit"
+        label="RAM Limit (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        {...register("vramLimit", { required: true })}
+        id="vramLimit"
+        label="VRAM Limit (MB)"
+        type="number"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
       <FormControl fullWidth variant="outlined" margin="normal" required>
         <InputLabel id="groupSetId-label">Group Set</InputLabel>
         <Controller
@@ -178,9 +255,34 @@ const TaskForm = () => {
           )}
         />
       </FormControl>
-      <SubmitButton type="submit" variant="contained" disabled={disable}>
-        Edit Task
-      </SubmitButton>
+      <div style={{ display: "flex", gap: "16px", marginTop: 16, marginBottom: 8 }}>
+        <InputFileUpload
+          text="Upload Grader.zip"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              graderRef.current = files[0];
+              alert("Grader file uploaded successfully");
+            }
+          }}
+          accept=".zip"
+        />
+        <InputFileUpload
+          text="Upload Template files"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              templateRef.current = files[0];
+              alert("Template file uploaded successfully");
+            }
+          }}
+        />
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <SubmitButton type="submit" variant="contained" disabled={disable}>
+          Edit Task
+        </SubmitButton>
+      </div>
     </Form>
   );
 };

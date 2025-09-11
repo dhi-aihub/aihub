@@ -51,6 +51,12 @@ export async function uploadGrader(req: Request, res: Response) {
     return res.status(400).json({ error: "Missing taskId/file" });
   }
 
+  // delete the previous file if it exists
+  const existing = await TaskAsset.findOne({ where: { taskId, type: "GRADER" } });
+  if (existing) {
+    await existing.destroy();
+  }
+
   const checksum = sha256(file.buffer);
   const saved = await upsertTaskAsset({
     taskId,
@@ -83,6 +89,12 @@ export async function uploadTemplate(req: Request, res: Response) {
 
   if (!taskId || !file) {
     return res.status(400).json({ error: "Missing taskId/file" });
+  }
+
+  // delete the previous file if it exists
+  const existing = await TaskAsset.findOne({ where: { taskId, type: "TEMPLATE" } });
+  if (existing) {
+    await existing.destroy();
   }
 
   const checksum = sha256(file.buffer);
