@@ -8,6 +8,8 @@ import {
   taskFilesUploadMulter,
   submissionUploadMulter,
   submitTask,
+  trainingSubmissionUploadMulter,
+  submitTrainingAgent
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -39,6 +41,13 @@ router.post(
   verifyAccessToken,
   submissionUploadMulter,
   submitTask,
+);
+
+router.post(
+  "/:taskId/submit-training",
+  verifyAccessToken,
+  trainingSubmissionUploadMulter,
+  submitTrainingAgent,
 );
 
 export default router;

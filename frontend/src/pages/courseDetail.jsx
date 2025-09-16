@@ -5,6 +5,7 @@ import { Alert } from "../components/alert";
 import TaskCard from "../components/taskCard";
 import TaskDetail from "../components/taskDetail";
 import TaskSubmit from "../components/taskSubmit";
+import TaskTrainingSubmit from "../components/taskTrainingSubmit";
 import catalogueService from "../lib/api/catalogueService";
 
 class Task {
@@ -71,6 +72,7 @@ const CourseDetail = () => {
   const [tasks, setTasks] = /** @type [Task[], any] */ useState([]);
   const [openTaskDetail, setOpenTaskDetail] = useState(false);
   const [openTaskSubmit, setOpenTaskSubmit] = useState(false);
+  const [openTaskTrainingSubmit, setOpenTaskTrainingSubmit] = useState(false);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
   const [loading, setLoading] = useState([true, true]);
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -127,6 +129,7 @@ const CourseDetail = () => {
                 index={index}
                 setOpenTaskDetail={setOpenTaskDetail}
                 setOpenTaskSubmit={setOpenTaskSubmit}
+                setOpenTaskTrainingSubmit={setOpenTaskTrainingSubmit}
                 setActiveTaskIndex={setActiveTaskIndex}
                 refreshTasks={fetchTasks}
               />
@@ -158,6 +161,13 @@ const CourseDetail = () => {
           task={tasks[activeTaskIndex]}
           setOpenSnackBar={setOpenSnackBar}
           setSnackBarType={setSnackBarType}
+        />
+      ) : null}
+      {openTaskTrainingSubmit ? (
+        <TaskTrainingSubmit
+          openTaskTrainingSubmit={openTaskTrainingSubmit}
+          setOpenTaskTrainingSubmit={setOpenTaskTrainingSubmit}
+          task={tasks[activeTaskIndex]}
         />
       ) : null}
     </>

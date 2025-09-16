@@ -29,6 +29,7 @@ const TaskForm = () => {
   const [disable, setDisable] = useState(false);
   const graderRef = useRef();
   const templateRef = useRef();
+  const trainerRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,8 +59,8 @@ const TaskForm = () => {
       groupSetId: data.groupSetId,
     };
 
-    if (!graderRef.current || !templateRef.current) {
-      alert("Please upload both grader and template files");
+    if (!graderRef.current || !templateRef.current || !trainerRef.current) {
+      alert("Please upload grader, template, and trainer files");
       setDisable(false);
       return;
     }
@@ -68,6 +69,7 @@ const TaskForm = () => {
     formData.append("taskData", JSON.stringify(taskData));
     formData.append("graderFile", graderRef.current);
     formData.append("templateFile", templateRef.current);
+    formData.append("trainerFile", trainerRef.current);
 
     catalogueService
       .post(`/tasks/${id}/`, formData, {
@@ -223,6 +225,17 @@ const TaskForm = () => {
               alert("Template file uploaded successfully");
             }
           }}
+        />
+        <InputFileUpload
+          text="Upload Trainer.zip"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              trainerRef.current = files[0];
+              alert("Trainer file uploaded successfully");
+            }
+          }}
+          accept=".zip"
         />
       </div>
       <div style={{ marginTop: 16 }}>

@@ -13,6 +13,7 @@ const upload = multer({
 
 export const graderUploadMulter = upload.single("file");
 export const templateUploadMulter = upload.single("file");
+export const trainerUploadMulter = upload.single("file");
 
 /**
  * Internal helper to upsert a TaskAsset (one per taskId+type).
@@ -119,6 +120,43 @@ export async function uploadTemplate(req: Request, res: Response) {
 }
 
 /**
+ * Upload a trainer asset
+ * POST /api/v1/tasks/:taskId/trainer
+ * multipart/form-data: file=<file>
+ */
+export async function uploadTrainer(req: Request, res: Response) {
+  const { taskId } = req.params;
+  const file = (req as any).file as Express.Multer.File | undefined;
+  if (!taskId || !file) {
+    return res.status(400).json({ error: "Missing taskId/file" });
+  }
+  // delete the previous file if it exists
+  const existing = await TaskAsset.findOne({ where: { taskId, type: "TRAINER" } });
+  if (existing) {
+    await existing.destroy();
+  }
+  const checksum = sha256(file.buffer);
+  const saved = await upsertTaskAsset({
+    taskId,
+    type: "TRAINER",
+    filename: file.originalname,
+    mimetype: file.mimetype || "application/octet-stream",
+    sizeBytes: file.size,
+    content: file.buffer,
+    checksumSha256: checksum,
+  });
+
+  return res.status(201).json({
+    id: saved.id,
+    taskId: saved.taskId,
+    type: saved.type,
+    filename: saved.filename,
+    checksum: saved.checksumSha256,
+    uploadedAt: saved.uploadedAt,
+  });
+}
+
+/**
  * Download the grader asset
  * GET /api/v1/tasks/:taskId/grader/download
  */
@@ -161,5 +199,24 @@ export async function downloadTemplate(req: Request, res: Response) {
     `attachment; filename="${asset.filename}"`
   );
 
+  return res.send(Buffer.from(asset.content));
+}
+
+/**
+ * Download the trainer asset
+ * GET /api/v1/tasks/:taskId/trainer/download
+ */
+export async function downloadTrainer(req: Request, res: Response) {
+  const { taskId } = req.params;
+  const asset = await TaskAsset.findOne({ where: { taskId, type: "TRAINER" } });
+  if (!asset) {
+    return res.status(404).json({ error: "Trainer not found" });
+  }
+  res.setHeader("Content-Type", asset.mimetype);
+  res.setHeader("Content-Length", asset.sizeBytes.toString());
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${asset.filename}"`
+  );
   return res.send(Buffer.from(asset.content));
 }

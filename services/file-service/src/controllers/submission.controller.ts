@@ -12,9 +12,10 @@ const upload = multer({
 });
 
 export const submissionUploadMulter = upload.single("file");
+export const trainingSubmissionUploadMulter = upload.single("file");
 
 /**
- * Create a new submission
+ * Create a new evaluation submission
  * POST /api/v1/submissions
  * multipart/form-data: file=<file>, userId=<string>, taskId=<string>
  * optional: description, metadata
@@ -32,6 +33,9 @@ export async function createSubmission(req: Request, res: Response) {
 
   const created = await Submission.create({
     id,
+    taskId: req.body.taskId,
+    groupId: req.body.groupId,
+    type: "EVALUATION",
     description: description ?? null,
     filename: file.originalname,
     mimetype: file.mimetype,
@@ -47,22 +51,24 @@ export async function createSubmission(req: Request, res: Response) {
 }
 
 /**
- * List submissions
+ * List evaluation submissions
  * GET /api/v1/submissions
- * Optional filters: ?user=<id>&task=<id>&marked_for_grading=<true|false>&order=created_at:asc|desc
+ * Optional filters: ?groupId=<id>&taskId=<id>&marked_for_grading=<true|false>&order=created_at:asc|desc
  */
 export async function listSubmissions(req: Request, res: Response) {
   const {
-    user: userId,
-    task: taskId,
+    groupId,
+    taskId,
     marked_for_grading,
     order,
   } = req.query as Record<string, string | undefined>;
 
   const where: any = {};
 
-  if (userId) {
-    where.userId = userId;
+  where.type = "EVALUATION";
+
+  if (groupId) {
+    where.groupId = groupId;
   }
 
   if (taskId) {
@@ -84,6 +90,38 @@ export async function listSubmissions(req: Request, res: Response) {
     attributes: { exclude: ["content"] }, // list without blob
   });
   return res.json(rows);
+}
+
+/**
+ * Create a new training submission
+ * POST /api/v1/submissions/training
+ * multipart/form-data: file=<file>, userId=<string>, taskId=<string>
+ */
+export async function createTrainingSubmission(req: Request, res: Response) {
+  const file = (req as any).file as Express.Multer.File | undefined;
+  
+  if (!file) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const id = cuid();
+  const checksum = sha256(file.buffer);
+
+  const created = await Submission.create({
+    id,
+    taskId: req.body.taskId,
+    groupId: req.body.groupId,
+    type: "TRAINING",
+    filename: file.originalname,
+    mimetype: file.mimetype,
+    sizeBytes: file.size,
+    content: file.buffer,
+    checksumSha256: checksum,
+  });
+
+  return res.status(201).json({
+    id: created.id,
+  });
 }
 
 /**

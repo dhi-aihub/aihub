@@ -1,8 +1,13 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../db";
 
+export type SubmissionType = "EVALUATION" | "TRAINING";
+
 export interface SubmissionAttrs {
   id: string;
+  taskId: string;
+  groupId: string;
+  type: SubmissionType;
   description?: string | null;
 
   // stored file
@@ -26,6 +31,9 @@ export class Submission
   implements SubmissionAttrs
 {
   declare id: string;
+  declare taskId: string;
+  declare groupId: string
+  declare type: SubmissionType;
   declare description: string | null;
   declare filename: string;
   declare mimetype: string;
@@ -39,6 +47,9 @@ export class Submission
 Submission.init(
   {
     id: { type: DataTypes.STRING, primaryKey: true },
+    taskId: { type: DataTypes.STRING, allowNull: false },
+    groupId: { type: DataTypes.STRING, allowNull: false },
+    type: { type: DataTypes.ENUM("EVALUATION", "TRAINING"), allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: true },
     filename: { type: DataTypes.STRING, allowNull: false },
     mimetype: { type: DataTypes.STRING, allowNull: false },
