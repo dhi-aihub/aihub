@@ -53,11 +53,11 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
 
             result = json.loads(raw_log.splitlines()[2])
-            ok = all(case["result"].get("error") == "None" for case in result.get("results", []))
+            ok = result["error"] is None
             if ok:
-                return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
+                return ExecutionOutput(ok=True, raw=raw_log, result=result["result"], error=None)
             else:
-                return ExecutionOutput(ok=False, raw=raw_log, result=result, error=ERROR_RUNTIME_ERROR)
+                return ExecutionOutput(ok=False, raw=raw_log, result=result["error"], error=ERROR_RUNTIME_ERROR)
     finally:
         shutil.rmtree(temp_grading_folder)
-        
+            

@@ -15,7 +15,7 @@ def get_task_url(task_id: int):
 
 
 def get_submission_url(submission_id: int):
-    return FILE_SERVICE_BASE_URL + f"/agent/{submission_id}/download/"
+    return FILE_SERVICE_BASE_URL + f"/submission/{submission_id}/download/"
 
 
 def start_job(job_id, celery_task_id) -> Job:

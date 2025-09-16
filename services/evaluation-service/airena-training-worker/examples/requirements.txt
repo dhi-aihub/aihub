@@ -1,0 +1,4 @@
+airena-trainer @ git+https://github.com/dhi-aihub/aihub@feature/training-service#subdirectory=services/evaluation-service/airena-trainer
+numpy
+gymnasium
+zmq

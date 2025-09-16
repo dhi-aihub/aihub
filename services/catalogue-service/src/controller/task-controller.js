@@ -133,7 +133,9 @@ export const submissionUploadMulter = upload.single("file");
 export async function submitTask(req, res) {
   try {
     const task = await Task.findByPk(req.params.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
 
     // Find the groupId for the user in the groupSet associated with the task
     const userId = req.user.id;
@@ -159,23 +161,25 @@ export async function submitTask(req, res) {
     });
     formData.append("description", req.body.description);
 
-    const response = await fileService.post("/submission/", formData);
-
-    if (response.status !== 201) {
-      throw new Error("Failed to submit task");
+    const fileResponse = await fileService.post("/submission/", formData);
+    if (fileResponse.status !== 201) {
+      throw new Error("Failed to submit file");
     }
 
     // create job in scheduler
     const jobData = {
       task_id: req.params.taskId,
-      submission_id: response.data.id,
+      submission_id: fileResponse.data.id,
       group_id: groupId,
       run_time_limit: task.runtimeLimit,
       ram_limit: task.ramLimit,
       vram_limit: task.vramLimit,
     };
 
-    await schedulerService.post("/api/jobs/", jobData);
+    const jobResponse = await schedulerService.post("/api/jobs/", jobData);
+    if (jobResponse.status !== 201) {
+      throw new Error("Failed to create job in scheduler");
+    }
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {
@@ -188,7 +192,9 @@ export const trainingSubmissionUploadMulter = upload.single("file");
 export async function submitTrainingAgent(req, res) {
   try {
     const task = await Task.findByPk(req.params.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
 
     // Find the groupId for the user in the groupSet associated with the task
     const userId = req.user.id;
@@ -214,20 +220,22 @@ export async function submitTrainingAgent(req, res) {
     });
     // formData.append("description", req.body.description);
 
-    const response = await fileService.post("/submission/training/", formData);
-
-    if (response.status !== 201) {
-      throw new Error("Failed to submit task");
+    const fileResponse = await fileService.post("/submission/training/", formData);
+    if (fileResponse.status !== 201) {
+      throw new Error("Failed to submit training agent");
     }
 
     // create job in scheduler
     const jobData = {
       task_id: req.params.taskId,
-      agent_id: response.data.id,
+      agent_id: fileResponse.data.id,
       group_id: groupId,
     };
 
-    await schedulerService.post("/api/training_jobs/", jobData);
+    const jobResponse = await schedulerService.post("/api/training_jobs/", jobData);
+    if (jobResponse.status !== 201) {
+      throw new Error("Failed to create job in scheduler");
+    }
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {

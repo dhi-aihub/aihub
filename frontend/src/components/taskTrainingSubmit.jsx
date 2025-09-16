@@ -49,7 +49,7 @@ const TaskTrainingSubmit = ({
         } 
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
       })
       .finally(() => {
         onCloseSubmitDialog();
