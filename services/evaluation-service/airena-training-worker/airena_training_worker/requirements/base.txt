@@ -1,0 +1,2 @@
+airena-grader @ git+https://github.com/dhi-aihub/aihub@feature/evaluation-service#subdirectory=services/evaluation-service/airena-grader
+airena-gym @ git+https://github.com/dhi-aihub/aihub@feature/evaluation-service#subdirectory=services/evaluation-service/airena-gym

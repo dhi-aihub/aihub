@@ -15,8 +15,13 @@ app.conf.task_queues = (
     Queue("default", routing_key="task.#"),
     Queue("gpu", routing_key="gpu.#"),
     Queue("private", routing_key="private.#"),
+    Queue("training", routing_key="training.#")
 )
 
 @app.task(bind=True, name="scheduler.submit_eval_task")
 def evaluate(self, job_id):
+    pass
+
+@app.task(bind=True, name="scheduler.submit_training_task")
+def train(self, job_id):
     pass
