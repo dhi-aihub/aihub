@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link as RouterLink, useSearchParams } from "react-router-dom";
+
 import {
   Autocomplete,
   Box,
@@ -24,7 +25,10 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+
 import { ROLE_ADMIN, ROLE_LECTURER } from "../constants";
+
+import userService from "../lib/api/userService";
 import catalogueService from "../lib/api/catalogueService";
 
 const AdminButton = styled(Button)(({ theme }) => ({
@@ -50,9 +54,11 @@ const ControlPanel = () => {
 const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
   const { id } = useParams();
   const [open, setOpen] = useState(false);
-  const [students, setStudents] = useState([]);
+  const [enrolledStudents, setEnrolledStudents] = useState([]);
+  const [availableStudents, setAvailableStudents] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   if (!group || !group.groupParticipations) {
     console.error("GroupCard: Invalid group data", group);
@@ -63,18 +69,61 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
   const maxGroupSize = groupSet?.maxGroupSize || groupSet?.groupSize;
   const isAtMaxCapacity = maxGroupSize && currentMemberCount >= maxGroupSize;
 
+  const getUserDetails = async userIds => {
+    try {
+      const response = await userService.post("/users/details-from-ids/", {
+        userIds: userIds,
+      });
+
+      const data = response.data;
+      return data.users;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      throw error;
+    }
+  };
+
   const fetchAvailableStudents = async () => {
     try {
       const response = await catalogueService.get(`/courseParticipations/${id}/`);
-      const enrolledStudentIds = group.groupParticipations
-        .map(p => p.userDetail?.id)
-        .filter(id => id !== undefined);
-      const availableStudents = response.data["data"].filter(
-        student => !enrolledStudentIds.includes(student.id),
+      const userResponse = await getUserDetails(
+        response.data["data"].map(student => student.userId),
       );
-      setStudents(availableStudents);
+
+      const availableStudents = userResponse.filter(
+        student => !enrolledStudents.map(s => s.id).includes(student.id),
+      );
+
+      setAvailableStudents(availableStudents);
     } catch (error) {
       console.error("Failed to fetch students:", error);
+    }
+  };
+
+  // Function to fetch enrolled students
+  const fetchEnrolledStudents = async () => {
+    const userIds = group.groupParticipations
+      .map(p => p.userId)
+      .filter(userId => userId !== undefined);
+
+    if (userIds.length > 0) {
+      try {
+        const enrolled = await getUserDetails(userIds);
+        setEnrolledStudents(enrolled);
+      } catch (error) {
+        console.error("Failed to fetch enrolled students:", error);
+      }
+    } else {
+      setEnrolledStudents([]);
+    }
+  };
+
+  // Handle accordion expand/collapse
+  const handleAccordionChange = (event, isExpanded) => {
+    setExpanded(isExpanded);
+
+    if (isExpanded) {
+      fetchEnrolledStudents();
     }
   };
 
@@ -82,6 +131,7 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
     setLoading(true);
     try {
       for (const student of selectedStudents) {
+        console.log("Adding student:", student.id);
         await catalogueService.post(`/groupParticipations/${group.id}`, {
           groupId: group.id,
           userId: student.id,
@@ -108,7 +158,9 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
   const handleRemoveStudent = async participationId => {
     if (window.confirm("Are you sure you want to remove this student from the group?")) {
       try {
-        await catalogueService.delete(`/groupParticipations/${participationId}/`);
+        const participation = group.groupParticipations.find(p => p.userId === participationId);
+
+        await catalogueService.delete(`/groupParticipations/${participation.id}/`);
         alert("Student removed successfully");
 
         setTimeout(() => {
@@ -125,7 +177,7 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
 
   return (
     <>
-      <Accordion>
+      <Accordion expanded={expanded} onChange={handleAccordionChange}>
         <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
           <Box
             sx={{
@@ -149,18 +201,18 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {group.groupParticipations.map(participation => (
+            {enrolledStudents.map(student => (
               <Box
-                key={participation.id}
+                key={student.id}
                 sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
               >
-                <Typography>{participation.userId}</Typography>
+                <Typography>{student.username}</Typography>
                 {isAdmin && (
                   <Button
                     size="small"
                     color="error"
                     variant="outlined"
-                    onClick={() => handleRemoveStudent(participation.id)}
+                    onClick={() => handleRemoveStudent(student.id)}
                   >
                     Remove
                   </Button>
@@ -201,8 +253,8 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
         <DialogContent>
           <Autocomplete
             multiple
-            options={students}
-            getOptionLabel={option => `${option.id}`}
+            options={availableStudents}
+            getOptionLabel={option => `${option.username}`}
             value={selectedStudents}
             onChange={(event, newValue) => {
               const remainingSlots = maxGroupSize
@@ -225,14 +277,15 @@ const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
               value.map((option, index) => (
                 <Chip
                   variant="outlined"
-                  label={option.userId}
+                  label={option.username}
                   {...getTagProps({ index })}
-                  key={option.id}
+                  key={option.userId}
                 />
               ))
             }
           />
         </DialogContent>
+
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button
