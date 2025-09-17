@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../db";
 
-export type TaskAssetType = "GRADER" | "TEMPLATE" | "TRAINER";
+export type TaskAssetType = "GRADER" | "TEMPLATE" | "TRAINER" | "TRAINING_TEMPLATE";
 
 export interface TaskAssetAttrs {
   id: string;
@@ -36,7 +36,7 @@ TaskAsset.init(
   {
     id: { type: DataTypes.STRING, primaryKey: true },
     taskId: { type: DataTypes.STRING, allowNull: false },
-    type: { type: DataTypes.ENUM("GRADER", "TEMPLATE", "TRAINER"), allowNull: false },
+    type: { type: DataTypes.ENUM("GRADER", "TEMPLATE", "TRAINER", "TRAINING_TEMPLATE"), allowNull: false },
     filename: { type: DataTypes.STRING, allowNull: false },
     mimetype: { type: DataTypes.STRING, allowNull: false },
     sizeBytes: { type: DataTypes.INTEGER, allowNull: false },

@@ -34,6 +34,7 @@ const TaskForm = () => {
   const graderRef = useRef();
   const templateRef = useRef();
   const trainerRef = useRef();
+  const trainingTemplateRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +99,7 @@ const TaskForm = () => {
     formData.append("graderFile", graderRef.current);
     formData.append("templateFile", templateRef.current);
     formData.append("trainerFile", trainerRef.current);
+    formData.append("trainingTemplateFile", trainingTemplateRef.current);
 
     catalogueService
       .put(`/tasks/${id}/${taskId}`, formData, {
@@ -270,7 +272,7 @@ const TaskForm = () => {
           accept=".zip"
         />
         <InputFileUpload
-          text="Upload Template files"
+          text="Upload Template"
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
@@ -280,7 +282,7 @@ const TaskForm = () => {
           }}
         />
         <InputFileUpload
-          text="Upload Trainer files"
+          text="Upload Trainer.zip"
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
@@ -289,6 +291,16 @@ const TaskForm = () => {
             }
           }}
           accept=".zip"
+        />
+        <InputFileUpload
+          text="Upload Training Template"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              trainingTemplateRef.current = files[0];
+              alert("Training Template file uploaded successfully");
+            }
+          }}
         />
       </div>
       <div style={{ marginTop: 16 }}>

@@ -19,6 +19,7 @@ class Task {
   closedAt;
   deadlineAt;
   hasTemplate;
+  hasTrainingTemplate;
   maxUploadSize;
 
   constructor(json) {
@@ -32,6 +33,7 @@ class Task {
     this.closedAt = new Date(json["closedAt"]);
     this.deadlineAt = new Date(json["deadlineAt"]);
     this.hasTemplate = json["template"] !== null;
+    this.hasTrainingTemplate = json["trainingTemplate"] !== null;
     this.maxUploadSize = json["maxUploadSize"];
   }
 

@@ -5,12 +5,6 @@ import GroupParticipation from "../models/groupParticipation-model.js";
 import { fileService, schedulerService } from "../lib/api.js";
 import upload from "../middleware/file-upload.js";
 
-export const taskFilesUploadMulter = upload.fields([
-  { name: "graderFile", maxCount: 1 },
-  { name: "templateFile", maxCount: 1 },
-  { name: "trainerFile", maxCount: 1 },
-]);
-
 export async function getAllTasks(req, res) {
   try {
     const tasks = await Task.findAll();
@@ -29,14 +23,22 @@ export async function getTaskById(req, res) {
   }
 }
 
+export const taskFilesUploadMulter = upload.fields([
+  { name: "graderFile", maxCount: 1 },
+  { name: "templateFile", maxCount: 1 },
+  { name: "trainerFile", maxCount: 1 },
+  { name: "trainingTemplateFile", maxCount: 1 },
+]);
+
 export async function createTask(req, res) {
   try {
     const taskData = JSON.parse(req.body.taskData);
     const graderFile = req.files["graderFile"]?.[0];
     const templateFile = req.files["templateFile"]?.[0];
     const trainerFile = req.files["trainerFile"]?.[0];
+    const trainingTemplateFile = req.files["trainingTemplateFile"]?.[0];
 
-    if (!taskData || !graderFile || !templateFile || !trainerFile) {
+    if (!taskData || !graderFile || !templateFile || !trainerFile || !trainingTemplateFile) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -66,6 +68,14 @@ export async function createTask(req, res) {
     });
     await fileService.post(`/taskAsset/${task.id}/trainer/`, trainerFormData);
 
+    // upload training template file to file service
+    const trainingTemplateFormData = new FormData();
+    trainingTemplateFormData.append("file", trainingTemplateFile.buffer, {
+      filename: trainingTemplateFile.originalname,
+      contentType: trainingTemplateFile.mimetype,
+    });
+    await fileService.post(`/taskAsset/${task.id}/training-template/`, trainingTemplateFormData);
+
     res.status(201).json({ message: "Task created", data: task });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -79,6 +89,7 @@ export async function updateTask(req, res) {
     const graderFile = req.files["graderFile"]?.[0];
     const templateFile = req.files["templateFile"]?.[0];
     const trainerFile = req.files["trainerFile"]?.[0];
+    const trainingTemplateFile = req.files["trainingTemplateFile"]?.[0];
 
     if (!taskData) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -110,6 +121,15 @@ export async function updateTask(req, res) {
         contentType: trainerFile.mimetype,
       });
       await fileService.post(`/taskAsset/${task.id}/trainer/`, trainerFormData);
+    }
+
+    if (trainingTemplateFile) {
+      const trainingTemplateFormData = new FormData();
+      trainingTemplateFormData.append("file", trainingTemplateFile.buffer, {
+        filename: trainingTemplateFile.originalname,
+        contentType: trainingTemplateFile.mimetype,
+      });
+      await fileService.post(`/taskAsset/${task.id}/training-template/`, trainingTemplateFormData);
     }
 
     res.status(200).json({ message: "Task updated", data: task });
