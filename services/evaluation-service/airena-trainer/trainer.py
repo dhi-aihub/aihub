@@ -2,7 +2,7 @@ import gymnasium as gym
 import json
 
 from airena_trainer.evaluator import RewardEvaluator
-from airena_trainer.training_env import TrainingEnv
+from airena_trainer.trainer import Trainer
 
 from agent import MyAgent
 
@@ -17,23 +17,10 @@ def main():
         "episodes": 10
     }
 
-    # Create a training environment
-    training_env = TrainingEnv(env, RewardEvaluator())
-
-    try:
-        # Initialize the agent
-        agent = MyAgent()
-
-        # Train the agent
-        agent.train(training_env, hyperparameters)
-
-        # Save the trained agent
-        agent.save("my_agent.pth")
-
-        # Output the results
-        res = {"error": None, "result": training_env.get_result()}
-    except Exception as e:
-        res = {"error": str(e), "result": None}
+    # Create a trainer with the environment and evaluator
+    trainer = Trainer(env, RewardEvaluator())
+    trainer.train_and_save(MyAgent, hyperparameters)
+    res = trainer.get_result()
     """
     # firejail
     print(json.dumps(res))
