@@ -11,8 +11,8 @@ from .tasks import app
 
 def start_sandbox():
     s = Submission(sid=233,
-                   task_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/runtime-error/grader.zip",
-                   agent_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-worker/examples/runtime-error/agent.zip",
+                   task_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-training-worker/examples/trainer.zip",
+                   submission_url="file:///mnt/c/Users/charl/Desktop/Programs/aihub/services/evaluation-service/airena-training-worker/examples/agent.zip",
                    task_id=SANDBOX_ONLY_TASK_ID)  # negative task ID will return dummy task information
     job = Job.dummy(s)
     print(run_job(job, force=True, celery_task_id=""))
