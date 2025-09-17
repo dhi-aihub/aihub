@@ -23,6 +23,3 @@ class TrainingEnv(gym.Wrapper):
         }
         self.evaluator.step(full_state)
         return observation, reward, terminated, truncated, info
-
-    def get_result(self):
-        return self.evaluator.get_result().get_json()

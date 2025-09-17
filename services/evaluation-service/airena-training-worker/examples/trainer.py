@@ -10,16 +10,9 @@ def main():
     # Create the environment
     env = gym.make("CartPole-v1")
 
-    # Define hyperparameters
-    hyperparameters = {
-        "learning_rate": 0.01,
-        "discount_factor": 0.99,
-        "episodes": 10
-    }
-
     # Create a trainer with the environment and evaluator
     trainer = Trainer(env, RewardEvaluator())
-    trainer.train_and_save(MyAgent, hyperparameters)
+    trainer.train_and_save(MyAgent)
     res = trainer.get_result()
     """
     # firejail

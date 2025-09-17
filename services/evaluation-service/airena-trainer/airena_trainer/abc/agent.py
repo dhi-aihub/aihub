@@ -4,9 +4,16 @@ from ..training_env import TrainingEnv
 
 class Agent(ABC):
     """Abstract base class for training an agent."""
+    @abstractmethod
+    def __init__(self, env: TrainingEnv):
+        """Initialize the agent with the given training environment.
+
+        :param env: The training environment.
+        """
+        self.env = env
 
     @abstractmethod
-    def train(self, env: TrainingEnv, hyperparameters: dict) -> None:
+    def train(self) -> None:
         """Train the agent.
 
         :return: None
