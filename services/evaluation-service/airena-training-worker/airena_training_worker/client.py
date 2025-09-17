@@ -33,7 +33,7 @@ def _download_submission(s: Submission) -> str:
 def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutput:
     temp_grading_folder = _download_submission(job.submission)
     env_name = create_venv(os.path.join(temp_grading_folder, "requirements.txt"), force=force)
-    time_out = run_with_venv(env_name=env_name,
+    error_type = run_with_venv(env_name=env_name,
                                command=["bash", "./bootstrap.sh"],
                                home=temp_grading_folder,
                                rlimit=job.ram_limit,
@@ -42,12 +42,16 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
                                task_id=job.submission.task_id,
                                job_id=job.id,
                                celery_task_id=celery_task_id)
-    
+
     try:
+        if error_type == ERROR_RUNTIME_ERROR:
+            # If runtime error occurs, there is no log file
+            return ExecutionOutput(ok=False, raw="", result=None, error=ERROR_RUNTIME_ERROR)
+
         with open(os.path.join(temp_grading_folder, "stdout.log"), "r") as f:
             raw_log = f.read()
 
-            if time_out:
+            if error_type == ERROR_TIME_LIMIT_EXCEEDED:
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_TIME_LIMIT_EXCEEDED)
             elif "MemoryError" in raw_log:
                 return ExecutionOutput(ok=False, raw=raw_log, result=None, error=ERROR_MEMORY_LIMIT_EXCEEDED)
