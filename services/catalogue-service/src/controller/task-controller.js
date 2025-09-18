@@ -122,7 +122,11 @@ export async function submitTask(req, res) {
     });
     formData.append("description", req.body.description);
 
+    console.log("Form data prepared, sending to file service");
+
     const response = await fileService.post("/submission/", formData);
+
+    console.log("File uploaded, response:", response.data);
 
     if (response.status !== 201) {
       throw new Error("Failed to submit task");
@@ -133,11 +137,15 @@ export async function submitTask(req, res) {
     const groupSetId = task.groupSetId;
     const groupId = await Group.findOne({
       where: { groupSetId },
-      include: [{
-        model: GroupParticipation,
-        where: { userId }
-      }]
+      include: [
+        {
+          model: GroupParticipation,
+          where: { userId },
+        },
+      ],
     }).then(group => group?.id);
+
+    console.log("User", userId, "is in group", groupId, "for group set", groupSetId);
 
     // create job in scheduler
     const jobData = {
@@ -149,10 +157,12 @@ export async function submitTask(req, res) {
       vram_limit: task.vramLimit,
     };
 
+    console.log("Creating job with data:", jobData);
     await schedulerService.post("/api/jobs/", jobData);
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {
+    console.error("Error in submitTask:", error);
     res.status(500).json({ message: error.message });
   }
 }

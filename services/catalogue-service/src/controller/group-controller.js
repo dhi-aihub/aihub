@@ -2,6 +2,7 @@ import axios from "axios";
 import { Op } from "sequelize";
 import Group from "../models/group-model.js";
 import GroupParticipation from "../models/groupParticipation-model.js";
+import GroupSet from "../models/groupSet-model.js";
 
 // for testing purposes
 export async function getAllGroups(req, res) {
@@ -40,6 +41,49 @@ export async function getGroupsByGroupSetId(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+export const getUserGroupInCourse = async (req, res) => {
+  try {
+    const { userId, courseId } = req.params;
+
+    const userGroup = await GroupParticipation.findOne({
+      where: { userId },
+      include: [
+        {
+          model: Group,
+          required: true,
+          include: [
+            {
+              model: GroupSet,
+              required: true,
+              where: { courseId },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!userGroup) {
+      return res.status(404).json({
+        message: "User is not assigned to any group in this course",
+      });
+    }
+
+    return res.status(200).json({
+      groupId: userGroup.group.id,
+      groupName: userGroup.group.name,
+      groupSetId: userGroup.group.groupSet.id,
+      groupSetName: userGroup.group.groupSet.name,
+    });
+  } catch (error) {
+    console.error("Error fetching user group:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 
 export async function getGroupById(req, res) {
   try {

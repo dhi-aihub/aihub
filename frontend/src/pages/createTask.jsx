@@ -9,6 +9,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+
 import catalogueService from "../lib/api/catalogueService";
 import InputFileUpload from "../components/inputFileUpload";
 
@@ -27,6 +28,10 @@ const TaskForm = () => {
   const [groupSets, setGroupSets] = useState([]);
   const { register, handleSubmit, control } = useForm();
   const [disable, setDisable] = useState(false);
+
+  const [graderFileName, setGraderFileName] = useState("");
+  const [templateFileName, setTemplateFileName] = useState("");
+
   const graderRef = useRef();
   const templateRef = useRef();
   const navigate = useNavigate();
@@ -75,11 +80,24 @@ const TaskForm = () => {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(resp => {
+      .then(async resp => {
         const data = resp.data;
         if (data) {
           alert("Task created successfully");
-          navigate(`/courses/${id}`);
+        }
+
+        // Create associated number of groups based on groupSet selected
+        const numberOfGroups =
+          groupSets.find(groupSet => groupSet.id === taskData.groupSetId)?.numberOfGroups || 0;
+        for (let i = 0; i < numberOfGroups; i++) {
+          await catalogueService
+            .post("/groups/", {
+              groupSetId: taskData.groupSetId,
+              name: `${taskData.name} - Group ${i + 1}`,
+            })
+            .catch(err => {
+              console.error("Error creating group:", err);
+            });
         }
       })
       .catch(err => {
@@ -87,6 +105,7 @@ const TaskForm = () => {
         alert("Error creating task");
       })
       .finally(() => {
+        navigate(`/courses/${id}`);
         setDisable(false);
       });
   };
@@ -203,27 +222,50 @@ const TaskForm = () => {
         />
       </FormControl>
       <div style={{ display: "flex", gap: "16px", marginTop: 16, marginBottom: 8 }}>
-        <InputFileUpload
-          text="Upload Grader.zip"
-          onChange={event => {
-            const files = event.target.files;
-            if (files.length > 0) {
-              graderRef.current = files[0];
-              alert("Grader file uploaded successfully");
-            }
-          }}
-          accept=".zip"
-        />
-        <InputFileUpload
-          text="Upload Template files"
-          onChange={event => {
-            const files = event.target.files;
-            if (files.length > 0) {
-              templateRef.current = files[0];
-              alert("Template file uploaded successfully");
-            }
-          }}
-        />
+        <div style={{ flex: 1 }}>
+          <InputFileUpload
+            text="Upload Grader.zip"
+            onChange={event => {
+              const files = event.target.files;
+              if (files.length > 0) {
+                graderRef.current = files[0];
+                setGraderFileName(files[0].name);
+              }
+            }}
+            accept=".zip"
+          />
+          {graderFileName && (
+            <Typography
+              variant="body2"
+              color="success.main"
+              style={{ marginTop: 8, fontSize: "0.875rem" }}
+            >
+              ✓ {graderFileName}
+            </Typography>
+          )}
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <InputFileUpload
+            text="Upload Template files"
+            onChange={event => {
+              const files = event.target.files;
+              if (files.length > 0) {
+                templateRef.current = files[0];
+                setTemplateFileName(files[0].name);
+              }
+            }}
+          />
+          {templateFileName && (
+            <Typography
+              variant="body2"
+              color="success.main"
+              style={{ marginTop: 8, fontSize: "0.875rem" }}
+            >
+              ✓ {templateFileName}
+            </Typography>
+          )}
+        </div>
       </div>
       <div style={{ marginTop: 16 }}>
         <SubmitButton type="submit" variant="contained" disabled={disable}>

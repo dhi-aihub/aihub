@@ -18,6 +18,13 @@ router.get("/", getAllTasks); // unused
 router.get("/:id", getTaskById);
 
 router.post(
+  "/:taskId/submit",
+  verifyAccessToken,
+  submissionUploadMulter,
+  submitTask,
+);
+
+router.post(
   "/:courseId",
   verifyAccessToken,
   verifyIsCourseAdmin,
@@ -33,12 +40,5 @@ router.put("/:courseId/:taskId",
 );
 
 router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
-
-router.post(
-  "/:taskId/submit",
-  verifyAccessToken,
-  submissionUploadMulter,
-  submitTask,
-);
 
 export default router;
