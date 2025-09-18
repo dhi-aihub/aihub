@@ -2,7 +2,9 @@ import "dotenv/config";
 import { Sequelize } from "sequelize";
 
 let postgresUri = process.env.DATABASE_URL;
-const sequelize = new Sequelize(postgresUri);
+const sequelize = new Sequelize(postgresUri, {
+  dialect: "postgres",
+});
 
 sequelize
   .sync({ alter: true })

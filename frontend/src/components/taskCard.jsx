@@ -84,7 +84,7 @@ const TaskCard = ({
         >
           Submit
         </Button>
-        <Button onClick={() => navigate(`/courses/${id}/${task.id}`)}>Submissions</Button>
+        <Button onClick={() => navigate(`/courses/${course.id}/${task.id}`)}>Submissions</Button>
       </AccordionActions>
     </Accordion>
   );
