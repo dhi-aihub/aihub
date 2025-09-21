@@ -6,7 +6,7 @@ from typing import List
 
 import zmq
 
-from .constants import SANDBOX_ONLY_TASK_ID
+from .constants import SANDBOX_ONLY_TASK_ID, ERROR_TIME_LIMIT_EXCEEDED, ERROR_RUNTIME_ERROR
 from .settings import PROFILE_PATH, TEMP_VENV_FOLDER, CREATE_VENV_PATH, ZMQ_PORT
 
 logger = logging.getLogger("root")
@@ -43,7 +43,7 @@ def create_venv(req_path: str, force: bool = False) -> str:
 
 
 def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, celery_task_id: str, home: str = "",
-                  rlimit: int = 0, vram_limit: int = 256, time_limit: int = 0) -> bool:
+                  rlimit: int = 0, vram_limit: int = 256, time_limit: int = 0) -> str:
     """
     Run `command` within venv named `env_name`
 
@@ -60,7 +60,7 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
     :return: error type (defined as constants in api)
     """
     # if task_id is -1, then we're running with sandbox only, no need to communicate with warden
-    sandbox_only = True #task_id == SANDBOX_ONLY_TASK_ID  (uncomment after implementing warden)
+    sandbox_only = task_id == SANDBOX_ONLY_TASK_ID
     """ 
     # Uncomment this if you want to use Firejail 
     full_cmd = ["firejail",
@@ -93,6 +93,7 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
 
     # remove env and cwd if firejail is used
     proc = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, env=env, cwd=home)
+    
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     if not sandbox_only:
@@ -107,17 +108,20 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
             },
         })
         _ = socket.recv()
-    time_out = False
+        
+    error_type = None
     if time_limit > 0:
         try:
-            proc.wait(time_limit + 30)  # wait 30 more seconds
+            return_code = proc.wait(time_limit + 30)  # wait 30 more seconds
+            if return_code != 0:
+                error_type = ERROR_RUNTIME_ERROR
         except subprocess.TimeoutExpired:
-            time_out = True
+            error_type = ERROR_TIME_LIMIT_EXCEEDED
     else:
         return_code = proc.wait()
         if return_code != 0:
-            pass
-        
+            error_type = ERROR_RUNTIME_ERROR
+
     # result = subprocess.run(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     # print(result.returncode, result.stderr, result.stdout)
     if not sandbox_only:
@@ -130,4 +134,4 @@ def run_with_venv(env_name: str, command: List[str], task_id: int, job_id: int, 
             },
         })
         _ = socket.recv()
-    return time_out
+    return error_type

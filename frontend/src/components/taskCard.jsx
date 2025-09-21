@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Accordion,
@@ -39,6 +38,7 @@ const TaskCard = ({
   index,
   setOpenTaskDetail,
   setOpenTaskSubmit,
+  setOpenTaskTrainingSubmit,
   setActiveTaskIndex,
   refreshTasks,
 }) => {
@@ -67,6 +67,7 @@ const TaskCard = ({
           Details
         </Button>
         {task.hasTemplate ? <Button>Template</Button> : null}
+        {task.hasTrainingTemplate ? <Button>Training Template</Button> : null}
         {isAdmin ? (
           <Button onClick={() => navigate(`/courses/${course.id}/edit_task/${task.id}`)}>
             Edit
@@ -85,6 +86,13 @@ const TaskCard = ({
           Submit
         </Button>
         <Button onClick={() => navigate(`/courses/${course.id}/${task.id}`)}>Submissions</Button>
+        <Button onClick={() => {
+          setActiveTaskIndex(index);
+          setOpenTaskTrainingSubmit(true);
+        }}
+        >
+          Train
+        </Button>
       </AccordionActions>
     </Accordion>
   );

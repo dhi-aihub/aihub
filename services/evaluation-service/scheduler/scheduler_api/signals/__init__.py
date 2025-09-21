@@ -1,2 +1,3 @@
 from scheduler_api.signals.job import create_celery_task_with_job
+from scheduler_api.signals.training_job import create_celery_task_with_training_job
 from scheduler_api.signals.queue import create_default_queues

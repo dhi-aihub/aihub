@@ -8,6 +8,8 @@ import {
   taskFilesUploadMulter,
   submissionUploadMulter,
   submitTask,
+  trainingSubmissionUploadMulter,
+  submitTrainingAgent
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -16,13 +18,6 @@ const router = express.Router();
 router.get("/", getAllTasks); // unused
 
 router.get("/:id", getTaskById);
-
-router.post(
-  "/:taskId/submit",
-  verifyAccessToken,
-  submissionUploadMulter,
-  submitTask,
-);
 
 router.post(
   "/:courseId",
@@ -40,5 +35,19 @@ router.put("/:courseId/:taskId",
 );
 
 router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
+
+router.post(
+  "/:taskId/submit",
+  verifyAccessToken,
+  submissionUploadMulter,
+  submitTask,
+);
+
+router.post(
+  "/:taskId/submit-training",
+  verifyAccessToken,
+  trainingSubmissionUploadMulter,
+  submitTrainingAgent,
+);
 
 export default router;

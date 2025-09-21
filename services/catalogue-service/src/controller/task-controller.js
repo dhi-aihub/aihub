@@ -5,11 +5,6 @@ import GroupParticipation from "../models/groupParticipation-model.js";
 import { fileService, schedulerService } from "../lib/api.js";
 import upload from "../middleware/file-upload.js";
 
-export const taskFilesUploadMulter = upload.fields([
-  { name: "graderFile", maxCount: 1 },
-  { name: "templateFile", maxCount: 1 },
-]);
-
 export async function getAllTasks(req, res) {
   try {
     const tasks = await Task.findAll();
@@ -28,13 +23,22 @@ export async function getTaskById(req, res) {
   }
 }
 
+export const taskFilesUploadMulter = upload.fields([
+  { name: "graderFile", maxCount: 1 },
+  { name: "templateFile", maxCount: 1 },
+  { name: "trainerFile", maxCount: 1 },
+  { name: "trainingTemplateFile", maxCount: 1 },
+]);
+
 export async function createTask(req, res) {
   try {
     const taskData = JSON.parse(req.body.taskData);
     const graderFile = req.files["graderFile"]?.[0];
     const templateFile = req.files["templateFile"]?.[0];
+    const trainerFile = req.files["trainerFile"]?.[0];
+    const trainingTemplateFile = req.files["trainingTemplateFile"]?.[0];
 
-    if (!taskData || !graderFile || !templateFile) {
+    if (!taskData || !graderFile || !templateFile || !trainerFile || !trainingTemplateFile) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -56,6 +60,22 @@ export async function createTask(req, res) {
     });
     await fileService.post(`/taskAsset/${task.id}/template/`, templateFormData);
 
+    // upload trainer file to file service
+    const trainerFormData = new FormData();
+    trainerFormData.append("file", trainerFile.buffer, {
+      filename: trainerFile.originalname,
+      contentType: trainerFile.mimetype,
+    });
+    await fileService.post(`/taskAsset/${task.id}/trainer/`, trainerFormData);
+
+    // upload training template file to file service
+    const trainingTemplateFormData = new FormData();
+    trainingTemplateFormData.append("file", trainingTemplateFile.buffer, {
+      filename: trainingTemplateFile.originalname,
+      contentType: trainingTemplateFile.mimetype,
+    });
+    await fileService.post(`/taskAsset/${task.id}/training-template/`, trainingTemplateFormData);
+
     res.status(201).json({ message: "Task created", data: task });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -68,6 +88,8 @@ export async function updateTask(req, res) {
     const taskData = JSON.parse(req.body.taskData);
     const graderFile = req.files["graderFile"]?.[0];
     const templateFile = req.files["templateFile"]?.[0];
+    const trainerFile = req.files["trainerFile"]?.[0];
+    const trainingTemplateFile = req.files["trainingTemplateFile"]?.[0];
 
     if (!taskData) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -92,6 +114,24 @@ export async function updateTask(req, res) {
       await fileService.post(`/taskAsset/${task.id}/template/`, templateFormData);
     }
 
+    if (trainerFile) {
+      const trainerFormData = new FormData();
+      trainerFormData.append("file", trainerFile.buffer, {
+        filename: trainerFile.originalname,
+        contentType: trainerFile.mimetype,
+      });
+      await fileService.post(`/taskAsset/${task.id}/trainer/`, trainerFormData);
+    }
+
+    if (trainingTemplateFile) {
+      const trainingTemplateFormData = new FormData();
+      trainingTemplateFormData.append("file", trainingTemplateFile.buffer, {
+        filename: trainingTemplateFile.originalname,
+        contentType: trainingTemplateFile.mimetype,
+      });
+      await fileService.post(`/taskAsset/${task.id}/training-template/`, trainingTemplateFormData);
+    }
+
     res.status(200).json({ message: "Task updated", data: task });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -113,23 +153,67 @@ export const submissionUploadMulter = upload.single("file");
 export async function submitTask(req, res) {
   try {
     const task = await Task.findByPk(req.params.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Find the groupId for the user in the groupSet associated with the task
+    const userId = req.user.id;
+    const groupSetId = task.groupSetId;
+    const groupId = await Group.findOne({
+      where: { groupSetId },
+      include: [{
+        model: GroupParticipation,
+        where: { userId }
+      }]
+    }).then(group => group?.id);
+
+    if (!groupId) {
+      return res.status(403).json({ message: "User is not part of any group for this task" });
+    }
 
     const formData = new FormData();
+    formData.append("taskId", req.params.taskId);
+    formData.append("groupId", groupId);
     formData.append("file", req.file.buffer, {
       filename: req.file.originalname,
       contentType: req.file.mimetype,
     });
     formData.append("description", req.body.description);
 
-    console.log("Form data prepared, sending to file service");
+    const fileResponse = await fileService.post("/submission/", formData);
+    if (fileResponse.status !== 201) {
+      throw new Error("Failed to submit file");
+    }
 
-    const response = await fileService.post("/submission/", formData);
+    // create job in scheduler
+    const jobData = {
+      task_id: req.params.taskId,
+      submission_id: fileResponse.data.id,
+      group_id: groupId,
+      run_time_limit: task.runtimeLimit,
+      ram_limit: task.ramLimit,
+      vram_limit: task.vramLimit,
+    };
 
-    console.log("File uploaded, response:", response.data);
+    const jobResponse = await schedulerService.post("/api/jobs/", jobData);
+    if (jobResponse.status !== 201) {
+      throw new Error("Failed to create job in scheduler");
+    }
 
-    if (response.status !== 201) {
-      throw new Error("Failed to submit task");
+    res.status(201).json({ message: "Submission successful" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export const trainingSubmissionUploadMulter = upload.single("file");
+
+export async function submitTrainingAgent(req, res) {
+  try {
+    const task = await Task.findByPk(req.params.taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
     }
 
     // Find the groupId for the user in the groupSet associated with the task
@@ -145,20 +229,35 @@ export async function submitTask(req, res) {
       ],
     }).then(group => group?.id);
 
-    console.log("User", userId, "is in group", groupId, "for group set", groupSetId);
+    if (!groupId) {
+      return res.status(403).json({ message: "User is not part of any group for this task" });
+    }
+
+    const formData = new FormData();
+    formData.append("taskId", req.params.taskId);
+    formData.append("groupId", groupId);
+    formData.append("file", req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    });
+    // formData.append("description", req.body.description);
+
+    const fileResponse = await fileService.post("/submission/training/", formData);
+    if (fileResponse.status !== 201) {
+      throw new Error("Failed to submit training agent");
+    }
 
     // create job in scheduler
     const jobData = {
       task_id: req.params.taskId,
-      submission_id: response.data.id,
+      agent_id: fileResponse.data.id,
       group_id: groupId,
-      run_time_limit: task.runtimeLimit,
-      ram_limit: task.ramLimit,
-      vram_limit: task.vramLimit,
     };
 
-    console.log("Creating job with data:", jobData);
-    await schedulerService.post("/api/jobs/", jobData);
+    const jobResponse = await schedulerService.post("/api/training_jobs/", jobData);
+    if (jobResponse.status !== 201) {
+      throw new Error("Failed to create job in scheduler");
+    }
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {

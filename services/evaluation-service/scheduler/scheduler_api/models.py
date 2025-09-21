@@ -2,7 +2,10 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
-class Job(models.Model):
+class BaseJob(models.Model):
+    class Meta:
+        abstract = True
+
     STATUS_QUEUED = 'Q'
     STATUS_RUNNING = 'R'
     STATUS_ERROR = 'E'
@@ -15,14 +18,9 @@ class Job(models.Model):
     ]
 
     task_id = models.PositiveIntegerField()
-    submission_id = models.CharField(max_length=255)
     group_id = models.PositiveIntegerField()
-    celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=2, choices=STATUSES, default=STATUS_QUEUED)
-    run_time_limit = models.PositiveIntegerField(default=60)
-    ram_limit = models.PositiveIntegerField(default=256)
-    vram_limit = models.PositiveIntegerField(default=256)
-
+    celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,9 +31,27 @@ class Job(models.Model):
                 return item[1]
         return "Unknown"
 
+
+class Job(BaseJob):
+    
+    submission_id = models.CharField(max_length=255)
+    
+    run_time_limit = models.PositiveIntegerField(default=60)
+    ram_limit = models.PositiveIntegerField(default=256)
+    vram_limit = models.PositiveIntegerField(default=256)
+
     def __str__(self):
         status = self._get_status_description(self.status)
         return f"Job {self.pk} - Task {self.task_id} - Submission {self.submission_id} - Status {status}"
+    
+
+class TrainingJob(BaseJob):
+    
+    agent_id = models.CharField(max_length=255)
+
+    def __str__(self):
+        status = self._get_status_description(self.status)
+        return f"TrainingJob {self.pk} - Task {self.task_id} - Agent {self.agent_id} - Status {status}"
 
 
 class Queue(models.Model):

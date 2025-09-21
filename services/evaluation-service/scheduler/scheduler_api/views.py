@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Job, Queue
-from .serializers import JobSerializer, QueueSerializer
+from .models import Job, TrainingJob, Queue
+from .serializers import JobSerializer, TrainingJobSerializer, QueueSerializer
 from .celery_app import app
 
 import logging
@@ -98,12 +98,89 @@ class JobViewSet(ModelViewSet):
             )
         job.error = error
         job.save()
-        return Response(
-            {
-                "status": "success",
-                "job": job.pk,
-            }
-        )
+
+        return Response({
+            "status": "success",
+            "job": job.pk,
+        })
+    
+
+class TrainingJobViewSet(ModelViewSet):
+    queryset = TrainingJob.objects.all()
+    serializer_class = TrainingJobSerializer
+
+    @action(detail=True)
+    def start(self, request, pk=None):
+        if "task_id" not in request.data or "worker_name" not in request.data:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+            "status": "failed",
+            "reason": "fields `task_id` and `worker_name` must be present"
+            })
+        celery_task_id = request.data["task_id"]
+        worker_name = request.data["worker_name"]
+        training_job = self.get_object()
+        if training_job.celery_task_id != celery_task_id:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={
+            "status": "failed",
+            "reason": "incorrect celery_task_id"
+            })
+        training_job.status = TrainingJob.STATUS_RUNNING
+        #training_job.worker_name = worker_name
+        training_job.save()
+        logger.info(f"training task started: {celery_task_id} on {worker_name}")
+        return Response({
+            "status": "success",
+            "task": training_job.task_id,
+            "agent": training_job.agent_id,
+        })
+    
+    @action(detail=True)
+    def complete(self, request, pk=None):
+        training_job = self.get_object()
+        celery_task_id = request.data["task_id"]
+        success = request.data["ok"]
+
+        if training_job.status != TrainingJob.STATUS_RUNNING:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "status": "failed",
+                "reason": "training job is not running"
+            })
+
+        if training_job.celery_task_id != celery_task_id:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={
+                "status": "failed",
+                "reason": "incorrect task_id"
+            })
+
+        if success:
+            training_job.status = TrainingJob.STATUS_DONE
+        else:
+            training_job.status = TrainingJob.STATUS_ERROR
+
+        training_job.save()
+        return Response({"status": "success"})
+    
+    @action(detail=True)
+    def update_job_error(self, request, pk=None):
+        if "task_id" not in request.data or "error" not in request.data:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "status": "failed",
+                "reason": "fields `task_id` and `error` must be present"
+            })
+        task_id = request.data["task_id"]
+        error = request.data["error"]
+        training_job = self.get_object()
+        if training_job.task_id != task_id:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={
+                "status": "failed",
+                "reason": "incorrect task_id"
+            })
+        training_job.error = error
+        training_job.save()
+        return Response({
+            "status": "success",
+            "training_job": training_job.pk,
+        })
 
 
 class QueueViewSet(ModelViewSet):
