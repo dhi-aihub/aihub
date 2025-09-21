@@ -29,9 +29,6 @@ const TaskForm = () => {
   const { register, handleSubmit, control } = useForm();
   const [disable, setDisable] = useState(false);
 
-  const [graderFileName, setGraderFileName] = useState("");
-  const [templateFileName, setTemplateFileName] = useState("");
-
   const graderRef = useRef();
   const templateRef = useRef();
   const navigate = useNavigate();
@@ -208,50 +205,25 @@ const TaskForm = () => {
         />
       </FormControl>
       <div style={{ display: "flex", gap: "16px", marginTop: 16, marginBottom: 8 }}>
-        <div style={{ flex: 1 }}>
-          <InputFileUpload
-            text="Upload Grader.zip"
-            onChange={event => {
-              const files = event.target.files;
-              if (files.length > 0) {
-                graderRef.current = files[0];
-                setGraderFileName(files[0].name);
-              }
-            }}
-            accept=".zip"
-          />
-          {graderFileName && (
-            <Typography
-              variant="body2"
-              color="success.main"
-              style={{ marginTop: 8, fontSize: "0.875rem" }}
-            >
-              ✓ {graderFileName}
-            </Typography>
-          )}
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <InputFileUpload
-            text="Upload Template files"
-            onChange={event => {
-              const files = event.target.files;
-              if (files.length > 0) {
-                templateRef.current = files[0];
-                setTemplateFileName(files[0].name);
-              }
-            }}
-          />
-          {templateFileName && (
-            <Typography
-              variant="body2"
-              color="success.main"
-              style={{ marginTop: 8, fontSize: "0.875rem" }}
-            >
-              ✓ {templateFileName}
-            </Typography>
-          )}
-        </div>
+        <InputFileUpload
+          text="Upload Grader.zip"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              graderRef.current = files[0];
+            }
+          }}
+          accept=".zip"
+        />
+        <InputFileUpload
+          text="Upload Template files"
+          onChange={event => {
+            const files = event.target.files;
+            if (files.length > 0) {
+              templateRef.current = files[0];
+            }
+          }}
+        />
       </div>
       <div style={{ marginTop: 16 }}>
         <SubmitButton type="submit" variant="contained" disabled={disable}>
