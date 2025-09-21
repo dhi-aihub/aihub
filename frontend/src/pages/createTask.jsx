@@ -233,7 +233,6 @@ const TaskForm = () => {
             const files = event.target.files;
             if (files.length > 0) {
               trainerRef.current = files[0];
-              alert("Trainer file uploaded successfully");
             }
           }}
           accept=".zip"
@@ -244,7 +243,6 @@ const TaskForm = () => {
             const files = event.target.files;
             if (files.length > 0) {
               trainingTemplateRef.current = files[0];
-              alert("Training Template file uploaded successfully");
             }
           }}
         />
