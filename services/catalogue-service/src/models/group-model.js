@@ -9,7 +9,6 @@ const Group = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       notEmpty: true,
-      unique: true,
     },
   },
   {

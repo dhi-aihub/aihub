@@ -85,20 +85,6 @@ const TaskForm = () => {
         if (data) {
           alert("Task created successfully");
         }
-
-        // Create associated number of groups based on groupSet selected
-        const numberOfGroups =
-          groupSets.find(groupSet => groupSet.id === taskData.groupSetId)?.numberOfGroups || 0;
-        for (let i = 0; i < numberOfGroups; i++) {
-          await catalogueService
-            .post("/groups/", {
-              groupSetId: taskData.groupSetId,
-              name: `${taskData.name} - Group ${i + 1}`,
-            })
-            .catch(err => {
-              console.error("Error creating group:", err);
-            });
-        }
       })
       .catch(err => {
         console.error(err);

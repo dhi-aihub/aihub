@@ -158,20 +158,16 @@ export async function updateGroupsBulk(req, res) {
     const emails = req.body.data.map(item => item[0]);
     const groupNames = [...new Set(req.body.data.map(item => item[1]))];
 
-    // delete old groups not in the new groupNames
+    // delete old groups in the group set
     await Group.destroy({
       where: {
         groupSetId,
-        name: {
-          [Op.notIn]: groupNames,
-        },
       },
     });
 
-    // create groups, ignore duplicates
+    // create groups
     await Group.bulkCreate(
       groupNames.map(name => ({ name, groupSetId })),
-      { ignoreDuplicates: true },
     );
 
     // map group names to group IDs
@@ -181,16 +177,7 @@ export async function updateGroupsBulk(req, res) {
       groupMap[group.name] = group.id;
     });
 
-    // delete old group participations
-    await GroupParticipation.destroy({
-      where: {
-        groupId: {
-          [Op.in]: Object.values(groupMap),
-        },
-      },
-    });
-
-    // create or update group memberships
+    // create group memberships
     const response = await axios.post("http://user-service:8000/users/ids-from-emails/", {
       emails,
     });

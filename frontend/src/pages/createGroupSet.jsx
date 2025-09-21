@@ -38,7 +38,6 @@ const GroupSetForm = () => {
       name: data.name,
       courseId: id,
       groupSize: data.groupSize,
-      numberOfGroups: data.numberOfGroups,
     };
 
     try {
@@ -78,17 +77,6 @@ const GroupSetForm = () => {
         {...register("groupSize", { required: true })}
         id="groupSize"
         label="Group Size"
-        type="number"
-        variant="outlined"
-        margin="normal"
-        fullWidth
-        required
-        autoComplete="off"
-      />
-      <TextField
-        {...register("numberOfGroups", { required: true })}
-        id="numberOfGroups"
-        label="Number of Groups"
         type="number"
         variant="outlined"
         margin="normal"

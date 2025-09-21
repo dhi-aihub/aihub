@@ -17,11 +17,6 @@ const GroupSet = sequelize.define(
       allowNull: false,
       notEmpty: true,
     },
-    numberOfGroups: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      notEmpty: true,
-    }
   },
   {
     indexes: [
