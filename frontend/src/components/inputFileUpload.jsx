@@ -3,7 +3,6 @@ import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Typography from "@mui/material/Typography";
 
-
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -16,7 +15,6 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-
 import { useState } from "react";
 
 export default function InputFileUpload({ text, onChange, accept = undefined, multiple = false }) {
@@ -25,7 +23,13 @@ export default function InputFileUpload({ text, onChange, accept = undefined, mu
   const handleChange = event => {
     const files = event.target.files;
     if (files.length > 0) {
-      setFileName(multiple ? Array.from(files).map(f => f.name).join(", ") : files[0].name);
+      setFileName(
+        multiple
+          ? Array.from(files)
+              .map(f => f.name)
+              .join(", ")
+          : files[0].name,
+      );
     } else {
       setFileName("");
     }
@@ -44,7 +48,12 @@ export default function InputFileUpload({ text, onChange, accept = undefined, mu
         startIcon={<CloudUploadIcon />}
       >
         {text}
-        <VisuallyHiddenInput onChange={handleChange} type="file" accept={accept} multiple={multiple} />
+        <VisuallyHiddenInput
+          onChange={handleChange}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+        />
       </Button>
       {fileName && (
         <Typography

@@ -13,7 +13,6 @@ import MenuItem from "@mui/material/MenuItem";
 import catalogueService from "../lib/api/catalogueService";
 import InputFileUpload from "../components/inputFileUpload";
 
-
 const Form = styled("form")(({ theme }) => ({
   width: "100%", // Fix IE 11 issue.
   marginTop: theme.spacing(1),
@@ -77,7 +76,7 @@ const TaskForm = () => {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(async resp => {
+      .then(resp => {
         const data = resp.data;
         if (data) {
           alert("Task created successfully");
