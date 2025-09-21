@@ -20,17 +20,17 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 const GroupSetForm = () => {
   const { id } = useParams();
   const { register, handleSubmit } = useForm();
-  const [csvData, setCsvData] = useState(null);
+  // const [csvData, setCsvData] = useState(null);
   const [disable, setDisable] = useState(false);
   const navigate = useNavigate();
 
-  function handleFileUpload(data) {
-    setCsvData(data);
-  }
+  // function handleFileUpload(data) {
+  //   setCsvData(data);
+  // }
 
-  function handleFileRemove() {
-    setCsvData(null);
-  }
+  // function handleFileRemove() {
+  //   setCsvData(null);
+  // }
 
   const onSubmit = async data => {
     setDisable(true);
@@ -41,23 +41,22 @@ const GroupSetForm = () => {
     };
 
     try {
-      const response = await catalogueService.post("/groupSets/", groupSetData);
-      const groupSet = response.data["data"];
-      // Process CSV data and add it to the group set
       catalogueService
-        .post(`/groups/bulk/${groupSet.id}`, { data: csvData["data"] })
+        .post("/groupSets/", groupSetData)
         .then(() => {
-          alert("Group set created successfully");
+          alert("Group set has been created successfully");
           navigate(`/courses/${id}/groups`);
         })
         .catch(error => {
-          console.error("Error creating groups:", error);
-          alert("Error creating groups from CSV data");
+          console.error("Error creating group set:", error);
+          alert("Error creating group set");
+          setDisable(false);
         });
     } catch (error) {
       console.error(error);
       alert("Error creating group set");
     }
+
     setDisable(false);
   };
 
@@ -85,12 +84,12 @@ const GroupSetForm = () => {
         required
         autoComplete="off"
       />
-      <Typography variant="body1" gutterBottom style={{ marginTop: "16px" }}>
+      {/* <Typography variant="body1" gutterBottom style={{ marginTop: "16px" }}>
         Upload a CSV file containing email addresses of users and group names to be added to the
         group set.
       </Typography>
-      <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
-      <SubmitButton type="submit" variant="contained" disabled={disable || !csvData}>
+      <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} /> */}
+      <SubmitButton type="submit" variant="contained" disabled={disable}>
         Create Group Set
       </SubmitButton>
     </Form>

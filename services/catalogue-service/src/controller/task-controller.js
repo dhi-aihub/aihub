@@ -221,10 +221,12 @@ export async function submitTrainingAgent(req, res) {
     const groupSetId = task.groupSetId;
     const groupId = await Group.findOne({
       where: { groupSetId },
-      include: [{
-        model: GroupParticipation,
-        where: { userId }
-      }]
+      include: [
+        {
+          model: GroupParticipation,
+          where: { userId },
+        },
+      ],
     }).then(group => group?.id);
 
     if (!groupId) {
@@ -259,6 +261,7 @@ export async function submitTrainingAgent(req, res) {
 
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {
+    console.error("Error in submitTask:", error);
     res.status(500).json({ message: error.message });
   }
 }

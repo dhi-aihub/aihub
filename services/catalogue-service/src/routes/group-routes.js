@@ -9,6 +9,7 @@ import {
   getAllGroups,
   getGroupById,
   getGroupsByGroupSetId,
+  getUserGroupInCourse,
 } from "../controller/group-controller.js";
 
 const router = express.Router();
@@ -28,5 +29,7 @@ router.put("/:id", updateGroup);
 router.put("/bulk/:groupSetId", updateGroupsBulk);
 
 router.delete("/:id", deleteGroup);
+
+router.get("/user/:userId/course/:courseId", getUserGroupInCourse);
 
 export default router;

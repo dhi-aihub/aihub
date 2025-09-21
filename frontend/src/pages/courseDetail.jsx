@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CircularProgress, Container, CssBaseline, Snackbar } from "@mui/material";
+import { Box, CircularProgress, Container, CssBaseline, Typography, Snackbar } from "@mui/material";
 import { Alert } from "../components/alert";
 import TaskCard from "../components/taskCard";
 import TaskDetail from "../components/taskDetail";
@@ -121,6 +121,12 @@ const CourseDetail = () => {
         <CssBaseline />
         {isLoading ? (
           <CircularProgress />
+        ) : tasks.length === 0 ? (
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Typography variant="h6" color="text.secondary">
+              There are no tasks for this course
+            </Typography>
+          </Box>
         ) : (
           tasks.map((task, index) => {
             return (

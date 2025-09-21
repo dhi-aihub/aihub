@@ -9,9 +9,9 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+
 import catalogueService from "../lib/api/catalogueService";
 import InputFileUpload from "../components/inputFileUpload";
-
 
 const Form = styled("form")(({ theme }) => ({
   width: "100%", // Fix IE 11 issue.
@@ -27,6 +27,7 @@ const TaskForm = () => {
   const [groupSets, setGroupSets] = useState([]);
   const { register, handleSubmit, control } = useForm();
   const [disable, setDisable] = useState(false);
+
   const graderRef = useRef();
   const templateRef = useRef();
   const trainerRef = useRef();
@@ -83,7 +84,6 @@ const TaskForm = () => {
         const data = resp.data;
         if (data) {
           alert("Task created successfully");
-          navigate(`/courses/${id}`);
         }
       })
       .catch(err => {
@@ -91,6 +91,7 @@ const TaskForm = () => {
         alert("Error creating task");
       })
       .finally(() => {
+        navigate(`/courses/${id}`);
         setDisable(false);
       });
   };
@@ -213,7 +214,6 @@ const TaskForm = () => {
             const files = event.target.files;
             if (files.length > 0) {
               graderRef.current = files[0];
-              alert("Grader file uploaded successfully");
             }
           }}
           accept=".zip"
@@ -224,7 +224,6 @@ const TaskForm = () => {
             const files = event.target.files;
             if (files.length > 0) {
               templateRef.current = files[0];
-              alert("Template file uploaded successfully");
             }
           }}
         />

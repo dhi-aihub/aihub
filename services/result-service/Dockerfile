@@ -13,10 +13,12 @@ ENV NODE_ENV=production
 ENV PORT=3003
 WORKDIR /usr/src/app
 
-# copy the exact deps used during build
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/dist ./dist
+# Copy package files and install production dependencies
 COPY package.json package-lock.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application
+COPY --from=builder /usr/src/app/dist ./dist
 
 USER node
 EXPOSE 3003
