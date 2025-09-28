@@ -161,17 +161,45 @@ const Submissions = () => {
                 <Typography variant="body2" fontWeight="bold" gutterBottom>
                   Metrics:
                 </Typography>
-                <Stack spacing={0.5}>
-                  {result.data[0].metrics.runtime && (
-                    <Typography variant="caption">
-                      Runtime: {result.data[0].metrics.runtime}
-                    </Typography>
-                  )}
-                  {result.data[0].metrics.accuracy !== undefined && (
-                    <Typography variant="caption">
-                      Accuracy: {(result.data[0].metrics.accuracy * 100).toFixed(2)}%
-                    </Typography>
-                  )}
+                <Stack spacing={1}>
+                  <Typography variant="caption" fontWeight="bold">
+                    Suite: {result.data[0].metrics.suite_id}
+                  </Typography>
+                  {result.data[0].metrics.results &&
+                    result.data[0].metrics.results.map((testResult, index) => (
+                      <Box key={index} sx={{ ml: 1, p: 1, bgcolor: "grey.50", borderRadius: 1 }}>
+                        <Typography variant="caption" fontWeight="bold">
+                          Test Case {testResult.case_id}: {testResult.result.name}
+                        </Typography>
+                        <Stack spacing={0.5} sx={{ ml: 1 }}>
+                          <Typography variant="caption">
+                            Value: {testResult.result.value}
+                          </Typography>
+                          {testResult.result.detail && (
+                            <Stack spacing={0.25}>
+                              <Typography variant="caption" color="text.secondary">
+                                Details:
+                              </Typography>
+                              {Object.entries(testResult.result.detail).map(([key, value]) => (
+                                <Typography
+                                  key={key}
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ ml: 1 }}
+                                >
+                                  {key.replace(/_/g, " ")}: {value}
+                                </Typography>
+                              ))}
+                            </Stack>
+                          )}
+                          {testResult.result.error && testResult.result.error !== "None" && (
+                            <Typography variant="caption" color="error">
+                              Error: {testResult.result.error}
+                            </Typography>
+                          )}
+                        </Stack>
+                      </Box>
+                    ))}
                 </Stack>
               </Box>
             )}
