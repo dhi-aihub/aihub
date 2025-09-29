@@ -35,13 +35,16 @@ class TestSuite:
 
         :param create_agent: a function that returns an `Agent` object. Parameters
         to this function will be passed to the constructor of the underlying `Agent` object.
-        :return:
+        :return: A dict containing the results of all test cases and the average score.
         """
         results = []
+        total_score = 0
         for case in self.test_cases:
             res = case.evaluate(create_agent)
+            total_score += res.value
             results.append(TestResult(case_id=case.case_id, result=res))
         return {
             "suite_id": self.suite_id,
-            "results": [x.get_json() for x in results]
+            "results": [x.get_json() for x in results],
+            "score": total_score / len(self.test_cases) if self.test_cases else 0,
         }

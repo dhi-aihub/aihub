@@ -52,7 +52,7 @@ def submit_job(job_id, celery_task_id, submission_id, output: ExecutionOutput):
             "submissionId": submission_id,
             "evalRunId": job_id,
             "status": "PASSED" if output.ok else "ERROR",
-            "score": 0,
+            "score": output.result.get("score", 0) if output.result else 0,
             "metrics": output.result,
             "error": output.error,
             "artifactsUri": None,
