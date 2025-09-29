@@ -36,11 +36,11 @@ def start_job(job_id, celery_task_id) -> Job:
                ram_limit=obj["ram_limit"], vram_limit=obj["vram_limit"])
 
 
-def submit_job(job_id, task_id, output: ExecutionOutput):
+def submit_job(job_id, celery_task_id, submission_id, output: ExecutionOutput):
     resp = requests.get(SCHEDULER_BASE_URL + f"/api/jobs/{job_id}/complete/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
                         data={
-                            "task_id": task_id,
+                            "task_id": celery_task_id,
                             "ok": output.ok,
                         })
 
@@ -49,7 +49,7 @@ def submit_job(job_id, task_id, output: ExecutionOutput):
     # submit to result service
     try:
         result_payload = {
-            "submissionId": task_id,
+            "submissionId": submission_id,
             "evalRunId": job_id,
             "status": "PASSED" if output.ok else "ERROR",
             "score": 0,

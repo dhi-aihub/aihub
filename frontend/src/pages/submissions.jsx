@@ -20,7 +20,7 @@ import {
   Box,
   Chip,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { logout, selectLoggedIn, selectUser } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,7 +36,6 @@ import {
 import catalogueService from "../lib/api/catalogueService";
 
 // import ReactJson from "react-json-view";
-import { useTheme } from "@mui/material/styles";
 import { cleanAuthStorage } from "../lib/auth";
 import { CheckCircle } from "@mui/icons-material";
 import Button from "@mui/material/Button";
@@ -67,7 +66,6 @@ const Submissions = () => {
   const user = useSelector(selectUser);
 
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -308,7 +306,7 @@ const Submissions = () => {
             acc[groupId].push(submission);
             return acc;
           }, {});
-          console.log(grouped);
+          //console.log(grouped);
           setGroupedSubmissions(grouped);
         }
 

@@ -30,7 +30,7 @@ class ExecutionOutput:
 
 
 class Submission:
-    def __init__(self, sid: int, task_url: str, submission_url: str, task_id: int):
+    def __init__(self, sid: str, task_url: str, submission_url: str, task_id: int):
         """
         :param sid:
         :param task_url:
