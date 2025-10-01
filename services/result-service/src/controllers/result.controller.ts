@@ -12,6 +12,8 @@ export async function createOrUpdateResult(req: Request, res: Response) {
   const {
     submissionId,
     evalRunId,
+    groupId,
+    taskId,
     status,
     score = null,
     metrics = null,
@@ -25,6 +27,8 @@ export async function createOrUpdateResult(req: Request, res: Response) {
       defaults: {
         submissionId,
         evalRunId,
+        groupId,
+        taskId,
         status,
         score,
         metrics,
