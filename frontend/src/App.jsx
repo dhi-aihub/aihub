@@ -31,6 +31,7 @@ import ManageParticipations from "./pages/manageParticipations";
 import CourseLayout from "./components/courseLayout";
 import ProtectedRoute from "./components/protectedRoute";
 import ManageGroups from "./pages/manageGroups";
+import Leaderboard from "./pages/leaderboard";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -72,6 +73,7 @@ const MyApp = () => {
             <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/courses/:id/groups" element={<ManageGroups />} />
             <Route path="/courses/:id/:task_id" element={<Submissions />} />
+            <Route path="/courses/:id/:task_id/leaderboard" element={<Leaderboard />} />
           </Route>
           <Route path="/courses/:id/admin/edit" element={<EditCourse />} />
           <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />

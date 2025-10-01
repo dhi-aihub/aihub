@@ -93,6 +93,9 @@ const TaskCard = ({
         >
           Train
         </Button>
+        <Button onClick={() => navigate(`/courses/${course.id}/${task.id}/leaderboard`)}>
+          Leaderboard
+        </Button>
       </AccordionActions>
     </Accordion>
   );
