@@ -7,6 +7,8 @@ export interface ResultAttrs {
   id: string;
   submissionId: string;
   evalRunId: string;
+  groupId: string;
+  taskId: string;
   status: ResultStatus;
   score?: string | null;
   metrics?: Record<string, any> | null;
@@ -34,6 +36,8 @@ export class Result
   declare id: string;
   declare submissionId: string;
   declare evalRunId: string;
+  declare groupId: string;
+  declare taskId: string;
   declare status: ResultStatus;
   declare score: string | null;
   declare metrics: Record<string, any> | null;
@@ -52,6 +56,8 @@ Result.init(
     },
     submissionId: { type: DataTypes.STRING(128), allowNull: false },
     evalRunId: { type: DataTypes.STRING(128), allowNull: false },
+    groupId: { type: DataTypes.STRING(128), allowNull: false },
+    taskId: { type: DataTypes.STRING(128), allowNull: false },
     status: {
       type: DataTypes.ENUM("PASSED", "FAILED", "PARTIAL", "ERROR"),
       allowNull: false,
@@ -77,6 +83,14 @@ Result.init(
       {
         fields: ["submissionId", "score"],
         name: "results_sub_score_desc_idx",
+      },
+      {
+        fields: ["groupId"],
+        name: "results_group_id_idx",
+      },
+      {
+        fields: ["taskId"],
+        name: "results_task_id_idx",
       },
     ],
   }
