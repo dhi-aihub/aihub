@@ -115,7 +115,7 @@ const CourseForm = () => {
         }}
       />
       <SubmitButton type="submit" disabled={disable} variant="contained" color="primary">
-        Edit Course
+        Edit
       </SubmitButton>
     </Form>
   );
