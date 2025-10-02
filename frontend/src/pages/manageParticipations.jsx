@@ -212,11 +212,36 @@ const ManageParticipations = () => {
         ) : (
           <TableContainer component={Paper}>
             <Table>
-              <TableHead>
+              <TableHead sx={{ backgroundColor: "primary.main" }}>
                 <TableRow>
-                  <TableCell>User ID</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "0.95rem",
+                      color: "primary.contrastText",
+                    }}
+                  >
+                    User Email
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "0.95rem",
+                      color: "primary.contrastText",
+                    }}
+                  >
+                    Role
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "0.95rem",
+                      color: "primary.contrastText",
+                    }}
+                  >
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -229,7 +254,7 @@ const ManageParticipations = () => {
                 ) : (
                   currentParticipants.map(participant => (
                     <TableRow key={`${participant.userId}-${participant.courseId}`}>
-                      <TableCell>{participant.userId}</TableCell>
+                      <TableCell>{participant.email}</TableCell>
                       <TableCell>
                         <Chip
                           label={getRoleDisplayName(participant.role)}

@@ -33,6 +33,72 @@ const DeleteButton = ({ courseId, taskId, refreshTasks }) => {
   );
 };
 
+const handleDownloadTemplate = async taskId => {
+  try {
+    const response = await catalogueService.get(`/tasks/${taskId}/download-template`, {
+      responseType: "blob",
+    });
+
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Try to get filename from Content-Disposition header
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = `template_${taskId}.py`; // Default to .py extension since that's what's uploaded
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, "");
+      }
+    }
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading template:", error);
+    alert("Error downloading template file");
+  }
+};
+
+const handleDownloadTrainingTemplate = async taskId => {
+  try {
+    const response = await catalogueService.get(`/tasks/${taskId}/download-training-template`, {
+      responseType: "blob",
+    });
+
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Try to get filename from Content-Disposition header
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = `training_template_${taskId}.py`; // Default to .py extension
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, "");
+      }
+    }
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading training template:", error);
+    alert("Error downloading training template file");
+  }
+};
+
 const TaskCard = ({
   course,
   task,
@@ -67,8 +133,12 @@ const TaskCard = ({
         >
           Details
         </Button>
-        {task.hasTemplate ? <Button>Template</Button> : null}
-        {task.hasTrainingTemplate ? <Button>Training Template</Button> : null}
+        {task.hasTemplate ? (
+          <Button onClick={() => handleDownloadTemplate(task.id)}>Template</Button>
+        ) : null}
+        {task.hasTrainingTemplate ? (
+          <Button onClick={() => handleDownloadTrainingTemplate(task.id)}>Training Template</Button>
+        ) : null}
         {isAdmin ? (
           <Button onClick={() => navigate(`/courses/${course.id}/edit_task/${task.id}`)}>
             Edit
@@ -87,10 +157,11 @@ const TaskCard = ({
           Submit
         </Button>
         <Button onClick={() => navigate(`/courses/${course.id}/${task.id}`)}>Submissions</Button>
-        <Button onClick={() => {
-          setActiveTaskIndex(index);
-          setOpenTaskTrainingSubmit(true);
-        }}
+        <Button
+          onClick={() => {
+            setActiveTaskIndex(index);
+            setOpenTaskTrainingSubmit(true);
+          }}
         >
           Train
         </Button>

@@ -30,7 +30,6 @@ import { ROLE_ADMIN, ROLE_LECTURER } from "../constants";
 import userService from "../lib/api/userService";
 import catalogueService from "../lib/api/catalogueService";
 
-
 const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
   const { id } = useParams();
   const [open, setOpen] = useState(false);
@@ -337,93 +336,253 @@ const GroupsList = ({ isAdmin, groupSet }) => {
   );
 };
 
-const GroupSetsList = ({ groupSets, selectedGroupSetId }) => {
+const GroupSetsList = ({ groupSets, selectedGroupSetId, isAdmin }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [groupsBySet, setGroupsBySet] = useState({});
+  const [loadingGroups, setLoadingGroups] = useState({});
+
+  // Fetch groups for a specific group set
+  const fetchGroupsForSet = async groupSetId => {
+    if (loadingGroups[groupSetId]) return;
+
+    setLoadingGroups(prev => ({ ...prev, [groupSetId]: true }));
+
+    try {
+      const response = await catalogueService.get(`/groups/groupSet/${groupSetId}/`);
+      const groupsData = response.data["data"];
+
+      if (Array.isArray(groupsData)) {
+        const sortedGroups = groupsData.sort((a, b) => a.id - b.id);
+        setGroupsBySet(prev => ({ ...prev, [groupSetId]: sortedGroups }));
+      }
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      setGroupsBySet(prev => ({ ...prev, [groupSetId]: [] }));
+    } finally {
+      setLoadingGroups(prev => ({ ...prev, [groupSetId]: false }));
+    }
+  };
+
+  // Refresh groups for a specific set
+  const refreshGroupsForSet = groupSetId => {
+    fetchGroupsForSet(groupSetId);
+  };
+
+  // Handle group set click - toggle selection
+  const handleGroupSetClick = groupSetId => {
+    if (selectedGroupSetId === groupSetId.toString()) {
+      // If already selected, unselect (navigate without groupSetId parameter)
+      navigate(`/courses/${id}/groups`);
+    } else {
+      // Select new group set
+      navigate(`/courses/${id}/groups?groupSetId=${groupSetId}`);
+      if (!groupsBySet[groupSetId]) {
+        fetchGroupsForSet(groupSetId);
+      }
+    }
+  };
 
   return (
     <Box sx={{ marginTop: 3 }}>
       <Typography variant="h5" gutterBottom>
         All Group Sets
       </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {groupSets.map(groupSet => (
           <Box
             key={groupSet.id}
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: 2,
-              border: 1,
+              border: 2,
               borderColor:
                 selectedGroupSetId === groupSet.id.toString() ? "primary.main" : "grey.300",
               borderRadius: 1,
-              backgroundColor:
-                selectedGroupSetId === groupSet.id.toString() ? "primary.light" : "transparent",
-              cursor: "pointer",
-              "&:hover": {
-                backgroundColor: "grey.100",
-              },
+              overflow: "hidden",
+              boxShadow: selectedGroupSetId === groupSet.id.toString() ? 2 : 0,
             }}
-            onClick={() => navigate(`/courses/${id}/groups?groupSetId=${groupSet.id}`)}
           >
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6">{groupSet.name}</Typography>
-              {groupSet.description && (
-                <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
-                  {groupSet.description}
+            {/* Group Set Header */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: 2,
+                backgroundColor:
+                  selectedGroupSetId === groupSet.id.toString() ? "primary.main" : "grey.50",
+                color: selectedGroupSetId === groupSet.id.toString() ? "white" : "text.primary",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor:
+                    selectedGroupSetId === groupSet.id.toString() ? "primary.dark" : "grey.100",
+                },
+              }}
+              onClick={() => handleGroupSetClick(groupSet.id)}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: selectedGroupSetId === groupSet.id.toString() ? "white" : "inherit",
+                  }}
+                >
+                  {groupSet.name}
                 </Typography>
-              )}
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Group Size:</strong> {groupSet.groupSize || "Not specified"}
-                </Typography>
-                {groupSet.maxGroupSize && (
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Max Group Size:</strong> {groupSet.maxGroupSize}
+                {groupSet.description && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      marginBottom: 1,
+                      color:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.7)"
+                          : "text.secondary",
+                    }}
+                  >
+                    {groupSet.description}
                   </Typography>
                 )}
-                {groupSet.minGroupSize && (
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Min Group Size:</strong> {groupSet.minGroupSize}
+                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.7)"
+                          : "text.secondary",
+                    }}
+                  >
+                    <strong>Group Size:</strong> {groupSet.groupSize || "Not specified"}
                   </Typography>
-                )}
+                  {groupSet.maxGroupSize && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color:
+                          selectedGroupSetId === groupSet.id.toString()
+                            ? "rgba(255,255,255,0.7)"
+                            : "text.secondary",
+                      }}
+                    >
+                      <strong>Max Group Size:</strong> {groupSet.maxGroupSize}
+                    </Typography>
+                  )}
+                  {groupSet.minGroupSize && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color:
+                          selectedGroupSetId === groupSet.id.toString()
+                            ? "rgba(255,255,255,0.7)"
+                            : "text.secondary",
+                      }}
+                    >
+                      <strong>Min Group Size:</strong> {groupSet.minGroupSize}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
+              {isAdmin && (
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    size="small"
+                    variant={
+                      selectedGroupSetId === groupSet.id.toString() ? "contained" : "outlined"
+                    }
+                    sx={{
+                      backgroundColor:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.1)"
+                          : "transparent",
+                      color:
+                        selectedGroupSetId === groupSet.id.toString() ? "white" : "primary.main",
+                      borderColor:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.3)"
+                          : "primary.main",
+                      "&:hover": {
+                        backgroundColor:
+                          selectedGroupSetId === groupSet.id.toString()
+                            ? "rgba(255,255,255,0.2)"
+                            : "primary.light",
+                      },
+                    }}
+                    component={RouterLink}
+                    to={`/courses/${id}/groups/edit_group_set/${groupSet.id}`}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="small"
+                    variant={
+                      selectedGroupSetId === groupSet.id.toString() ? "contained" : "outlined"
+                    }
+                    color="error"
+                    sx={{
+                      backgroundColor:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.1)"
+                          : "transparent",
+                      color: selectedGroupSetId === groupSet.id.toString() ? "white" : "error.main",
+                      borderColor:
+                        selectedGroupSetId === groupSet.id.toString()
+                          ? "rgba(255,255,255,0.3)"
+                          : "error.main",
+                      "&:hover": {
+                        backgroundColor:
+                          selectedGroupSetId === groupSet.id.toString()
+                            ? "rgba(255,255,255,0.2)"
+                            : "error.light",
+                      },
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (window.confirm(`Are you sure you want to delete "${groupSet.name}"?`)) {
+                        catalogueService
+                          .delete(`/groupSets/${groupSet.id}/`)
+                          .then(() => {
+                            alert("Group set deleted successfully");
+                            window.location.reload();
+                          })
+                          .catch(error => {
+                            alert("Cannot delete group set with associated tasks");
+                            console.error("Error deleting group set:", error.message);
+                          });
+                      }
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              )}
             </Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                size="small"
-                variant="outlined"
-                component={RouterLink}
-                to={`/courses/${id}/groups/edit_group_set/${groupSet.id}`}
-                onClick={e => e.stopPropagation()}
-              >
-                Edit
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                color="error"
-                onClick={e => {
-                  e.stopPropagation();
-                  if (window.confirm(`Are you sure you want to delete "${groupSet.name}"?`)) {
-                    catalogueService
-                      .delete(`/groupSets/${groupSet.id}/`)
-                      .then(() => {
-                        alert("Group set deleted successfully");
-                        window.location.reload();
-                      })
-                      .catch(error => {
-                        alert("Cannot delete group set with associated tasks");
-                        console.error("Error deleting group set:", error.message);
-                      });
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            </Box>
+
+            {/* Groups List for this Group Set */}
+            {selectedGroupSetId === groupSet.id.toString() && (
+              <Box sx={{ padding: 2, backgroundColor: "background.paper" }}>
+                {loadingGroups[groupSet.id] ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : groupsBySet[groupSet.id] ? (
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    <Typography variant="h6" sx={{ marginBottom: 1 }}>
+                      Groups in {groupSet.name}
+                    </Typography>
+                    {groupsBySet[groupSet.id].map(group => (
+                      <GroupCard
+                        group={group}
+                        key={group.id}
+                        isAdmin={isAdmin}
+                        onStudentAdded={() => refreshGroupsForSet(groupSet.id)}
+                        groupSet={groupSet}
+                      />
+                    ))}
+                  </Box>
+                ) : null}
+              </Box>
+            )}
           </Box>
         ))}
       </Box>
@@ -442,7 +601,6 @@ const ManageGroups = () => {
   const [groupSets, setGroupSets] = React.useState([]);
   const isAdmin =
     course && (course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER);
-  const selectedGroupSet = groupSets.find(gs => gs.id === parseInt(groupSetId));
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -468,10 +626,10 @@ const ManageGroups = () => {
       }
     };
     fetchGroupSets();
-  }, [id, groupSetId]);
+  }, [id]);
 
   return (
-    <Container component="main" maxWidth="lg">
+    <Container component="main" maxWidth="lg" sx={{ paddingBottom: 4 }}>
       <CssBaseline />
       {loading ? (
         <CircularProgress />
@@ -480,29 +638,7 @@ const ManageGroups = () => {
           <Typography variant="h4" gutterBottom>
             Groups
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-            <FormControl sx={{ minWidth: 400, marginRight: 2 }}>
-              <InputLabel id="group-set-select-label">Selected Group Set</InputLabel>
-              <Select
-                labelId="group-set-select-label"
-                id="group-set-select"
-                value={groupSetId || ""}
-                label="Selected Group Set"
-                onChange={e => {
-                  const selectedGroupSet = e.target.value;
-                  navigate(`/courses/${id}/groups?groupSetId=${selectedGroupSet}`);
-                }}
-              >
-                {groupSets.map(groupSet => (
-                  <MenuItem key={groupSet.id} value={groupSet.id}>
-                    {groupSet.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          {isAdmin && <GroupSetsList groupSets={groupSets} selectedGroupSetId={groupSetId} />}
-          <GroupsList isAdmin={isAdmin} groupSet={selectedGroupSet} />
+          <GroupSetsList groupSets={groupSets} selectedGroupSetId={groupSetId} isAdmin={isAdmin} />
         </Box>
       )}
     </Container>
