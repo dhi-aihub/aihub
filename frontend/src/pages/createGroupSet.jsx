@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useForm } from "react-hook-form";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import CSVReader from "../components/CSVReader";
 import catalogueService from "../lib/api/catalogueService";
 
 const Form = styled("form")(({ theme }) => ({
@@ -90,7 +89,7 @@ const GroupSetForm = () => {
       </Typography>
       <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} /> */}
       <SubmitButton type="submit" variant="contained" disabled={disable}>
-        Create Group Set
+        Submit
       </SubmitButton>
     </Form>
   );

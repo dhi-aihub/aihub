@@ -81,7 +81,7 @@ const CourseForm = () => {
         autoComplete="off"
       />
       <SubmitButton type="submit" disabled={disable} variant="contained" color="primary">
-        Create Course
+        Submit
       </SubmitButton>
     </Form>
   );

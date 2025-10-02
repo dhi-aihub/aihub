@@ -28,6 +28,7 @@ const Course = sequelize.define(
         fields: ["code", "academicYear", "semester"],
       },
     ],
+    paranoid: true, // enables soft deletes
   },
 );
 

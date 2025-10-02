@@ -16,7 +16,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -31,25 +30,6 @@ import { ROLE_ADMIN, ROLE_LECTURER } from "../constants";
 import userService from "../lib/api/userService";
 import catalogueService from "../lib/api/catalogueService";
 
-const AdminButton = styled(Button)(({ theme }) => ({
-  margin: theme.spacing(1),
-}));
-
-const ControlPanel = () => {
-  const { id } = useParams();
-
-  return (
-    <Box>
-      <AdminButton
-        variant={"outlined"}
-        component={RouterLink}
-        to={`/courses/${id}/groups/create_group_set`}
-      >
-        Create New Group Set
-      </AdminButton>
-    </Box>
-  );
-};
 
 const GroupCard = ({ group, isAdmin, onStudentAdded, groupSet }) => {
   const { id } = useParams();
@@ -399,9 +379,6 @@ const GroupSetsList = ({ groupSets, selectedGroupSetId }) => {
                 <Typography variant="body2" color="text.secondary">
                   <strong>Group Size:</strong> {groupSet.groupSize || "Not specified"}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Number of Groups:</strong> {groupSet.numberOfGroups || "Not specified"}
-                </Typography>
                 {groupSet.maxGroupSize && (
                   <Typography variant="body2" color="text.secondary">
                     <strong>Max Group Size:</strong> {groupSet.maxGroupSize}
@@ -523,7 +500,6 @@ const ManageGroups = () => {
                 ))}
               </Select>
             </FormControl>
-            {isAdmin && <ControlPanel />}
           </Box>
           {isAdmin && <GroupSetsList groupSets={groupSets} selectedGroupSetId={groupSetId} />}
           <GroupsList isAdmin={isAdmin} groupSet={selectedGroupSet} />

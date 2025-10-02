@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Container, CssBaseline, Typography } from "@mui/material";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
-import { API_BASE_URL } from "../constants";
 import { styled } from "@mui/material/styles";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
@@ -63,19 +62,16 @@ const CourseAdminPanel = () => {
         <AdminButton
           variant={"outlined"}
           component={RouterLink}
-          to={`/courses/${id}/admin/manage_participations`}
+          to={`/courses/${id}/groups/create_group_set`}
         >
-          Manage Participations
+          Add Group Set
         </AdminButton>
         <AdminButton
           variant={"outlined"}
-          href={API_BASE_URL + "/api/v1/submissions/"}
-          target="_blank"
+          component={RouterLink}
+          to={`/courses/${id}/admin/manage_participations`}
         >
-          View Submissions
-        </AdminButton>
-        <AdminButton variant={"outlined"} href={API_BASE_URL + "/api/v1/jobs/"} target="_blank">
-          View Jobs
+          Manage Participations
         </AdminButton>
         <AdminButton variant={"outlined"} component={RouterLink} to={`/courses/${id}/admin/edit`}>
           Edit Course

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import catalogueService from "../lib/api/catalogueService";
+import { ROLE_ADMIN, ROLE_LECTURER } from "../constants";
 
 const DeleteButton = ({ courseId, taskId, refreshTasks }) => {
   function handleDelete() {
@@ -42,7 +43,7 @@ const TaskCard = ({
   setActiveTaskIndex,
   refreshTasks,
 }) => {
-  const isAdmin = course.participation === "ADM";
+  const isAdmin = course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER;
   const navigate = useNavigate();
 
   return (

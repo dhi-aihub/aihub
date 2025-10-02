@@ -11,7 +11,7 @@ const PORT = Number(process.env.PORT || 3002);
   try {
     await initDb();
     app.listen(PORT, () => {
-      console.log(`🚀 File-service running on port ${PORT}`);
+      console.log(`🚀 Result-service running on port ${PORT}`);
     });
   } catch (err) {
     console.error("❌ Failed to start:", err);

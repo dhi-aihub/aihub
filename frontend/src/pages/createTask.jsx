@@ -249,7 +249,7 @@ const TaskForm = () => {
       </div>
       <div style={{ marginTop: 16 }}>
         <SubmitButton type="submit" variant="contained" disabled={disable}>
-          Create Task
+          Submit
         </SubmitButton>
       </div>
     </Form>

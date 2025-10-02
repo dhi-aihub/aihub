@@ -30,7 +30,7 @@ class ExecutionOutput:
 
 
 class Submission:
-    def __init__(self, sid: str, task_url: str, submission_url: str, task_id: int):
+    def __init__(self, sid: str, task_url: str, submission_url: str, task_id: int, group_id: int):
         """
         :param sid:
         :param task_url:
@@ -41,9 +41,10 @@ class Submission:
         self.task_url = task_url
         self.submission_url = submission_url
         self.task_id = task_id
+        self.group_id = group_id
 
     def __str__(self):
-        return f"Submission-{self.sid}-<{self.task_url}>-<{self.submission_url}>-<{self.task_id}>"
+        return f"Submission-{self.sid}-<{self.task_url}>-<{self.submission_url}>-<{self.task_id}>-<{self.group_id}>"
 
 
 class Job:
