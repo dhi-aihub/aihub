@@ -18,9 +18,40 @@ export async function getCourseParticipations(req, res) {
 export async function getCourseParticipationsByCourse(req, res) {
   try {
     const { courseId } = req.params;
-    const courseParticipations = await CourseParticipation.findAll({ where: { courseId } });
-    res.status(200).json({ message: "CourseParticipations retrieved", data: courseParticipations });
+    console.log("Fetching participations for courseId:", courseId);
 
+    const courseParticipations = await CourseParticipation.findAll({ where: { courseId } });
+
+    // Extract unique userIds from course participations
+    const userIds = [...new Set(courseParticipations.map(cp => cp.userId))];
+
+    if (userIds.length === 0) {
+      return res.status(200).json({ message: "CourseParticipations retrieved", data: [] });
+    }
+
+    console.log("Fetching user details for userIds:", userIds);
+
+    // Get user details for all userIds in a single request
+    const response = await userService.post("/users/details-from-ids/", {
+      userIds: userIds,
+    });
+    const userDetails = response.data.users;
+
+    // Create a map of userId to email
+    const userEmails = {};
+    userDetails.forEach(user => {
+      userEmails[user.id] = user.email;
+    });
+
+    // Enrich course participations with user emails
+    const enrichedParticipations = courseParticipations.map(participation => ({
+      ...participation.toJSON(),
+      email: userEmails[participation.userId] || null,
+    }));
+
+    res
+      .status(200)
+      .json({ message: "CourseParticipations retrieved", data: enrichedParticipations });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -38,8 +69,8 @@ export async function createCourseParticipation(req, res) {
     console.log("Processing email:", email);
 
     // Get userId from User Service
-    const response = await userService.post("/users/ids-from-emails/", { 
-      emails: [email] 
+    const response = await userService.post("/users/ids-from-emails/", {
+      emails: [email],
     });
     const userIds = response.data.userIds;
 
@@ -50,7 +81,9 @@ export async function createCourseParticipation(req, res) {
     const userId = userIds[0];
 
     // Check if the participation already exists
-    const existingParticipation = await CourseParticipation.findOne({ where: { userId, courseId } });
+    const existingParticipation = await CourseParticipation.findOne({
+      where: { userId, courseId },
+    });
     if (existingParticipation) {
       return res.status(409).json({ message: "User is already enrolled in this course" });
     }
@@ -58,7 +91,6 @@ export async function createCourseParticipation(req, res) {
     // Create the participation
     const participation = await CourseParticipation.create({ userId, courseId, role });
     res.status(201).json({ message: "CourseParticipation created", data: participation });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
