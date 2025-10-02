@@ -167,10 +167,12 @@ export async function submitTask(req, res) {
     const groupSetId = task.groupSetId;
     const groupId = await Group.findOne({
       where: { groupSetId },
-      include: [{
-        model: GroupParticipation,
-        where: { userId }
-      }]
+      include: [
+        {
+          model: GroupParticipation,
+          where: { userId },
+        },
+      ],
     }).then(group => group?.id);
 
     if (!groupId) {
@@ -267,6 +269,74 @@ export async function submitTrainingAgent(req, res) {
     res.status(201).json({ message: "Submission successful" });
   } catch (error) {
     console.error("Error in submitTask:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function downloadTemplateFile(req, res) {
+  try {
+    const taskId = req.params.taskId;
+    const task = await Task.findByPk(taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const fileResponse = await fileService.get(`/taskAsset/${taskId}/template/download`, {
+      responseType: "stream",
+    });
+
+    if (fileResponse.status !== 200) {
+      return res.status(404).json({ message: "Template file not found" });
+    }
+
+    // Set appropriate headers
+    res.setHeader(
+      "Content-Type",
+      fileResponse.headers["content-type"] || "application/octet-stream",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      fileResponse.headers["content-disposition"] || "attachment",
+    );
+
+    // Pipe file stream to response
+    fileResponse.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function downloadTrainerTemplateFile(req, res) {
+  try {
+    const taskId = req.params.taskId;
+    const task = await Task.findByPk(taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const fileResponse = await fileService.get(`/taskAsset/${taskId}/training-template/download`, {
+      responseType: "stream",
+    });
+
+    if (fileResponse.status !== 200) {
+      return res.status(404).json({ message: "Training template file not found" });
+    }
+
+    // Set appropriate headers
+    res.setHeader(
+      "Content-Type",
+      fileResponse.headers["content-type"] || "application/octet-stream",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      fileResponse.headers["content-disposition"] || "attachment",
+    );
+
+    // Pipe file stream to response
+    fileResponse.data.pipe(res);
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }

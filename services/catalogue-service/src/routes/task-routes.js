@@ -9,7 +9,9 @@ import {
   submissionUploadMulter,
   submitTask,
   trainingSubmissionUploadMulter,
-  submitTrainingAgent
+  submitTrainingAgent,
+  downloadTemplateFile,
+  downloadTrainerTemplateFile,
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -27,7 +29,8 @@ router.post(
   createTask,
 );
 
-router.put("/:courseId/:taskId",
+router.put(
+  "/:courseId/:taskId",
   verifyAccessToken,
   verifyIsCourseAdmin,
   taskFilesUploadMulter,
@@ -36,12 +39,7 @@ router.put("/:courseId/:taskId",
 
 router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
 
-router.post(
-  "/:taskId/submit",
-  verifyAccessToken,
-  submissionUploadMulter,
-  submitTask,
-);
+router.post("/:taskId/submit", verifyAccessToken, submissionUploadMulter, submitTask);
 
 router.post(
   "/:taskId/submit-training",
@@ -49,5 +47,9 @@ router.post(
   trainingSubmissionUploadMulter,
   submitTrainingAgent,
 );
+
+router.get("/:taskId/download-template", verifyAccessToken, downloadTemplateFile);
+
+router.get("/:taskId/download-training-template", verifyAccessToken, downloadTrainerTemplateFile);
 
 export default router;
