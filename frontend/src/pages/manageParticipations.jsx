@@ -267,7 +267,7 @@ const ManageParticipations = () => {
           onClick={handleSubmitBulk}
           disabled={disabled || !csvData}
         >
-          Submit Bulk Participations
+          Submit
         </SubmitButton>
       </SectionContainer>
 
@@ -328,7 +328,7 @@ const ManageParticipations = () => {
           onClick={handleSubmitIndividual}
           disabled={disabled || userList.length === 0}
         >
-          Submit Individual Participations
+          Submit
         </SubmitButton>
       </SectionContainer>
     </Container>
