@@ -120,7 +120,7 @@ const GroupSetForm = () => {
       </Typography>
       <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
       <SubmitButton type="submit" variant="contained" disabled={disable}>
-        Edit Group Set
+        Submit
       </SubmitButton>
     </Form>
   );

@@ -1,4 +1,5 @@
-import { response } from "express";
+import { Op } from "sequelize";
+
 import { userService } from "../lib/api.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
 
@@ -84,11 +85,11 @@ export async function createCourseParticipationBulk(req, res) {
       role: req.body.data[index][1],
     }));
 
-    // Drop existing participations for the course
-    await CourseParticipation.destroy({ where: { courseId } });
+    // Drop existing participations for the course except for ADM roles
+    await CourseParticipation.destroy({ where: { courseId, role: { [Op.ne]: "ADM" } } });
 
     // Bulk create participations
-    await CourseParticipation.bulkCreate(data);
+    await CourseParticipation.bulkCreate(data, { ignoreDuplicates: true });
     res.status(201).json({ message: "CourseParticipations created" });
   } catch (error) {
     console.error("Error creating course participations:", error);
@@ -103,6 +104,10 @@ export async function deleteCourseParticipation(req, res) {
     if (!participation) {
       res.status(404).json({ message: "CourseParticipation not found" });
       return;
+    }
+    const role = participation.role;
+    if (role === "ADM" && !req.user.isAdmin) {
+      return res.status(403).json({ message: "Forbidden" });
     }
     participation.destroy();
     res.status(200).json({ message: "CourseParticipation deleted" });

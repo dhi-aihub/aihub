@@ -94,6 +94,11 @@ export async function updateTask(req, res) {
     if (!taskData) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+    // Don't allow changing groupSetId
+    if (taskData.groupSetId && taskData.groupSetId !== task.groupSetId) {
+      return res.status(400).json({ message: "Cannot change groupSetId of a task" });
+    }
+
     task.update(taskData);
 
     if (graderFile) {

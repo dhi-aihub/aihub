@@ -37,6 +37,8 @@ const Task = sequelize.define("task", {
     type: DataTypes.INTEGER,
     defaultValue: 256, // 256MB
   },
+}, {
+  paranoid: true, // enables soft deletes
 });
 
 export default Task;

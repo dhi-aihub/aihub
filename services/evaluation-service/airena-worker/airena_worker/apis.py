@@ -30,13 +30,13 @@ def start_job(job_id, celery_task_id) -> Job:
         raise Exception(resp.content)
     obj = json.loads(resp.content)
     submission = Submission(sid=obj["submission"], task_url=get_task_url(obj["task"]),
-                      submission_url=get_submission_url(obj["submission"]), task_id=int(obj["task"]))
+                      submission_url=get_submission_url(obj["submission"]), task_id=int(obj["task"]), group_id=obj["group"])
 
     return Job(id=job_id, submission=submission, run_time_limit=obj["run_time_limit"], 
                ram_limit=obj["ram_limit"], vram_limit=obj["vram_limit"])
 
 
-def submit_job(job_id, celery_task_id, submission_id, output: ExecutionOutput):
+def submit_job(job_id, celery_task_id, submission: Submission, output: ExecutionOutput):
     resp = requests.get(SCHEDULER_BASE_URL + f"/api/jobs/{job_id}/complete/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
                         data={
@@ -49,10 +49,12 @@ def submit_job(job_id, celery_task_id, submission_id, output: ExecutionOutput):
     # submit to result service
     try:
         result_payload = {
-            "submissionId": submission_id,
+            "submissionId": submission.sid,
             "evalRunId": job_id,
+            "groupId": submission.group_id,
+            "taskId": submission.task_id,
             "status": "PASSED" if output.ok else "ERROR",
-            "score": 0,
+            "score": output.result.get("score", 0) if output.result else 0,
             "metrics": output.result,
             "error": output.error,
             "artifactsUri": None,

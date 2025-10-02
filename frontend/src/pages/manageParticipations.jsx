@@ -112,8 +112,12 @@ const ManageParticipations = () => {
           fetchCurrentParticipants();
         })
         .catch(error => {
-          alert("Error removing participant");
-          console.error("Error removing participant:", error.message);
+          if (error.response && error.response.status === 403) {
+            alert("You do not have permission to remove this user.");
+          } else {
+            alert("Error removing participant");
+            console.error("Error removing participant:", error.message);
+          }
         });
     }
   }

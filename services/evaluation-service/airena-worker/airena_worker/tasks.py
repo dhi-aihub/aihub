@@ -17,7 +17,7 @@ def evaluate(self, job_id):
     celery_task_id = self.request.id
     job = start_job(job_id, celery_task_id)
     result = run_job(job=job, celery_task_id=celery_task_id)
-    submit_job(job.id, celery_task_id, job.submission.sid, result)
+    submit_job(job.id, celery_task_id, job.submission, result)
     return {
         "ok": result.ok,
         "raw_log": result.raw,

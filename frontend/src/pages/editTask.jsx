@@ -240,7 +240,7 @@ const TaskForm = () => {
           shrink: true,
         }}
       />
-      <FormControl fullWidth variant="outlined" margin="normal" required>
+      <FormControl fullWidth variant="outlined" margin="normal" required disabled>
         <InputLabel id="groupSetId-label">Group Set</InputLabel>
         <Controller
           name="groupSetId"
@@ -304,7 +304,7 @@ const TaskForm = () => {
       </div>
       <div style={{ marginTop: 16 }}>
         <SubmitButton type="submit" variant="contained" disabled={disable}>
-          Edit
+          Submit
         </SubmitButton>
       </div>
     </Form>

@@ -72,7 +72,7 @@ const styles = {
   },
 };
 
-export default function CSVReader({ onFileUpload, onFileRemove }) {
+export default function CSVReader({ onFileUpload, onFileRemove, removeHeader = true }) {
   const { CSVReader } = useCSVReader();
   const [zoneHover, setZoneHover] = useState(false);
   const [removeHoverColor, setRemoveHoverColor] = useState(DEFAULT_REMOVE_HOVER_COLOR);
@@ -80,6 +80,7 @@ export default function CSVReader({ onFileUpload, onFileRemove }) {
   return (
     <CSVReader
       onUploadAccepted={results => {
+        if (removeHeader) results.data.shift();
         onFileUpload(results);
         setZoneHover(false);
       }}
