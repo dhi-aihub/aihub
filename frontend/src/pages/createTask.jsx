@@ -61,7 +61,12 @@ const TaskForm = () => {
       groupSetId: data.groupSetId,
     };
 
-    if (!graderRef.current || !templateRef.current || !trainerRef.current || !trainingTemplateRef.current) {
+    if (
+      !graderRef.current ||
+      !templateRef.current ||
+      !trainerRef.current ||
+      !trainingTemplateRef.current
+    ) {
       alert("Please upload grader, template, trainer, and training template files");
       setDisable(false);
       return;
@@ -207,19 +212,37 @@ const TaskForm = () => {
           )}
         />
       </FormControl>
-      <div style={{ display: "flex", gap: "16px", marginTop: 16, marginBottom: 8 }}>
-        <InputFileUpload
-          text="Upload Grader.zip"
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          marginTop: 16,
+          marginBottom: 8,
+        }}
+      >
+        <TextField
+          type="file"
+          label="Grader File (.zip)"
+          variant="outlined"
+          fullWidth
+          required
+          inputProps={{ accept: ".zip" }}
+          InputLabelProps={{ shrink: true }}
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
               graderRef.current = files[0];
             }
           }}
-          accept=".zip"
         />
-        <InputFileUpload
-          text="Upload Template"
+        <TextField
+          type="file"
+          label="Template File"
+          variant="outlined"
+          fullWidth
+          required
+          InputLabelProps={{ shrink: true }}
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
@@ -227,18 +250,28 @@ const TaskForm = () => {
             }
           }}
         />
-        <InputFileUpload
-          text="Upload Trainer.zip"
+        <TextField
+          type="file"
+          label="Trainer File (.zip)"
+          variant="outlined"
+          fullWidth
+          required
+          inputProps={{ accept: ".zip" }}
+          InputLabelProps={{ shrink: true }}
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
               trainerRef.current = files[0];
             }
           }}
-          accept=".zip"
         />
-        <InputFileUpload
-          text="Upload Training Template"
+        <TextField
+          type="file"
+          label="Training Template File"
+          variant="outlined"
+          fullWidth
+          required
+          InputLabelProps={{ shrink: true }}
           onChange={event => {
             const files = event.target.files;
             if (files.length > 0) {
@@ -247,7 +280,7 @@ const TaskForm = () => {
           }}
         />
       </div>
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 8 }}>
         <SubmitButton type="submit" variant="contained" disabled={disable}>
           Submit
         </SubmitButton>

@@ -27,7 +27,7 @@ const TopBar = ({ setOpenDrawer }) => {
     sessionStorage.setItem("mode", event.target.checked ? "dark" : "light");
   };
   return (
-    <AppBar position="static">
+    <AppBar position="static" color="primary">
       <Toolbar>
         <IconButton
           edge="start"
@@ -41,7 +41,7 @@ const TopBar = ({ setOpenDrawer }) => {
         </IconButton>
         <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "left" }}>
           <Link color="inherit" underline={"none"} component={RouterLink} to="/">
-            AiRENA
+            AiHub
           </Link>
         </Typography>
         {!isLoggedIn ? (

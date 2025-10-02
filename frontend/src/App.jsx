@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
+import { getTheme } from "./theme";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from "./redux/authSlice";
 import { Route, Routes, useNavigate } from "react-router-dom";
@@ -116,12 +117,7 @@ export default function ToggleColorMode() {
   );
 
   const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: isDark ? "dark" : "light",
-        },
-      }),
+    () => getTheme(isDark ? "dark" : "light"), // Use your custom theme function
     [isDark],
   );
 
