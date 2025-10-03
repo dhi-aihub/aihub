@@ -140,7 +140,7 @@ const TaskCard = ({
           <Button onClick={() => handleDownloadTrainingTemplate(task.id)}>Training Template</Button>
         ) : null}
         {isAdmin ? (
-          <Button onClick={() => navigate(`/courses/${course.id}/edit_task/${task.id}`)}>
+          <Button onClick={() => navigate(`/courses/${course.id}/${task.id}/edit`)}>
             Edit
           </Button>
         ) : null}
@@ -156,7 +156,7 @@ const TaskCard = ({
         >
           Submit
         </Button>
-        <Button onClick={() => navigate(`/courses/${course.id}/${task.id}`)}>Submissions</Button>
+        <Button onClick={() => navigate(`/courses/${course.id}/${task.id}/submissions`)}>Submissions</Button>
         <Button
           onClick={() => {
             setActiveTaskIndex(index);
