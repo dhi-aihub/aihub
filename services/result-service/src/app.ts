@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import resultsRouter from "./routes/results.routes";
+import studentSelectionRouter from "./routes/student-selection.routes";
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -12,6 +13,7 @@ app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
 // routes
 app.use("/results", resultsRouter);
+app.use("/selections", studentSelectionRouter);
 
 // 404 handler
 app.use((req, res, next) => {
