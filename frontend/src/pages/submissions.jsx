@@ -392,12 +392,6 @@ const Submissions = () => {
             <Button onClick={() => markForGrading(submission["submission_id"])}>
               Mark For Grading
             </Button>
-            <Button
-              onClick={() => loadJobStatus(submission["submission_id"])}
-              disabled={loadingJobStatus}
-            >
-              Fetch Job Status
-            </Button>
           </AccordionActions>
         </Accordion>
       ))}

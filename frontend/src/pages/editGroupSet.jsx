@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, CssBaseline, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { useForm } from "react-hook-form";
+
+import { Box, Container, CssBaseline, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import CSVReader from "../components/CSVReader";
 import catalogueService from "../lib/api/catalogueService";
 
@@ -48,6 +51,51 @@ const GroupSetForm = () => {
 
   function handleFileRemove() {
     setCsvData(null);
+  }
+
+  function handleDownloadGroupTemplate() {
+    catalogueService
+      .get("/groupParticipations/template", {
+        responseType: "blob",
+      })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "group_enrollment_template.csv");
+
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error("Error downloading group template:", error);
+        alert("Error downloading group template file");
+      });
+  }
+
+  // Download individual group enrollment template
+  function handleDownloadIndividualTemplate() {
+    catalogueService
+      .get("/groupParticipations/individual-template", {
+        responseType: "blob",
+      })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "individual_group_enrollment_template.csv");
+
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error("Error downloading individual template:", error);
+        alert("Error downloading individual template file");
+      });
   }
 
   const onSubmit = async data => {
@@ -114,11 +162,38 @@ const GroupSetForm = () => {
           shrink: true,
         }}
       />
-      <Typography variant="body1" gutterBottom style={{ marginTop: "16px" }}>
-        Upload a CSV file containing email addresses of users and group names to be added to the
-        group set.
-      </Typography>
-      <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
+
+      <Box sx={{ mt: 3, mb: 2 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">Bulk Upload Groups via CSV</Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownloadGroupTemplate}
+              size="small"
+            >
+              Download Group Template
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownloadIndividualTemplate}
+              size="small"
+            >
+              Download Individual Template
+            </Button>
+          </Box>
+        </Box>
+
+        <Typography variant="body2" gutterBottom>
+          Upload a CSV file containing email addresses of users and group names to be added to the
+          group set. Use one of the templates above for the correct format.
+        </Typography>
+
+        <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
+      </Box>
+
       <SubmitButton type="submit" variant="contained" disabled={disable}>
         Submit
       </SubmitButton>
