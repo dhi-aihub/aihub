@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import Group from "../models/group-model.js";
 import GroupParticipation from "../models/groupParticipation-model.js";
 import GroupSet from "../models/groupSet-model.js";
+import Task from "../models/task-model.js";
 
 // for testing purposes
 export async function getAllGroups(req, res) {
@@ -77,6 +78,53 @@ export const getUserGroupInCourse = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching user group:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const getUserGroupForTask = async (req, res) => {
+  try {
+    const { userId, taskId } = req.params;
+
+    const task = await Task.findByPk(taskId);
+
+    if (!task) {
+      return res.status(404).json({
+        message: "Task not found",
+      });
+    }
+
+    // Find the user's group participation for the specific groupSet associated with this task
+    const userGroup = await GroupParticipation.findOne({
+      where: { userId },
+      include: [
+        {
+          model: Group,
+          required: true,
+          where: { groupSetId: task.groupSetId },
+        },
+      ],
+    });
+
+    if (!userGroup) {
+      return res.status(404).json({
+        message: "User is not assigned to any group for this task",
+      });
+    }
+
+    return res.status(200).json({
+      groupId: userGroup.group.id,
+      groupName: userGroup.group.name,
+      groupSetId: userGroup.group.groupSetId,
+      taskId: task.id,
+      taskName: task.name,
+    });
+  } catch (error) {
+    console.error("Error fetching user group for task:", error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -166,9 +214,7 @@ export async function updateGroupsBulk(req, res) {
     });
 
     // create groups
-    await Group.bulkCreate(
-      groupNames.map(name => ({ name, groupSetId })),
-    );
+    await Group.bulkCreate(groupNames.map(name => ({ name, groupSetId })));
 
     // map group names to group IDs
     const groupMap = {};

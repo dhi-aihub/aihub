@@ -10,6 +10,7 @@ import {
   getGroupById,
   getGroupsByGroupSetId,
   getUserGroupInCourse,
+  getUserGroupForTask,
 } from "../controller/group-controller.js";
 
 const router = express.Router();
@@ -31,5 +32,7 @@ router.put("/bulk/:groupSetId", updateGroupsBulk);
 router.delete("/:id", deleteGroup);
 
 router.get("/user/:userId/course/:courseId", getUserGroupInCourse);
+
+router.get("/user/:userId/task/:taskId", getUserGroupForTask);
 
 export default router;
