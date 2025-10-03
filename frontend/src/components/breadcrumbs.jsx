@@ -28,8 +28,8 @@ const MuiBreadcrumbs = props => {
       { pattern: "/courses/:id/admin/create_task", name: "Create Task" },
       { pattern: "/courses/:id/admin/manage_participations", name: "Manage Participations" },
       { pattern: "/courses/:id/admin/edit", name: "Edit Course" },
-      { pattern: "/courses/:id/edit_task/:task_id", name: "Edit Task" },
-      { pattern: "/courses/:id/:task_id", name: "Submissions" },
+      { pattern: "/courses/:id/:task_id/edit", name: "Edit Task" },
+      { pattern: "/courses/:id/:task_id/submissions", name: "Submissions" },
       { pattern: "/courses/:id/:task_id/leaderboard", name: "Leaderboard" },
       { pattern: "/signin", name: "Sign In" },
     ];
