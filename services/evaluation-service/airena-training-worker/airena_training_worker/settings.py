@@ -36,6 +36,7 @@ def get_env_variable(var_name: str, default: str = None) -> str:
 
 SCHEDULER_BASE_URL = get_env_variable("SCHEDULER_BASE_URL")
 FILE_SERVICE_BASE_URL = get_env_variable("FILE_SERVICE_BASE_URL")
+RESULT_SERVICE_BASE_URL = get_env_variable("RESULT_SERVICE_BASE_URL")
 ACCESS_TOKEN = get_env_variable("ACCESS_TOKEN")
 CELERY_BROKER_URI = get_env_variable("BROKER_URI")
 CELERY_RESULT_BACKEND = "rpc"

@@ -5,7 +5,7 @@ import requests
 
 from .errors import QueueInfoNotFound, StopConsumingError, ResumeConsumingError
 from .models import QueueInfo, Submission, ExecutionOutput, Job
-from .settings import SCHEDULER_BASE_URL, FILE_SERVICE_BASE_URL, ACCESS_TOKEN, WORKER_NAME, FULL_WORKER_NAME
+from .settings import SCHEDULER_BASE_URL, FILE_SERVICE_BASE_URL, RESULT_SERVICE_BASE_URL, ACCESS_TOKEN, WORKER_NAME, FULL_WORKER_NAME
 
 logger = logging.getLogger("root")
 
@@ -36,18 +36,36 @@ def start_job(job_id, celery_task_id) -> Job:
                ram_limit=0, vram_limit=0)  # limits not implemented
 
 
-def submit_job(job_id, task_id, output: ExecutionOutput):
+def submit_job(job_id, celery_task_id, output: ExecutionOutput):
     resp = requests.get(SCHEDULER_BASE_URL + f"/api/training_jobs/{job_id}/complete/",
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"},
                         data={
-                            "task_id": task_id,
+                            "task_id": celery_task_id,
                             "ok": output.ok,
                         })
 
     print(output)
 
-    # TODO: submit to result service
-    raise NotImplementedError("Result service submission not implemented")
+    # submit to result service
+    try:
+        result_payload = {
+            "trainingJobId": str(job_id),
+            "status": "COMPLETED" if output.ok else "ERROR",
+            "details": output.result,
+            "error": output.error,
+            "outputUri": None,
+        }
+        result_resp = requests.post(
+            RESULT_SERVICE_BASE_URL + "/training-results/",
+            headers={"Authorization": f"Token {ACCESS_TOKEN}", "Content-Type": "application/json"},
+            json=result_payload
+        )
+        if result_resp.status_code not in [200, 201]:
+            logger.error(f"Result service error: {result_resp.status_code} {result_resp.content}")
+        else:
+            logger.info(f"Result submitted: {result_resp.json()}")
+    except Exception as e:
+        logger.error(f"Failed to submit result: {e}")
 
     return resp
 
