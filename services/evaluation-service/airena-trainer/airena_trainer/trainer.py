@@ -10,7 +10,7 @@ class Trainer:
         self.evaluator = evaluator
         self.env = TrainingEnv(env, evaluator)
 
-    def train_and_save(self, agent: type[Agent]):
+    def train_and_save(self, agent: type[Agent], path: str) -> None:
         if self.is_trained:
             raise RuntimeError("Training has already been performed.")
         
@@ -19,7 +19,7 @@ class Trainer:
         try:
             agent_instance = agent(self.env)
             agent_instance.train()
-            agent_instance.save("agent.pth")
+            agent_instance.save(path)
         except Exception as e:
             self.evaluator.terminate(e)
 
