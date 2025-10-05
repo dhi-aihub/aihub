@@ -8,10 +8,6 @@ import {
   CircularProgress,
   Container,
   CssBaseline,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Stack,
   Typography,
   Box,
@@ -31,6 +27,7 @@ import {
 import catalogueService from "../lib/api/catalogueService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
+import LineGraph from "../components/lineGraph";
 
 const RESULTS_BASE_URL = "http://localhost:3003";
 
@@ -69,6 +66,13 @@ const TrainingResults = () => {
       return <Typography color="error">{result.noResultError}</Typography>;
     }
 
+    const detailArr = result.details.detail || [];
+    const last10 = detailArr.slice(-10);
+    const avgLast10 =
+      last10.length > 0
+        ? (last10.reduce((sum, val) => sum + val, 0) / last10.length).toFixed(2)
+        : "N/A";
+
     return (
       <Box>
         <Typography variant="subtitle2" gutterBottom>
@@ -90,8 +94,12 @@ const TrainingResults = () => {
               Details:
             </Typography>
             <Stack spacing={1}>
-              <Typography variant="caption" fontWeight="bold">Evaluator: {result.details.name}</Typography>
-              <Typography variant="body2">Score: {result.details.value}</Typography>
+              <Typography variant="caption" fontWeight="bold">
+                Evaluator: {result.details.name}
+              </Typography>
+              <Typography variant="body2">Avg Score (Last 10 episodes): {avgLast10}</Typography>
+              {/* Plot result graph */}
+              <LineGraph data={result.details.detail} />
               {result.error && result.error !== "None" && (
                 <Typography variant="body2" color="error">
                   Error: {result.error}, Details: {result.details.error}
