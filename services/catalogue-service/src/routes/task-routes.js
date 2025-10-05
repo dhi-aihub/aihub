@@ -12,6 +12,7 @@ import {
   submitTrainingAgent,
   downloadTemplateFile,
   downloadTrainerTemplateFile,
+  downloadTrainingOutputFile,
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -51,5 +52,7 @@ router.post(
 router.get("/:taskId/download-template", verifyAccessToken, downloadTemplateFile);
 
 router.get("/:taskId/download-training-template", verifyAccessToken, downloadTrainerTemplateFile);
+
+router.get("/:fileId/download-training-output", verifyAccessToken, downloadTrainingOutputFile);
 
 export default router;

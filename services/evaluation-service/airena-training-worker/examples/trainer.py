@@ -12,7 +12,7 @@ def main():
 
     # Create a trainer with the environment and evaluator
     trainer = Trainer(env, RewardEvaluator())
-    trainer.train_and_save(MyAgent)
+    trainer.train_and_save(MyAgent, path="output.pth")
     res = trainer.get_result()
     """
     # firejail

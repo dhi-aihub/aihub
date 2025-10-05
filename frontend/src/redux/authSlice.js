@@ -42,10 +42,7 @@ export const authSlice = createSlice({
       state.loggedIn = true;
       state.user = fromJson(user.payload);
       // Persist to localStorage
-      localStorage.setItem(
-        "authState",
-        JSON.stringify({ loggedIn: true, user: state.user })
-      );
+      localStorage.setItem("authState", JSON.stringify({ loggedIn: true, user: state.user }));
     },
     logout: state => {
       state.loggedIn = false;
