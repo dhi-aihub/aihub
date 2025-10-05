@@ -66,12 +66,14 @@ const TrainingResults = () => {
       return <Typography color="error">{result.noResultError}</Typography>;
     }
 
-    const detailArr = result.details.detail || [];
-    const last10 = detailArr.slice(-10);
-    const avgLast10 =
-      last10.length > 0
+    function getAvgLast10(detailArr) {
+      const last10 = detailArr.slice(-10);
+      return last10.length > 0
         ? (last10.reduce((sum, val) => sum + val, 0) / last10.length).toFixed(2)
         : "N/A";
+    }
+
+    const hasDetails = result.details;
 
     return (
       <Box>
@@ -93,19 +95,22 @@ const TrainingResults = () => {
             <Typography variant="body2" fontWeight="bold" gutterBottom>
               Details:
             </Typography>
-            <Stack spacing={1}>
-              <Typography variant="caption" fontWeight="bold">
-                Evaluator: {result.details.name}
+            {result.error && result.error !== "None" ? (
+              <Typography variant="body2" color="error">
+                Error: {hasDetails ? result.details.error : result.error}
               </Typography>
-              <Typography variant="body2">Avg Score (Last 10 episodes): {avgLast10}</Typography>
-              {/* Plot result graph */}
-              <LineGraph data={result.details.detail} />
-              {result.error && result.error !== "None" && (
-                <Typography variant="body2" color="error">
-                  Error: {result.error}, Details: {result.details.error}
+            ) : (
+              <Stack spacing={1}>
+                <Typography variant="caption" fontWeight="bold">
+                  Evaluator: {result.details.name}
                 </Typography>
-              )}
-            </Stack>
+                <Typography variant="body2">
+                  Avg Score (Last 10 episodes): {getAvgLast10(result.details.detail)}
+                </Typography>
+                {/* Plot result graph */}
+                <LineGraph data={result.details.detail} />
+              </Stack>
+            )}
           </Box>
         </Stack>
       </Box>
