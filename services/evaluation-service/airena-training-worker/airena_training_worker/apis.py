@@ -53,7 +53,7 @@ def submit_job(job_id, celery_task_id, output: ExecutionOutput):
             "status": "COMPLETED" if output.ok else "ERROR",
             "details": output.result,
             "error": output.error,
-            "outputUri": None,
+            "outputUri": str(output.result.get("file_id")) if output.result else None,
         }
         result_resp = requests.post(
             RESULT_SERVICE_BASE_URL + "/training-results/",
@@ -103,3 +103,13 @@ def resume_consuming(queue: QueueInfo):
                         headers={"Authorization": f"Token {ACCESS_TOKEN}"})
     if resp.status_code != 200:
         raise ResumeConsumingError(f"resume consuming failed [{resp.status_code}]: {resp.content}")
+
+
+def upload_model(file_path: str, task_id: str) -> int:
+    with open(file_path, "rb") as f:
+        files = {"file": f}
+        resp = requests.post(FILE_SERVICE_BASE_URL + f"/trainingOutput/{task_id}/", headers={"Authorization": f"Token {ACCESS_TOKEN}"}, files=files)
+        if resp.status_code != 201:
+            raise Exception(f"Model upload failed [{resp.status_code}]: {resp.content}")
+        result = resp.json()
+        return result["id"]

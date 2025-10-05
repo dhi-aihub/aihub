@@ -7,9 +7,10 @@ import requests
 
 from .models import Submission, ExecutionOutput, Job
 from .sandbox import create_venv, run_with_venv
-from .settings import LOCAL_FILE, TEMP_GRADING_FOLDER
+from .settings import LOCAL_FILE, TEMP_GRADING_FOLDER, OUTPUT_NAME
 from .util import LocalFileAdapter, download_and_save
 from .constants import ERROR_MEMORY_LIMIT_EXCEEDED, ERROR_TIME_LIMIT_EXCEEDED, ERROR_VRAM_LIMIT_EXCEEDED, ERROR_RUNTIME_ERROR
+from .apis import upload_model
 
 
 def _download_submission(s: Submission) -> str:
@@ -59,6 +60,11 @@ def run_job(job: Job, celery_task_id: str, force: bool = False) -> ExecutionOutp
             result = json.loads(raw_log.splitlines()[2])
             ok = result["error"] == "None"
             if ok:
+                # upload the model
+                upload_model_path = os.path.join(temp_grading_folder, OUTPUT_NAME)
+                if os.path.exists(upload_model_path):
+                    file_id = upload_model(upload_model_path, job.submission.task_id)
+                    result["file_id"] = file_id
                 return ExecutionOutput(ok=True, raw=raw_log, result=result, error=None)
             else:
                 return ExecutionOutput(ok=False, raw=raw_log, result=result, error=ERROR_RUNTIME_ERROR)

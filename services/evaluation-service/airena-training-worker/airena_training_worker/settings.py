@@ -45,6 +45,9 @@ CELERY_CONCURRENCY = get_env_variable("CELERY_CONCURRENCY", "1")
 WORKER_NAME = get_env_variable("WORKER_NAME", "celery")
 FULL_WORKER_NAME = f"{WORKER_NAME}@{socket.gethostname()}"
 
+# Model config
+OUTPUT_NAME = get_env_variable("OUTPUT_NAME", "output.pth")
+
 # Monitor config
 ZMQ_PORT = get_env_variable("ZMQ_PORT", "15921")
 

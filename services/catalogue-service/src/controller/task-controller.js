@@ -340,3 +340,31 @@ export async function downloadTrainerTemplateFile(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+export async function downloadTrainingOutputFile(req, res) {
+  try {
+    const fileId = req.params.fileId;
+    const fileResponse = await fileService.get(`/trainingOutput/${fileId}/`, {
+      responseType: "stream",
+    });
+
+    if (fileResponse.status !== 200) {
+      return res.status(404).json({ message: "Training output file not found" });
+    }
+
+    // Set appropriate headers
+    res.setHeader(
+      "Content-Type",
+      fileResponse.headers["content-type"] || "application/octet-stream",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      fileResponse.headers["content-disposition"] || "attachment",
+    );
+
+    // Pipe file stream to response
+    fileResponse.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}

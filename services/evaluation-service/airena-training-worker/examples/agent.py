@@ -85,7 +85,7 @@ class MyAgent(Agent):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Define the hyperparameters
-        self.EPISODES = 300
+        self.EPISODES = 50
         self.BATCH_SIZE = 128
         self.GAMMA = 0.99
         self.EPS_START = 0.9

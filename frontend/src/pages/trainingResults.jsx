@@ -38,6 +38,39 @@ const TrainingResults = () => {
   const [jobs, setJobs] = useState([]);
   const [results, setResults] = useState({});
 
+  async function handleDownloadModel(fileId) {
+    try {
+      const response = await catalogueService.get(`/tasks/${fileId}/download-training-output/`, {
+        responseType: "blob",
+      });
+
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Try to get filename from Content-Disposition header
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `model_${fileId}.pth`; // Default to .pth extension
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading model:", error);
+      alert("Error downloading model file");
+    }
+  }
+
   const fetchResult = async jobId => {
     try {
       const response = await axios.get(`${RESULTS_BASE_URL}/training-results/${jobId}/`);
@@ -109,6 +142,7 @@ const TrainingResults = () => {
                 </Typography>
                 {/* Plot result graph */}
                 <LineGraph data={result.details.detail} />
+                <Button size="small" variant="outlined" onClick={() => handleDownloadModel(result.outputUri)}>Download Model</Button>
               </Stack>
             )}
           </Box>
