@@ -48,8 +48,16 @@ export async function createOrUpdateResult(req: Request, res: Response) {
       });
     }
 
+    console.log("Result processed:", row.id);
+
     if (taskId && groupId) {
-      await handleStudentSelectionForResult(taskId, groupId, row.id);
+      console.log("Handling student selection for result:", row.id);
+      await handleStudentSelectionForResult(
+        String(taskId),
+        String(groupId),
+        row.id
+      );
+      console.log("Student selection handled for result:", row.id);
     }
 
     return res.status(created ? 201 : 200).json({

@@ -37,7 +37,7 @@ import catalogueService from "../lib/api/catalogueService";
 
 // import ReactJson from "react-json-view";
 import { cleanAuthStorage } from "../lib/auth";
-import { CheckCircle } from "@mui/icons-material";
+import { CheckCircle, Star } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 
 const RESULTS_BASE_URL = "http://localhost:3003";
@@ -75,10 +75,51 @@ const Submissions = () => {
   const [groupedSubmissions, setGroupedSubmissions] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
   const [loadingResults, setLoadingResults] = useState({});
+  const [studentSelections, setStudentSelections] = useState({});
+  const [loadingSelections, setLoadingSelections] = useState({});
 
   const isAdmin =
     course && (course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER);
   const [userGroupId, setUserGroupId] = useState(null);
+
+  // Function to fetch student selection for a specific group and task
+  const fetchStudentSelection = async (taskId, groupId) => {
+    const selectionKey = `${taskId}_${groupId}`;
+
+    if (studentSelections[selectionKey] || loadingSelections[selectionKey]) {
+      return;
+    }
+
+    setLoadingSelections(prev => ({ ...prev, [selectionKey]: true }));
+
+    try {
+      const response = await axios({
+        method: "get",
+        url: `${RESULTS_BASE_URL}/selections/task/${taskId}/group/${groupId}`,
+        headers: {
+          authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      });
+
+      console.log("Fetched student selection:", response.data);
+
+      setStudentSelections(prev => ({
+        ...prev,
+        [selectionKey]: response.data,
+      }));
+    } catch (error) {
+      console.error(
+        `Failed to fetch student selection for task ${taskId}, group ${groupId}:`,
+        error,
+      );
+      setStudentSelections(prev => ({
+        ...prev,
+        [selectionKey]: { error: "Failed to fetch student selection" },
+      }));
+    } finally {
+      setLoadingSelections(prev => ({ ...prev, [selectionKey]: false }));
+    }
+  };
 
   // Function to fetch result for a specific submission
   const fetchSubmissionResult = async submissionId => {
@@ -110,6 +151,63 @@ const Submissions = () => {
     } finally {
       setLoadingResults(prev => ({ ...prev, [submissionId]: false }));
     }
+  };
+
+  // Component to render student selection
+  const renderStudentSelection = (taskId, groupId) => {
+    const selectionKey = `${taskId}_${groupId}`;
+    const selection = studentSelections[selectionKey];
+    const isLoading = loadingSelections[selectionKey];
+
+    if (isLoading) {
+      return <CircularProgress size={20} />;
+    }
+
+    if (!selection) {
+      return (
+        <Button
+          size="small"
+          onClick={() => fetchStudentSelection(taskId, groupId)}
+          variant="outlined"
+          startIcon={<Star />}
+        >
+          Load Selected Submission
+        </Button>
+      );
+    }
+
+    if (selection.error) {
+      return <Typography color="error">{selection.error}</Typography>;
+    }
+
+    if (!selection) {
+      return (
+        <Typography color="text.secondary">No submission selected for grading yet.</Typography>
+      );
+    }
+
+    return (
+      <Box
+        sx={{
+          border: 1,
+          borderColor: "primary.main",
+          borderRadius: 1,
+          p: 2,
+          bgcolor: "primary.50",
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+          <Star color="primary" />
+          <Typography variant="subtitle2" fontWeight="bold" color="primary">
+            Selected for Grading
+          </Typography>
+        </Stack>
+        <Typography variant="body2">Result ID: {selection.id}</Typography>
+        <Typography variant="caption" color="text.secondary">
+          Updated: {new Date(selection.updatedAt).toLocaleString()}
+        </Typography>
+      </Box>
+    );
   };
 
   // Component to render submission results
@@ -322,6 +420,13 @@ const Submissions = () => {
     fetchSubmissions();
   }, [id, isLoggedIn, task_id, course, isAdmin, userGroupId]);
 
+  // Auto-fetch student selection for students once userGroupId is available
+  useEffect(() => {
+    if (!isAdmin && userGroupId && task_id) {
+      fetchStudentSelection(task_id, userGroupId);
+    }
+  }, [userGroupId, task_id, isAdmin]);
+
   if (!isLoggedIn) {
     cleanAuthStorage();
     dispatch(logout());
@@ -332,46 +437,60 @@ const Submissions = () => {
   // Render student view
   const renderStudentView = () => (
     <>
+      {userGroupId && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Selected Submission for Grading
+          </Typography>
+          {renderStudentSelection(task_id, userGroupId)}
+        </Box>
+      )}
+
       {submissions.length === 0 ? (
         <Typography variant="body1" color="text.secondary" sx={{ textAlign: "center", mt: 4 }}>
           No submissions to view.
         </Typography>
       ) : (
-        submissions.map((submission, index) => (
-          <Accordion key={`submission_${index}`}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Stack>
-                <Stack direction={"row"}>
-                  <Typography variant={"h6"}>
-                    Attempt at {new Date(submission["created_at"]).toLocaleString()}
-                  </Typography>
-                  {submission["marked_for_grading"] ? (
-                    <CheckCircle sx={{ color: "success.light", marginLeft: 0.5 }} />
+        <>
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+            All Submissions
+          </Typography>
+          {submissions.map((submission, index) => (
+            <Accordion key={`submission_${index}`}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Stack>
+                  <Stack direction={"row"}>
+                    <Typography variant={"h6"}>
+                      Attempt at {new Date(submission["created_at"]).toLocaleString()}
+                    </Typography>
+                    {submission["marked_for_grading"] ? (
+                      <CheckCircle sx={{ color: "success.light", marginLeft: 0.5 }} />
+                    ) : null}
+                  </Stack>
+                  {submission["point"] ? (
+                    <div>
+                      <Typography variant={"button"}>Score: </Typography>
+                      <Typography variant={"button"}>{submission["point"]}</Typography>
+                    </div>
                   ) : null}
                 </Stack>
-                {submission["point"] ? (
-                  <div>
-                    <Typography variant={"button"}>Score: </Typography>
-                    <Typography variant={"button"}>{submission["point"]}</Typography>
-                  </div>
-                ) : null}
-              </Stack>
-            </AccordionSummary>
-            <AccordionDetails sx={{ mb: 2 }}>
-              <Stack spacing={2}>
-                <Typography variant="body2" color="text.secondary">
-                  Status: {JobStatusMap[submission.status] || submission.status}
-                </Typography>
-                {renderSubmissionResult(submission.submission_id)}
-              </Stack>
-            </AccordionDetails>
-            <AccordionActions sx={{ justifyContent: "left" }}>
-              <Button onClick={() => markForGrading(submission["submission_id"])}>
-                Mark For Grading
-              </Button>
-            </AccordionActions>
-          </Accordion>
-        ))
+              </AccordionSummary>
+              <AccordionDetails sx={{ mb: 2 }}>
+                <Stack spacing={2}>
+                  <Typography variant="body2" color="text.secondary">
+                    Status: {JobStatusMap[submission.status] || submission.status}
+                  </Typography>
+                  {renderSubmissionResult(submission.submission_id)}
+                </Stack>
+              </AccordionDetails>
+              <AccordionActions sx={{ justifyContent: "left" }}>
+                <Button onClick={() => markForGrading(submission["submission_id"])}>
+                  Mark For Grading
+                </Button>
+              </AccordionActions>
+            </Accordion>
+          ))}
+        </>
       )}
     </>
   );
@@ -390,51 +509,65 @@ const Submissions = () => {
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <Stack spacing={1}>
-              {groupSubmissions.map((submission, index) => (
-                <Accordion key={`submission_${groupId}_${index}`} variant="outlined">
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Typography variant={"body1"}>
-                        Attempt at {new Date(submission["created_at"]).toLocaleString()}
-                      </Typography>
-                      <Typography variant={"body2"} color="text.secondary">
-                        Status: {JobStatusMap[submission.status] || submission.status}
-                      </Typography>
-                      {submission["marked_for_grading"] ? (
-                        <CheckCircle sx={{ color: "success.light" }} />
-                      ) : null}
-                    </Stack>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ mb: 2 }}>
-                    <Stack spacing={2}>
-                      <Table size="small">
-                        <TableBody>
-                          <TableRow>
-                            <TableCell>Submission ID</TableCell>
-                            <TableCell>{submission.submission_id}</TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Status</TableCell>
-                            <TableCell>
-                              {JobStatusMap[submission.status] || submission.status}
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Runtime Limit</TableCell>
-                            <TableCell>{submission.run_time_limit}s</TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>RAM Limit</TableCell>
-                            <TableCell>{submission.ram_limit}MB</TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                      {renderSubmissionResult(submission.submission_id)}
-                    </Stack>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
+            <Stack spacing={2}>
+              {/* Student Selection for this group */}
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Selected Submission for Grading
+                </Typography>
+                {renderStudentSelection(task_id, groupId)}
+              </Box>
+
+              {/* All submissions for this group */}
+              <Typography variant="h6" gutterBottom>
+                All Submissions
+              </Typography>
+              <Stack spacing={1}>
+                {groupSubmissions.map((submission, index) => (
+                  <Accordion key={`submission_${groupId}_${index}`} variant="outlined">
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Typography variant={"body1"}>
+                          Attempt at {new Date(submission["created_at"]).toLocaleString()}
+                        </Typography>
+                        <Typography variant={"body2"} color="text.secondary">
+                          Status: {JobStatusMap[submission.status] || submission.status}
+                        </Typography>
+                        {submission["marked_for_grading"] ? (
+                          <CheckCircle sx={{ color: "success.light" }} />
+                        ) : null}
+                      </Stack>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ mb: 2 }}>
+                      <Stack spacing={2}>
+                        <Table size="small">
+                          <TableBody>
+                            <TableRow>
+                              <TableCell>Submission ID</TableCell>
+                              <TableCell>{submission.submission_id}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>Status</TableCell>
+                              <TableCell>
+                                {JobStatusMap[submission.status] || submission.status}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>Runtime Limit</TableCell>
+                              <TableCell>{submission.run_time_limit}s</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>RAM Limit</TableCell>
+                              <TableCell>{submission.ram_limit}MB</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                        {renderSubmissionResult(submission.submission_id)}
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+              </Stack>
             </Stack>
           </AccordionDetails>
         </Accordion>
