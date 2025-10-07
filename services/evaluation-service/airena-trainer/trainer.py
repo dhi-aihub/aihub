@@ -11,8 +11,9 @@ def main():
     env = gym.make("CartPole-v1")
 
     # Create a trainer with the environment and evaluator
-    trainer = Trainer(env, RewardEvaluator())
-    trainer.train_and_save(MyAgent, path="output.pth")
+    trainer = Trainer(env, RewardEvaluator(), MyAgent)
+    trainer.train()
+    trainer.save("output.pth")
     res = trainer.get_result()
     """
     # firejail
