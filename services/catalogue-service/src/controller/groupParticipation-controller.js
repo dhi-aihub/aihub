@@ -1,5 +1,9 @@
 import GroupParticipation from "../models/groupParticipation-model.js";
 import Group from "../models/group-model.js";
+import {
+  GROUP_ENROLLMENT_TEMPLATE,
+  INDIVIDUAL_GROUP_ENROLLMENT_TEMPLATE,
+} from "../lib/csvTemplates.js";
 
 export async function getGroupParticipations(req, res) {
   try {
@@ -24,10 +28,12 @@ export async function createGroupParticipation(req, res) {
     // Find if user is already in any group in the same group set
     const existingParticipation = await GroupParticipation.findOne({
       where: { userId },
-      include: [{
-        model: Group,
-        where: { groupSetId: group.groupSetId },
-      }],
+      include: [
+        {
+          model: Group,
+          where: { groupSetId: group.groupSetId },
+        },
+      ],
     });
 
     if (existingParticipation) {
@@ -49,6 +55,33 @@ export async function deleteGroupParticipation(req, res) {
     await GroupParticipation.destroy({ where: { id: groupParticipationId } });
     res.status(200).json({ message: "GroupParticipation deleted" });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function downloadGroupEnrollmentTemplate(req, res) {
+  try {
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="group_enrollment_template.csv"');
+
+    res.send(GROUP_ENROLLMENT_TEMPLATE);
+  } catch (error) {
+    console.error("Error serving group template file:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function downloadIndividualGroupEnrollmentTemplate(req, res) {
+  try {
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="individual_group_enrollment_template.csv"',
+    );
+
+    res.send(INDIVIDUAL_GROUP_ENROLLMENT_TEMPLATE);
+  } catch (error) {
+    console.error("Error serving group template file:", error);
     res.status(500).json({ message: error.message });
   }
 }

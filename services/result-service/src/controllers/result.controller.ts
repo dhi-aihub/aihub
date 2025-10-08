@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { Op } from "sequelize";
 import { Result } from "../models/Result";
+import { StudentSelection } from "../models/StudentSelection";
 
 /**
  * Create or update a result.
@@ -46,6 +46,18 @@ export async function createOrUpdateResult(req: Request, res: Response) {
         error,
         artifactsUri,
       });
+    }
+
+    console.log("Result processed:", row.id);
+
+    if (taskId && groupId) {
+      console.log("Handling student selection for result:", row.id);
+      await handleStudentSelectionForResult(
+        String(taskId),
+        String(groupId),
+        row.id
+      );
+      console.log("Student selection handled for result:", row.id);
     }
 
     return res.status(created ? 201 : 200).json({
@@ -127,5 +139,80 @@ export async function listResults(req: Request, res: Response) {
     return res
       .status(500)
       .json({ error: { code: "RESULT_LIST_FAILED", message: e.message } });
+  }
+}
+
+/**
+ * Handle student selection logic for a result
+ * @param taskId - The task ID
+ * @param groupId - The group ID
+ * @param resultId - The result ID
+ */
+async function handleStudentSelectionForResult(
+  taskId: string,
+  groupId: string,
+  resultId: string
+): Promise<void> {
+  try {
+    const existingSelection = await StudentSelection.findOne({
+      where: {
+        taskId,
+        groupId,
+      },
+    });
+
+    if (!existingSelection) {
+      await StudentSelection.create({
+        taskId,
+        groupId,
+        resultId,
+      });
+      return;
+    }
+
+    const shouldUpdate = await shouldUpdateWithNewResult(
+      existingSelection.resultId,
+      resultId
+    );
+
+    if (shouldUpdate) {
+      await existingSelection.update({ resultId });
+    }
+  } catch (error) {
+    console.error("Error handling student selection:", error);
+  }
+}
+
+/**
+ * Compare scores between existing and new result
+ * @param existingResultId - The existing result ID in student selection
+ * @param newResultId - The new result ID to compare
+ * @returns True if new result has higher score, false otherwise
+ */
+async function shouldUpdateWithNewResult(
+  existingResultId: string,
+  newResultId: string
+): Promise<boolean> {
+  try {
+    const [existingResult, newResult] = await Promise.all([
+      Result.findByPk(existingResultId),
+      Result.findByPk(newResultId),
+    ]);
+
+    if (!existingResult) {
+      return true;
+    }
+
+    if (!newResult) {
+      return false;
+    }
+
+    const existingScore = existingResult.score || 0;
+    const newScore = newResult.score || 0;
+
+    return newScore >= existingScore;
+  } catch (error) {
+    console.error("Error comparing result scores:", error);
+    return false;
   }
 }

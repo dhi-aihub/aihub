@@ -1,7 +1,12 @@
 import { Op } from "sequelize";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import { userService } from "../lib/api.js";
 import CourseParticipation from "../models/courseParticipation-model.js";
+import { COURSE_ENROLLMENT_TEMPLATE } from "../lib/csvTemplates.js";
+
+const __filename = fileURLToPath(import.meta.url);
 
 export async function getCourseParticipations(req, res) {
   try {
@@ -144,6 +149,21 @@ export async function deleteCourseParticipation(req, res) {
     participation.destroy();
     res.status(200).json({ message: "CourseParticipation deleted" });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+/**
+ * Download course enrollment template CSV file
+ */
+export async function downloadEnrollmentTemplate(req, res) {
+  try {
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="course_enrollment_template.csv"');
+
+    res.send(COURSE_ENROLLMENT_TEMPLATE);
+  } catch (error) {
+    console.error("Error serving template file:", error);
     res.status(500).json({ message: error.message });
   }
 }

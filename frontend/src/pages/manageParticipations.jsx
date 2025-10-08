@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
 import { styled } from "@mui/material";
 import Button from "@mui/material/Button";
 
@@ -170,6 +171,34 @@ const ManageParticipations = () => {
     }
   }
 
+  function handleDownloadTemplate() {
+    catalogueService
+      .get("/courseParticipations/template", {
+        responseType: "blob",
+      })
+      .then(response => {
+        // Create blob link to download
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "course_enrollment_template.csv");
+
+        // Append to html link element page
+        document.body.appendChild(link);
+
+        // Start download
+        link.click();
+
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error("Error downloading template:", error);
+        alert("Error downloading template file");
+      });
+  }
+
   // Handle role display
   function getRoleDisplayName(role) {
     const roleMap = {
@@ -283,12 +312,58 @@ const ManageParticipations = () => {
       <Divider sx={{ my: 4 }} />
 
       <SectionContainer>
-        <Typography variant="h5" gutterBottom>
-          Bulk Upload via CSV
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h5">Bulk Upload via CSV</Typography>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleDownloadTemplate}
+            size="small"
+          >
+            Download Template
+          </Button>
+        </Box>
         <Typography variant="body2" gutterBottom>
-          Upload a CSV file containing email addresses of users to add to this course.
+          Upload a CSV file containing email addresses and roles of users to add to this course. Use
+          the template above for the correct format.
         </Typography>
+
+        <Box sx={{ mb: 3, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+          <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: "bold" }}>
+            Allowed Roles:
+          </Typography>
+          <Table size="small" sx={{ maxWidth: 400 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", py: 1 }}>Role Code</TableCell>
+                <TableCell sx={{ fontWeight: "bold", py: 1 }}>Description</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell sx={{ py: 0.5 }}>ADM</TableCell>
+                <TableCell sx={{ py: 0.5 }}>Administrator</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ py: 0.5 }}>LEC</TableCell>
+                <TableCell sx={{ py: 0.5 }}>Lecturer</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ py: 0.5 }}>TA</TableCell>
+                <TableCell sx={{ py: 0.5 }}>Teaching Assistant</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ py: 0.5 }}>STU</TableCell>
+                <TableCell sx={{ py: 0.5 }}>Student</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ py: 0.5 }}>GUE</TableCell>
+                <TableCell sx={{ py: 0.5 }}>Guest</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+
         <CSVReader onFileUpload={handleFileUpload} onFileRemove={handleFileRemove} />
         <SubmitButton
           variant="contained"
