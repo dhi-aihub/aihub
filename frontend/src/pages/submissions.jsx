@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Accordion,
   AccordionActions,
@@ -22,8 +22,8 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { logout, selectLoggedIn, selectUser } from "../redux/authSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../redux/authSlice";
+import { useSelector } from "react-redux";
 import axios from "axios";
 
 import {
@@ -61,11 +61,7 @@ const markForGrading = sid => {
 
 const Submissions = () => {
   const { id, task_id } = useParams();
-  const dispatch = useDispatch();
-  const isLoggedIn = useSelector(selectLoggedIn);
   const user = useSelector(selectUser);
-
-  const navigate = useNavigate();
 
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -337,15 +333,13 @@ const Submissions = () => {
       }
     };
 
-    if (isLoggedIn) {
-      fetchCourse();
-    }
-  }, [id, isLoggedIn]);
+    fetchCourse();
+  }, [id]);
 
   // Fetch and set userGroupId
   useEffect(() => {
     const fetchUserGroupId = async () => {
-      if (!isLoggedIn || !course || isAdmin) {
+      if (!course || isAdmin) {
         return;
       }
 
@@ -361,12 +355,12 @@ const Submissions = () => {
     };
 
     fetchUserGroupId();
-  }, [id, isLoggedIn, course, isAdmin, user?.id]);
+  }, [id, course, isAdmin, user?.id]);
 
   // For admins and lecturers to get all submissions for the task
   // For students to get submissions for their group only
   useEffect(() => {
-    if (!isLoggedIn || !course) {
+    if (!course) {
       return;
     }
 
@@ -418,6 +412,7 @@ const Submissions = () => {
     };
 
     fetchSubmissions();
+<<<<<<< HEAD
   }, [id, isLoggedIn, task_id, course, isAdmin, userGroupId]);
 
   // Auto-fetch student selection for students once userGroupId is available
@@ -433,6 +428,9 @@ const Submissions = () => {
     navigate("/signin");
     return null;
   }
+=======
+  }, [id, task_id, course, isAdmin, userGroupId]);
+>>>>>>> main
 
   // Render student view
   const renderStudentView = () => (

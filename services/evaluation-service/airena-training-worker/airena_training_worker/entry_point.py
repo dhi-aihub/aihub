@@ -30,13 +30,13 @@ def start_worker():
 
 
 def start():
-    #queue = get_queue_info(CELERY_QUEUE)
-    #monitor_process = Process(target=start_monitor, args=(queue,))
+    queue = get_queue_info(CELERY_QUEUE)
+    monitor_process = Process(target=start_monitor, args=(queue,))
     worker_process = Process(target=start_worker)
     #warden_process = Process(target=start_warden)
-    #monitor_process.start()
+    monitor_process.start()
     #warden_process.start()
     worker_process.start()
-    #monitor_process.join()
+    monitor_process.join()
     #warden_process.join()
     worker_process.join()

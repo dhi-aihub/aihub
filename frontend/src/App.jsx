@@ -33,6 +33,7 @@ import CourseLayout from "./components/courseLayout";
 import ProtectedRoute from "./components/protectedRoute";
 import ManageGroups from "./pages/manageGroups";
 import Leaderboard from "./pages/leaderboard";
+import TrainingResults from "./pages/trainingResults";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -73,12 +74,13 @@ const MyApp = () => {
             <Route path="/courses/:id/admin" element={<CourseAdminPanel />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/courses/:id/groups" element={<ManageGroups />} />
-            <Route path="/courses/:id/:task_id" element={<Submissions />} />
+            <Route path="/courses/:id/:task_id/submissions" element={<Submissions />} />
             <Route path="/courses/:id/:task_id/leaderboard" element={<Leaderboard />} />
+            <Route path="/courses/:id/:task_id/training_results" element={<TrainingResults />} />
           </Route>
           <Route path="/courses/:id/admin/edit" element={<EditCourse />} />
           <Route path="/courses/:id/admin/create_task" element={<CreateTask />} />
-          <Route path="/courses/:id/edit_task/:task_id" element={<EditTask />} />
+          <Route path="/courses/:id/:task_id/edit" element={<EditTask />} />
           <Route path="/courses/:id/groups/create_group_set" element={<CreateGroupSet />} />
           <Route
             path="/courses/:id/groups/edit_group_set/:group_set_id"

@@ -14,7 +14,6 @@ const Leaderboard = () => {
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
       }
-      
     };
 
     fetchLeaderboardData();
@@ -26,15 +25,13 @@ const Leaderboard = () => {
       <Typography variant="h4" gutterBottom>
         Leaderboard
       </Typography>
-      {
-        leaderboardData.length === 0 ? (
-          <Typography variant="body1" gutterBottom>
-            No data available.
-          </Typography>
-        ) : null
-      }
+      {leaderboardData.length === 0 ? (
+        <Typography variant="body1" gutterBottom>
+          No data available.
+        </Typography>
+      ) : null}
       <ul>
-        {leaderboardData.map((entry) => (
+        {leaderboardData.map(entry => (
           <li key={entry.id}>
             {entry.name}: {entry.score}
           </li>

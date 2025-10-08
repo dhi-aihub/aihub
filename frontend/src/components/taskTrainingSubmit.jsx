@@ -15,11 +15,7 @@ const Form = styled("form")(({ theme }) => ({
   marginTop: theme.spacing(1),
 }));
 
-const TaskTrainingSubmit = ({
-  openTaskTrainingSubmit,
-  setOpenTaskTrainingSubmit,
-  task,
-}) => {
+const TaskTrainingSubmit = ({ openTaskTrainingSubmit, setOpenTaskTrainingSubmit, task }) => {
   // submit form
   const { register, handleSubmit, reset } = useForm();
   const onCloseSubmitDialog = () => {
@@ -46,7 +42,7 @@ const TaskTrainingSubmit = ({
       .then(resp => {
         if (resp.status === 201) {
           alert("Training submission created successfully!");
-        } 
+        }
       })
       .catch(e => {
         console.error(e);
