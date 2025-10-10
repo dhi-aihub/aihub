@@ -368,3 +368,18 @@ export async function downloadTrainingOutputFile(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+export async function getTaskGroups(req, res) {
+  try {
+    const taskId = req.params.taskId;
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const groups = await Group.findAll({ where: { groupSetId: task.groupSetId } });
+    res.status(200).json(groups);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}

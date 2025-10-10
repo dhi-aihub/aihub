@@ -13,6 +13,7 @@ import {
   downloadTemplateFile,
   downloadTrainerTemplateFile,
   downloadTrainingOutputFile,
+  getTaskGroups,
 } from "../controller/task-controller.js";
 import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
@@ -54,5 +55,7 @@ router.get("/:taskId/download-template", verifyAccessToken, downloadTemplateFile
 router.get("/:taskId/download-training-template", verifyAccessToken, downloadTrainerTemplateFile);
 
 router.get("/:fileId/download-training-output", verifyAccessToken, downloadTrainingOutputFile);
+
+router.get("/:taskId/groups", verifyAccessToken, getTaskGroups);
 
 export default router;
