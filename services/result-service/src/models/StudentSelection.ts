@@ -36,7 +36,14 @@ StudentSelection.init(
     },
     taskId: { type: DataTypes.STRING(128), allowNull: false },
     groupId: { type: DataTypes.STRING(128), allowNull: false },
-    resultId: { type: DataTypes.UUID, allowNull: true },
+    resultId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: { model: "results", key: "id" },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
+      unique: true,
+    },
   },
   {
     sequelize,
@@ -46,6 +53,11 @@ StudentSelection.init(
         unique: true,
         fields: ["taskId", "groupId"],
         name: "student_selections_asg_student_unique",
+      },
+      {
+        unique: true,
+        fields: ["resultId"],
+        name: "student_selections_resultid_unique",
       },
     ],
   }

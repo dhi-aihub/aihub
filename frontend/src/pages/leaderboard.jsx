@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Container, CssBaseline, Typography } from "@mui/material";
 import axios from "axios";
 
+const RESULTS_BASE_URL = "http://localhost:3003";
+
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
 

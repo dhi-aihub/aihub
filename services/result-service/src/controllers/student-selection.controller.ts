@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { StudentSelection } from "../models/StudentSelection";
+import { StudentSelection, Result } from "../models";
+import { Op } from "sequelize";
 
 export async function createOrUpdateStudentSelection(
   req: Request,
@@ -67,7 +68,10 @@ export async function getStudentSelectionsByTaskId(
     const studentSelections = await StudentSelection.findAll({
       where: {
         taskId,
-      },
+        resultId: { [Op.ne]: null },
+      } as any,
+      include: [{ model: Result, as: "result" }],
+      order: [[{ model: Result, as: "result" }, "score", "DESC"]],
     });
 
     res.status(200).json(studentSelections);

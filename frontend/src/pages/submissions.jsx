@@ -412,7 +412,6 @@ const Submissions = () => {
     };
 
     fetchSubmissions();
-<<<<<<< HEAD
   }, [id, isLoggedIn, task_id, course, isAdmin, userGroupId]);
 
   // Auto-fetch student selection for students once userGroupId is available
@@ -428,9 +427,6 @@ const Submissions = () => {
     navigate("/signin");
     return null;
   }
-=======
-  }, [id, task_id, course, isAdmin, userGroupId]);
->>>>>>> main
 
   // Render student view
   const renderStudentView = () => (
