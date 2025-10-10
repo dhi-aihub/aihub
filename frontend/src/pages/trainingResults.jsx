@@ -142,7 +142,13 @@ const TrainingResults = () => {
                 </Typography>
                 {/* Plot result graph */}
                 <LineGraph data={result.details.detail} />
-                <Button size="small" variant="outlined" onClick={() => handleDownloadModel(result.outputUri)}>Download Model</Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => handleDownloadModel(result.outputUri)}
+                >
+                  Download Model
+                </Button>
               </Stack>
             )}
           </Box>
