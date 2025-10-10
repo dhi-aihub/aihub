@@ -2,11 +2,8 @@ import express from "express";
 import cors from "cors";
 
 import resultsRouter from "./routes/results.routes";
-<<<<<<< HEAD
 import studentSelectionRouter from "./routes/student-selection.routes";
-=======
 import trainingResultRouter from "./routes/trainingResult.routes";
->>>>>>> main
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -17,11 +14,8 @@ app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
 // routes
 app.use("/results", resultsRouter);
-<<<<<<< HEAD
 app.use("/selections", studentSelectionRouter);
-=======
 app.use("/training-results", trainingResultRouter);
->>>>>>> main
 
 // 404 handler
 app.use((req, res, next) => {
