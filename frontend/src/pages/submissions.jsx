@@ -25,7 +25,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { selectUser } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { isLoggedIn } from "../lib/auth";
 import { logout } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -417,7 +416,7 @@ const Submissions = () => {
     };
 
     fetchSubmissions();
-  }, [id, isLoggedIn, task_id, course, isAdmin, userGroupId]);
+  }, [id, task_id, course, isAdmin, userGroupId]);
 
   // Auto-fetch student selection for students once userGroupId is available
   useEffect(() => {
@@ -425,13 +424,6 @@ const Submissions = () => {
       fetchStudentSelection(task_id, userGroupId);
     }
   }, [userGroupId, task_id, isAdmin]);
-
-  if (!isLoggedIn) {
-    cleanAuthStorage();
-    dispatch(logout());
-    navigate("/signin");
-    return null;
-  }
 
   // Render student view
   const renderStudentView = () => (
