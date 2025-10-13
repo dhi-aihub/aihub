@@ -102,11 +102,15 @@ export async function listResults(req: Request, res: Response) {
   const {
     submissionId,
     evalRunId,
+    groupId,
+    taskId,
     limit = 50,
     offset = 0,
   } = req.query as unknown as {
     submissionId: string;
     evalRunId: string;
+    groupId: string;
+    taskId: string;
     limit: number;
     offset: number;
   };
@@ -114,6 +118,11 @@ export async function listResults(req: Request, res: Response) {
   const where: any = {};
   if (submissionId) where.submissionId = submissionId;
   if (evalRunId) where.evalRunId = evalRunId;
+  if (groupId) where.groupId = groupId;
+  if (taskId && groupId) {
+    where.taskId = taskId;
+    where.groupId = groupId;
+  }
 
   try {
     const { rows, count } = await Result.findAndCountAll({
