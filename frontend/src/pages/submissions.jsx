@@ -29,16 +29,15 @@ import { logout } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
 
 import {
-  SCHEDULER_BASE_URL,
   JobErrorMap,
   JobStatusMap,
   ROLE_ADMIN,
   ROLE_LECTURER,
+  CATALOG_SERVICE_BASE_URL,
 } from "../constants";
 import catalogueService from "../lib/api/catalogueService";
 
 // import ReactJson from "react-json-view";
-import { cleanAuthStorage } from "../lib/auth";
 import { CheckCircle, Star } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 
@@ -47,7 +46,7 @@ const RESULTS_BASE_URL = "http://localhost:3003";
 const markForGrading = sid => {
   axios({
     method: "get",
-    url: SCHEDULER_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
+    url: RESULTS_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
     headers: {
       authorization: "Bearer " + sessionStorage.getItem("token"),
     },
@@ -74,7 +73,6 @@ const Submissions = () => {
   const [course, setCourse] = useState(null);
   const [groupedSubmissions, setGroupedSubmissions] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
-  const [loadingResults, setLoadingResults] = useState({});
   const [studentSelections, setStudentSelections] = useState({});
   const [loadingSelections, setLoadingSelections] = useState({});
 
@@ -118,38 +116,6 @@ const Submissions = () => {
       }));
     } finally {
       setLoadingSelections(prev => ({ ...prev, [selectionKey]: false }));
-    }
-  };
-
-  // Function to fetch result for a specific submission
-  const fetchSubmissionResult = async submissionId => {
-    if (submissionResults[submissionId] || loadingResults[submissionId]) {
-      return;
-    }
-
-    setLoadingResults(prev => ({ ...prev, [submissionId]: true }));
-
-    try {
-      const response = await axios({
-        method: "get",
-        url: `${RESULTS_BASE_URL}/results/results?submissionId=${submissionId}`,
-        headers: {
-          authorization: "Bearer " + sessionStorage.getItem("token"),
-        },
-      });
-
-      setSubmissionResults(prev => ({
-        ...prev,
-        [submissionId]: response.data,
-      }));
-    } catch (error) {
-      console.error(`Failed to fetch result for submission ${submissionId}:`, error);
-      setSubmissionResults(prev => ({
-        ...prev,
-        [submissionId]: { error: "Failed to fetch result" },
-      }));
-    } finally {
-      setLoadingResults(prev => ({ ...prev, [submissionId]: false }));
     }
   };
 
@@ -213,17 +179,12 @@ const Submissions = () => {
   // Component to render submission results
   const renderSubmissionResult = submissionId => {
     const result = submissionResults[submissionId];
-    const isLoading = loadingResults[submissionId];
-
-    if (isLoading) {
-      return <CircularProgress size={20} />;
-    }
 
     if (!result) {
       return (
-        <Button size="small" onClick={() => fetchSubmissionResult(submissionId)} variant="outlined">
-          Load Result
-        </Button>
+        <Typography variant="body2" color="text.secondary">
+          No result available
+        </Typography>
       );
     }
 
@@ -351,7 +312,6 @@ const Submissions = () => {
         const courseResponse = await catalogueService.get(
           `/groups/user/${user.id}/task/${task_id}/`,
         );
-        console.log("Fetched user group ID:", courseResponse.data.groupId);
         setUserGroupId(courseResponse.data.groupId);
       } catch (error) {
         console.error("Failed to fetch user group ID:", error);
@@ -373,49 +333,89 @@ const Submissions = () => {
       return;
     }
 
-    const fetchSubmissions = async () => {
+    const fetchSubmissionsAndResults = async () => {
       try {
-        let endpoint;
+        let submissionsEndpoint, resultsEndpoint;
 
         if (isAdmin) {
-          endpoint = SCHEDULER_BASE_URL + `/api/jobs/?task_id=${task_id}`;
+          submissionsEndpoint = CATALOG_SERVICE_BASE_URL + `/submissions/tasks/${task_id}/`;
+          resultsEndpoint = CATALOG_SERVICE_BASE_URL + `/submissions/results/tasks/${task_id}/`;
         } else {
-          endpoint = SCHEDULER_BASE_URL + `/api/jobs/?task_id=${task_id}&group_id=${userGroupId}`;
+          submissionsEndpoint =
+            CATALOG_SERVICE_BASE_URL + `/submissions/tasks/${task_id}/groups/${userGroupId}/`;
+          resultsEndpoint =
+            CATALOG_SERVICE_BASE_URL +
+            `/submissions/results/tasks/${task_id}/groups/${userGroupId}/`;
         }
 
-        const resp = await axios({
-          method: "get",
-          url: endpoint,
-          headers: {
-            authorization: "Bearer " + sessionStorage.getItem("token"),
-          },
-        });
+        // Fetch submissions and results concurrently
+        const [submissionsResponse, resultsResponse] = await Promise.allSettled([
+          axios({
+            method: "get",
+            url: submissionsEndpoint,
+            headers: {
+              authorization: "Bearer " + sessionStorage.getItem("token"),
+            },
+          }),
+          axios({
+            method: "get",
+            url: resultsEndpoint,
+            headers: {
+              authorization: "Bearer " + sessionStorage.getItem("token"),
+            },
+          }),
+        ]);
 
-        const data = resp.data;
-        setSubmissions(data);
+        // Handle submissions response
+        if (submissionsResponse.status === "fulfilled") {
+          const submissionsData = submissionsResponse.value.data.data;
+          setSubmissions(submissionsData);
 
-        // If admin/lecturer, group submissions by group_id
-        if (isAdmin) {
-          const grouped = data.reduce((acc, submission) => {
-            const groupId = submission.group_id;
-            if (!acc[groupId]) {
-              acc[groupId] = [];
-            }
-            acc[groupId].push(submission);
-            return acc;
-          }, {});
-          //console.log(grouped);
-          setGroupedSubmissions(grouped);
+          // If admin/lecturer, group submissions by group_id
+          if (isAdmin) {
+            const grouped = submissionsData.reduce((acc, submission) => {
+              const groupId = submission.group_id;
+              if (!acc[groupId]) {
+                acc[groupId] = [];
+              }
+              acc[groupId].push(submission);
+              return acc;
+            }, {});
+            setGroupedSubmissions(grouped);
+          }
+        } else {
+          console.error("Failed to fetch submissions:", submissionsResponse.reason);
         }
 
+        if (resultsResponse.status === "fulfilled") {
+          const resultsData = resultsResponse.value.data.data.data;
+
+          // Create a map of submission ID to results
+          const resultsMap = {};
+
+          if (resultsData && Array.isArray(resultsData)) {
+            resultsData.forEach(result => {
+              if (result.submissionId) {
+                resultsMap[result.submissionId] = {
+                  data: [result],
+                };
+              }
+            });
+          }
+
+          setSubmissionResults(resultsMap);
+        } else {
+          console.error("Failed to fetch results:", resultsResponse.reason);
+          setSubmissionResults({});
+        }
         setLoading(false);
       } catch (error) {
-        console.log(error);
+        console.error("Failed to fetch data:", error);
         setLoading(false);
       }
     };
 
-    fetchSubmissions();
+    fetchSubmissionsAndResults();
   }, [id, task_id, course, isAdmin, userGroupId]);
 
   // Auto-fetch student selection for students once userGroupId is available
