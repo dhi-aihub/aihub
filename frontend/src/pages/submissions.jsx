@@ -7,10 +7,6 @@ import {
   CircularProgress,
   Container,
   CssBaseline,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Stack,
   Table,
   TableBody,
@@ -23,18 +19,10 @@ import {
 import { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { selectUser } from "../redux/authSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from "axios";
-import { logout } from "../redux/authSlice";
-import { useNavigate } from "react-router-dom";
 
-import {
-  JobErrorMap,
-  JobStatusMap,
-  ROLE_ADMIN,
-  ROLE_LECTURER,
-  CATALOG_SERVICE_BASE_URL,
-} from "../constants";
+import { JobStatusMap, ROLE_ADMIN, ROLE_LECTURER, CATALOG_SERVICE_BASE_URL } from "../constants";
 import catalogueService from "../lib/api/catalogueService";
 
 // import ReactJson from "react-json-view";
@@ -44,13 +32,9 @@ import Button from "@mui/material/Button";
 const Submissions = () => {
   const { id, task_id } = useParams();
   const user = useSelector(selectUser);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [jobStatus, setJobStatus] = useState();
-  const [openJobStatus, setOpenJobStatus] = useState(false);
   const [course, setCourse] = useState(null);
   const [groupedSubmissions, setGroupedSubmissions] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
