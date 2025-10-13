@@ -41,25 +41,6 @@ import catalogueService from "../lib/api/catalogueService";
 import { CheckCircle, Star } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 
-const RESULTS_BASE_URL = "http://localhost:3003";
-
-const markForGrading = sid => {
-  axios({
-    method: "get",
-    url: RESULTS_BASE_URL + `/api/v1/submissions/${sid}/mark_for_grading/`,
-    headers: {
-      authorization: "Bearer " + sessionStorage.getItem("token"),
-    },
-  })
-    .then(() => {
-      // console.log(resp);
-      window.location.reload();
-    })
-    .catch(e => {
-      console.log(e);
-    });
-};
-
 const Submissions = () => {
   const { id, task_id } = useParams();
   const user = useSelector(selectUser);
@@ -111,63 +92,6 @@ const Submissions = () => {
     } finally {
       setLoadingSelections(prev => ({ ...prev, [selectionKey]: false }));
     }
-  };
-
-  // Component to render student selection
-  const renderStudentSelection = (taskId, groupId) => {
-    const selectionKey = `${taskId}_${groupId}`;
-    const selection = studentSelections[selectionKey];
-    const isLoading = loadingSelections[selectionKey];
-
-    if (isLoading) {
-      return <CircularProgress size={20} />;
-    }
-
-    if (!selection) {
-      return (
-        <Button
-          size="small"
-          onClick={() => fetchStudentSelection(taskId, groupId)}
-          variant="outlined"
-          startIcon={<Star />}
-        >
-          Load Selected Submission
-        </Button>
-      );
-    }
-
-    if (selection.error) {
-      return <Typography color="error">{selection.error}</Typography>;
-    }
-
-    if (!selection) {
-      return (
-        <Typography color="text.secondary">No submission selected for grading yet.</Typography>
-      );
-    }
-
-    return (
-      <Box
-        sx={{
-          border: 1,
-          borderColor: "primary.main",
-          borderRadius: 1,
-          p: 2,
-          bgcolor: "primary.50",
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-          <Star color="primary" />
-          <Typography variant="subtitle2" fontWeight="bold" color="primary">
-            Selected for Grading
-          </Typography>
-        </Stack>
-        <Typography variant="body2">Result ID: {selection.id}</Typography>
-        <Typography variant="caption" color="text.secondary">
-          Updated: {new Date(selection.updatedAt).toLocaleString()}
-        </Typography>
-      </Box>
-    );
   };
 
   // Component to render submission results
@@ -376,6 +300,12 @@ const Submissions = () => {
               return acc;
             }, {});
             setGroupedSubmissions(grouped);
+
+            // Auto-fetch student selections for all groups
+            const uniqueGroupIds = [...new Set(submissionsData.map(sub => sub.group_id))];
+            uniqueGroupIds.forEach(groupId => {
+              fetchStudentSelection(task_id, groupId);
+            });
           }
         } else {
           console.error("Failed to fetch submissions:", submissionsResponse.reason);
@@ -418,6 +348,33 @@ const Submissions = () => {
       fetchStudentSelection(task_id, userGroupId);
     }
   }, [userGroupId, task_id, isAdmin]);
+
+  // Function to mark a result for grading
+  const markForGrading = async resultId => {
+    if (!resultId) {
+      console.error("No result ID provided for marking");
+      return;
+    }
+
+    try {
+      const response = await catalogueService.patch(
+        `/submissions/selections/tasks/${task_id}/groups/${userGroupId}/`,
+        {
+          resultId,
+        },
+      );
+
+      const selectionKey = `${task_id}_${userGroupId}`;
+      setStudentSelections(prev => ({
+        ...prev,
+        [selectionKey]: response.data.data,
+      }));
+
+      console.log("Successfully marked result for grading:", resultId);
+    } catch (error) {
+      console.error("Failed to mark result for grading:", error);
+    }
+  };
 
   // Render student view
   const renderStudentView = () => {
@@ -491,7 +448,7 @@ const Submissions = () => {
                   </AccordionDetails>
                   <AccordionActions sx={{ justifyContent: "left" }}>
                     <Button
-                      onClick={() => markForGrading(submission["submission_id"])}
+                      onClick={() => markForGrading(result?.data[0].id)}
                       disabled={isButtonDisabled}
                     >
                       {isSelectedForGrading
@@ -525,64 +482,98 @@ const Submissions = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Stack spacing={2}>
-              {/* Student Selection for this group */}
-              <Box>
-                <Typography variant="h6" gutterBottom>
-                  Selected Submission for Grading
-                </Typography>
-                {renderStudentSelection(task_id, groupId)}
-              </Box>
-
-              {/* All submissions for this group */}
               <Typography variant="h6" gutterBottom>
                 All Submissions
               </Typography>
               <Stack spacing={1}>
-                {groupSubmissions.map((submission, index) => (
-                  <Accordion key={`submission_${groupId}_${index}`} variant="outlined">
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Typography variant={"body1"}>
-                          Attempt at {new Date(submission["created_at"]).toLocaleString()}
-                        </Typography>
-                        <Typography variant={"body2"} color="text.secondary">
-                          Status: {JobStatusMap[submission.status] || submission.status}
-                        </Typography>
-                        {submission["marked_for_grading"] ? (
-                          <CheckCircle sx={{ color: "success.light" }} />
-                        ) : null}
-                      </Stack>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ mb: 2 }}>
-                      <Stack spacing={2}>
-                        <Table size="small">
-                          <TableBody>
-                            <TableRow>
-                              <TableCell>Submission ID</TableCell>
-                              <TableCell>{submission.submission_id}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Status</TableCell>
-                              <TableCell>
-                                {JobStatusMap[submission.status] || submission.status}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Runtime Limit</TableCell>
-                              <TableCell>{submission.run_time_limit}s</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>RAM Limit</TableCell>
-                              <TableCell>{submission.ram_limit}MB</TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                        {renderSubmissionResult(submission.submission_id)}
-                      </Stack>
-                    </AccordionDetails>
-                  </Accordion>
-                ))}
+                {groupSubmissions.map((submission, index) => {
+                  const result = submissionResults[submission.submission_id];
+                  const selectionKey = `${task_id}_${groupId}`;
+                  const selection = studentSelections[selectionKey];
+                  const isSelectedForGrading =
+                    selection && selection.resultId === result?.data[0]?.id;
+
+                  return (
+                    <Accordion
+                      key={`submission_${groupId}_${index}`}
+                      variant="outlined"
+                      sx={{
+                        ...(isSelectedForGrading && {
+                          border: 2,
+                          borderColor: "primary.main",
+                          bgcolor: "primary.50",
+                          "&:before": {
+                            display: "none",
+                          },
+                        }),
+                      }}
+                    >
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                          <Typography variant={"body1"}>
+                            Attempt at {new Date(submission["created_at"]).toLocaleString()}
+                          </Typography>
+                          <Typography variant={"body2"} color="text.secondary">
+                            Status: {JobStatusMap[submission.status] || submission.status}
+                          </Typography>
+                          {submission["marked_for_grading"] && (
+                            <CheckCircle sx={{ color: "success.light" }} />
+                          )}
+                          {isSelectedForGrading && (
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              <Star color="primary" />
+                              <Typography variant="caption" color="primary" fontWeight="bold">
+                                Selected for Grading
+                              </Typography>
+                            </Stack>
+                          )}
+                        </Stack>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ mb: 2 }}>
+                        <Stack spacing={2}>
+                          <Table size="small">
+                            <TableBody>
+                              <TableRow>
+                                <TableCell>Submission ID</TableCell>
+                                <TableCell>{submission.submission_id}</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>Status</TableCell>
+                                <TableCell>
+                                  {JobStatusMap[submission.status] || submission.status}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>Runtime Limit</TableCell>
+                                <TableCell>{submission.run_time_limit}s</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>RAM Limit</TableCell>
+                                <TableCell>{submission.ram_limit}MB</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                          {renderSubmissionResult(submission.submission_id)}
+                        </Stack>
+                      </AccordionDetails>
+                    </Accordion>
+                  );
+                })}
               </Stack>
+
+              {/* Load selection button if not already loaded */}
+              {!studentSelections[`${task_id}_${groupId}`] && (
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    size="small"
+                    onClick={() => fetchStudentSelection(task_id, groupId)}
+                    variant="outlined"
+                    startIcon={<Star />}
+                  >
+                    Load Selected Submission for Grading
+                  </Button>
+                </Box>
+              )}
             </Stack>
           </AccordionDetails>
         </Accordion>
@@ -604,41 +595,6 @@ const Submissions = () => {
         ) : (
           renderStudentView()
         )}
-
-        {/* Job Status Dialog */}
-        <Dialog
-          open={openJobStatus}
-          onClose={() => setOpenJobStatus(false)}
-          maxWidth="md"
-          fullWidth
-        >
-          <DialogTitle>Latest Job Status</DialogTitle>
-          <DialogContent>
-            {jobStatus ? (
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Worker Name</TableCell>
-                    <TableCell>{jobStatus.worker_name || "N/A"}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Status</TableCell>
-                    <TableCell>{JobStatusMap[jobStatus.status]}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Error</TableCell>
-                    <TableCell>{jobStatus.error ? JobErrorMap[jobStatus.error] : "None"}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            ) : (
-              "Loading"
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenJobStatus(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
       </Container>
     </>
   );

@@ -133,3 +133,30 @@ export async function getStudentSelectionByGroup(req, res) {
     });
   }
 }
+
+export async function updateStudentSelection(req, res) {
+  try {
+    const { taskId, groupId } = req.params;
+    const { resultId } = req.body;
+
+    if (!taskId || !groupId || !resultId) {
+      return res.status(400).json({ message: "Task ID, Group ID, and Result ID are required" });
+    }
+
+    const response = await resultService.patch(`/selections/task/${taskId}/group/${groupId}`, {
+      resultId,
+    });
+
+    res.status(200).json({
+      message: "Student selection updated successfully",
+      data: response.data,
+    });
+  } catch (error) {
+    console.error("Error updating student selection:", error);
+
+    res.status(error.response?.status || 500).json({
+      message:
+        error.response?.data?.message || error.message || "Failed to update student selection",
+    });
+  }
+}

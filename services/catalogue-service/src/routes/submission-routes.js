@@ -6,6 +6,7 @@ import {
   getResultsByGroup,
   getStudentSelectionByTask,
   getStudentSelectionByGroup,
+  updateStudentSelection,
 } from "../controller/submission-controller.js";
 
 const router = express.Router();
@@ -21,5 +22,7 @@ router.get("/results/tasks/:taskId/groups/:groupId/", getResultsByGroup);
 router.get("/selections/tasks/:taskId/", getStudentSelectionByTask);
 
 router.get("/selections/tasks/:taskId/groups/:groupId/", getStudentSelectionByGroup);
+
+router.patch("/selections/tasks/:taskId/groups/:groupId/", updateStudentSelection);
 
 export default router;
