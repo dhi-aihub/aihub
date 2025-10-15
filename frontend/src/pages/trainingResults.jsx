@@ -70,7 +70,7 @@ const TrainingResults = () => {
       if (!response.data.data) {
         setResults(prev => ({ ...prev, [jobId]: { noResultError: "No result data available" } }));
       } else {
-        setResults(prev => ({ ...prev, [jobId]: response.data }));
+        setResults(prev => ({ ...prev, [jobId]: response.data.data }));
       }
     } catch (error) {
       console.error("Error fetching training results:", error);
