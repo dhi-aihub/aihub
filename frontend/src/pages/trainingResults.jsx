@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import {
   Accordion,
-  AccordionActions,
   AccordionDetails,
   AccordionSummary,
   Button,
@@ -14,28 +13,22 @@ import {
   Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import {
-  SCHEDULER_BASE_URL,
   JobErrorMap,
   JobStatusMap,
-  ROLE_ADMIN,
-  ROLE_LECTURER,
 } from "../constants";
 import catalogueService from "../lib/api/catalogueService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
 import LineGraph from "../components/lineGraph";
 
-const RESULTS_BASE_URL = "http://localhost:3003";
-
 const TrainingResults = () => {
   const { id, task_id } = useParams();
   const user = useSelector(selectUser);
   const [userGroupId, setUserGroupId] = useState(null);
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState(null);
   const [results, setResults] = useState({});
 
   async function handleDownloadModel(fileId) {
@@ -73,11 +66,11 @@ const TrainingResults = () => {
 
   const fetchResult = async jobId => {
     try {
-      const response = await axios.get(`${RESULTS_BASE_URL}/training-results/${jobId}/`);
-      if (!response.data) {
+      const response = await catalogueService.get(`/training/results/${jobId}/`);
+      if (!response.data.data) {
         setResults(prev => ({ ...prev, [jobId]: { noResultError: "No result data available" } }));
       } else {
-        setResults(prev => ({ ...prev, [jobId]: response.data }));
+        setResults(prev => ({ ...prev, [jobId]: response.data.data }));
       }
     } catch (error) {
       console.error("Error fetching training results:", error);
@@ -179,10 +172,10 @@ const TrainingResults = () => {
 
     const fetchJobs = async () => {
       try {
-        const response = await axios.get(
-          `${SCHEDULER_BASE_URL}/api/training_jobs/?task_id=${task_id}&group_id=${userGroupId}`,
+        const response = await catalogueService.get(
+          `/training/tasks/${task_id}/groups/${userGroupId}/`
         );
-        setJobs(response.data);
+        setJobs(response.data.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }
@@ -191,7 +184,7 @@ const TrainingResults = () => {
     fetchJobs();
   }, [userGroupId, task_id]);
 
-  const loading = !userGroupId || jobs.length === 0;
+  const loading = !userGroupId || jobs === null;
 
   return (
     <Container component="main" maxWidth="lg">
