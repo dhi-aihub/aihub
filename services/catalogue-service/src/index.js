@@ -8,6 +8,7 @@ import groupRoutes from "./routes/group-routes.js";
 import groupParticipationRoutes from "./routes/groupParticipation-routes.js";
 import courseParticipationRoutes from "./routes/courseParticipation-routes.js";
 import submissionRoutes from "./routes/submission-routes.js";
+import trainingRoutes from "./routes/training-routes.js";
 
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger/swagger.json" with { type: "json" };
@@ -46,6 +47,7 @@ app.use("/groups", groupRoutes);
 app.use("/groupParticipations", groupParticipationRoutes);
 app.use("/courseParticipations", courseParticipationRoutes);
 app.use("/submissions", submissionRoutes);
+app.use("/training", trainingRoutes);
 
 // add route for swagger document API
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

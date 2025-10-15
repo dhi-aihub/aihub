@@ -16,7 +16,6 @@ import {
 import axios from "axios";
 import catalogueService from "../lib/api/catalogueService";
 
-const RESULTS_BASE_URL = "http://localhost:3003";
 
 const Leaderboard = () => {
   const { id, task_id } = useParams();
@@ -27,8 +26,8 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboardData = async () => {
       try {
-        const response = await axios.get(RESULTS_BASE_URL + `/selections/task/${task_id}`);
-        setLeaderboardData(response.data);
+        const response = await catalogueService.get(`/submissions/selections/tasks/${task_id}/`);
+        setLeaderboardData(response.data.data);
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
       } finally {
