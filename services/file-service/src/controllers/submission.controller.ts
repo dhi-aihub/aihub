@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import multer from "multer";
-import axios from "axios";
+import archiver from "archiver";
+
 import { Submission } from "../models/Submission";
 import { cuid } from "../lib/ids";
 import { sha256 } from "../lib/hash";
@@ -16,7 +17,6 @@ export const trainingSubmissionUploadMulter = upload.single("file");
 
 /**
  * Create a new evaluation submission
- * POST /api/v1/submissions
  * multipart/form-data: file=<file>, userId=<string>, taskId=<string>
  * optional: description, metadata
  */
@@ -52,16 +52,13 @@ export async function createSubmission(req: Request, res: Response) {
 
 /**
  * List evaluation submissions
- * GET /api/v1/submissions
  * Optional filters: ?groupId=<id>&taskId=<id>&marked_for_grading=<true|false>&order=created_at:asc|desc
  */
 export async function listSubmissions(req: Request, res: Response) {
-  const {
-    groupId,
-    taskId,
-    marked_for_grading,
-    order,
-  } = req.query as Record<string, string | undefined>;
+  const { groupId, taskId, marked_for_grading, order } = req.query as Record<
+    string,
+    string | undefined
+  >;
 
   const where: any = {};
 
@@ -94,12 +91,11 @@ export async function listSubmissions(req: Request, res: Response) {
 
 /**
  * Create a new training submission
- * POST /api/v1/submissions/training
  * multipart/form-data: file=<file>, userId=<string>, taskId=<string>
  */
 export async function createTrainingSubmission(req: Request, res: Response) {
   const file = (req as any).file as Express.Multer.File | undefined;
-  
+
   if (!file) {
     return res.status(400).json({ error: "Missing file" });
   }
@@ -126,7 +122,6 @@ export async function createTrainingSubmission(req: Request, res: Response) {
 
 /**
  * Download a submission
- * GET /api/v1/submissions/:id/download
  */
 export async function downloadSubmission(req: Request, res: Response) {
   const { id } = req.params;
@@ -146,21 +141,116 @@ export async function downloadSubmission(req: Request, res: Response) {
   return res.send(Buffer.from(submission.content));
 }
 
-// TODO: Rerun function
 /**
- * GET /api/v1/submissions/:id/rerun
+ * Download multiple submissions as a ZIP file
+ * Request body: [{ groupId: string, resultId: string }]
  */
-// export async function rerunSubmission(req: Request, res: Response) {
-//   const { id } = req.params;
-//   const submission = await Submission.findByPk(id);
-//   if (!submission) return res.status(404).json({ error: "Not found" });
+export async function downloadSubmissionsBatch(req: Request, res: Response) {
+  const submissionRequests = req.body;
 
-//   const evalURL = process.env.EVALUATION_BASE_URL;
+  if (!Array.isArray(submissionRequests) || submissionRequests.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Missing or invalid submission requests array" });
+  }
 
-//   await axios.post(`${evalURL}/api/v1/evaluations/start`, {
-//     submissionId: submission.id,
-//     rerun: true,
-//   });
+  for (const request of submissionRequests) {
+    if (!request.submissionId) {
+      return res.status(400).json({ error: "Each request must have resultId" });
+    }
+  }
 
-//   return res.status(200).json({ ok: true });
-// }
+  try {
+    // Extract all resultIds for the database query
+    const submissionIds = submissionRequests.map((req) => req.submissionId);
+
+    // Obtain all the submissions
+    const submissions = await Submission.findAll({
+      where: {
+        id: submissionIds,
+      },
+    });
+
+    if (submissions.length === 0) {
+      return res.status(404).json({ error: "No submissions found" });
+    }
+
+    // Create a map for quick lookup of groupId by submissionId
+    const groupIdMap = new Map();
+    submissionRequests.forEach((req) => {
+      groupIdMap.set(req.submissionId, req.groupId);
+    });
+
+    // Set response headers for ZIP download
+    const zipFilename = `submissions_${
+      new Date().toISOString().split("T")[0]
+    }_${Date.now()}.zip`;
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${zipFilename}"`
+    );
+
+    // Create ZIP archive
+    const archive = archiver("zip", {
+      zlib: { level: 9 },
+    });
+
+    // Handle archive errors
+    archive.on("error", (err) => {
+      console.error("Archive error:", err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to create ZIP archive" });
+      }
+    });
+
+    // Pipe archive to response
+    archive.pipe(res);
+
+    // Add each submission to the archive
+    for (const submission of submissions) {
+      const groupId = groupIdMap.get(submission.id) || submission.id;
+
+      const fileExtension = submission.filename.split(".").pop();
+      const safeFilename = fileExtension
+        ? `${groupId}.${fileExtension}`
+        : `${groupId}_${submission.filename}`;
+
+      archive.append(Buffer.from(submission.content), {
+        name: safeFilename,
+        date: submission.createdAt,
+      });
+    }
+
+    // Add a manifest file with submission details
+    const manifest = {
+      downloadedAt: new Date().toISOString(),
+      totalSubmissions: submissions.length,
+      submissions: submissions.map((s) => {
+        const groupId = groupIdMap.get(s.id);
+        return {
+          groupId: groupId || null,
+          resultId: s.id,
+          filename: s.filename,
+          taskId: s.taskId,
+          type: s.type,
+          sizeBytes: s.sizeBytes,
+          createdAt: s.createdAt,
+          checksumSha256: s.checksumSha256,
+          usedFallbackName: !groupId,
+        };
+      }),
+    };
+
+    archive.append(JSON.stringify(manifest, null, 2), {
+      name: "manifest.json",
+    });
+
+    await archive.finalize();
+  } catch (error) {
+    console.error("Error creating batch download:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+}

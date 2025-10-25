@@ -6,6 +6,7 @@ import {
   listSubmissions,
   createTrainingSubmission,
   downloadSubmission,
+  downloadSubmissionsBatch,
 } from "../controllers/submission.controller";
 
 const router = Router();
@@ -18,6 +19,6 @@ router.post(
   createTrainingSubmission
 );
 router.get("/:id/download", downloadSubmission);
-// router.get("/:id/rerun", rerunSubmission);
+router.post("/download-batch", downloadSubmissionsBatch);
 
 export default router;
