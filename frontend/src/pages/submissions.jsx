@@ -55,41 +55,52 @@ const Submissions = () => {
         .filter(([key, selection]) => key.startsWith(`${task_id}_`) && selection?.resultId)
         .map(([key, selection]) => {
           const groupId = key.split("_")[1];
-          return { groupId, resultId: selection.resultId };
-        });
+          const selectedResultId = selection.resultId;
 
-      console.log("Selected submissions for download:", selectedSubmissions);
+          // Find the submissionId by searching through submissionResults
+          let submissionId = null;
+          for (const [subId, result] of Object.entries(submissionResults)) {
+            if (result.data && result.data[0] && result.data[0].id === selectedResultId) {
+              submissionId = subId;
+              break;
+            }
+          }
+
+          return {
+            groupId,
+            submissionId: submissionId,
+          };
+        })
+        .filter(item => item.submissionId !== null);
 
       if (selectedSubmissions.length === 0) {
         alert("No submissions selected for grading to download.");
         return;
       }
 
-      // const response = await axios({
-      //   method: "post",
-      //   url: `${CATALOG_SERVICE_BASE_URL}/submissions/download/tasks/${task_id}/selected/`,
-      //   headers: {
-      //     authorization: "Bearer " + sessionStorage.getItem("token"),
-      //   },
-      //   data: {
-      //     selections: [{groupId: "1", resultId: "a8b5588b-ac5e-4009-a067-442c66b91ecf"}, {groupId: "2", resultId: "c0224e72-5ae0-4af4-94e0-1555384e34e2"}]
-      //   },
-      //   responseType: "blob",
-      // });
+      console.log(selectedSubmissions);
 
-      // // Create blob link to download
-      // const url = window.URL.createObjectURL(new Blob([response.data]));
-      // const link = document.createElement("a");
-      // link.href = url;
+      const response = await catalogueService.post(
+        `/submissions/submissions/download-batch/`,
+        selectedSubmissions,
+        {
+          responseType: "blob",
+        },
+      );
 
-      // // Set filename with task ID and timestamp
-      // const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
-      // link.setAttribute("download", `task_${task_id}_selected_submissions_${timestamp}.zip`);
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
 
-      // document.body.appendChild(link);
-      // link.click();
-      // link.remove();
-      // window.URL.revokeObjectURL(url);
+      // Set filename with task ID and timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+      link.setAttribute("download", `task_${task_id}_submissions_${timestamp}.zip`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to download selected submissions:", error);
       alert("Failed to download selected submissions. Please try again.");
