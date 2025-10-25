@@ -1,4 +1,4 @@
-import { resultService, schedulerService } from "../lib/api.js";
+import { fileService, resultService, schedulerService } from "../lib/api.js";
 
 export async function getSubmissionsByTask(req, res) {
   try {
@@ -157,6 +157,47 @@ export async function updateStudentSelection(req, res) {
     res.status(error.response?.status || 500).json({
       message:
         error.response?.data?.message || error.message || "Failed to update student selection",
+    });
+  }
+}
+
+export async function downloadSubmissionsBatch(req, res) {
+  try {
+    const submissionRequests = req.body;
+
+    if (!Array.isArray(submissionRequests) || submissionRequests.length === 0) {
+      return res.status(400).json({
+        message: "Missing or invalid submission requests array",
+      });
+    }
+
+    const response = await fileService.post("/submission/download-batch", submissionRequests, {
+      responseType: "stream",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    res.setHeader("Content-Type", response.headers["content-type"] || "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      response.headers["content-disposition"] || 'attachment; filename="submissions.zip"',
+    );
+
+    // Pipe the stream directly to the response
+    response.data.pipe(res);
+  } catch (error) {
+    console.error("Error downloading submissions batch:", error);
+
+    if (error.response?.status === 404) {
+      return res.status(404).json({
+        message: "No submissions found for the provided IDs",
+      });
+    }
+
+    res.status(error.response?.status || 500).json({
+      message:
+        error.response?.data?.message || error.message || "Failed to download submissions batch",
     });
   }
 }
