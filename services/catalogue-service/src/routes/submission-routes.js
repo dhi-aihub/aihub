@@ -7,6 +7,7 @@ import {
   getStudentSelectionByTask,
   getStudentSelectionByGroup,
   updateStudentSelection,
+  downloadSubmissionsBatch,
 } from "../controller/submission-controller.js";
 
 const router = express.Router();
@@ -24,5 +25,7 @@ router.get("/selections/tasks/:taskId/", getStudentSelectionByTask);
 router.get("/selections/tasks/:taskId/groups/:groupId/", getStudentSelectionByGroup);
 
 router.patch("/selections/tasks/:taskId/groups/:groupId/", updateStudentSelection);
+
+router.post("/submissions/download-batch", downloadSubmissionsBatch);
 
 export default router;

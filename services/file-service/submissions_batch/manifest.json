@@ -1,0 +1,28 @@
+{
+  "downloadedAt": "2025-10-25T07:46:45.722Z",
+  "totalSubmissions": 2,
+  "submissions": [
+    {
+      "groupId": "1",
+      "resultId": "c7j70cni8tb8mh1qd201",
+      "filename": "agent.zip",
+      "taskId": "1",
+      "type": "EVALUATION",
+      "sizeBytes": 290,
+      "createdAt": "2025-10-22T08:27:35.137Z",
+      "checksumSha256": "6113e27d3c8eaa61fdd3d1fe11f6bcfc60dbeacae2fe823e11a115726957bebd",
+      "usedFallbackName": false
+    },
+    {
+      "groupId": "2",
+      "resultId": "cp6dglp13n5mh1qdq07",
+      "filename": "agent.zip",
+      "taskId": "1",
+      "type": "EVALUATION",
+      "sizeBytes": 290,
+      "createdAt": "2025-10-22T08:28:06.247Z",
+      "checksumSha256": "6113e27d3c8eaa61fdd3d1fe11f6bcfc60dbeacae2fe823e11a115726957bebd",
+      "usedFallbackName": false
+    }
+  ]
+}

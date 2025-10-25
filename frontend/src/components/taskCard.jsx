@@ -112,12 +112,20 @@ const TaskCard = ({
   const isAdmin = course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER;
   const navigate = useNavigate();
 
+  // Check if deadline has passed
+  const isDeadlinePassed = new Date() > new Date(task.deadlineAt);
+
   return (
     <Accordion key={`task_${index}`}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack direction={"column"} spacing={1} sx={{ width: "auto", display: "block" }}>
           <Typography variant={"h5"}>{task.name}</Typography>
           <Typography>Deadline: {task.deadlineAt.toLocaleString()}</Typography>
+          {isDeadlinePassed && (
+            <Typography color="error" variant="caption">
+              Deadline has passed
+            </Typography>
+          )}
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
@@ -147,23 +155,25 @@ const TaskCard = ({
         ) : null}
         <div style={{ flexGrow: 1 }} />
         <Button
+          disabled={isDeadlinePassed}
           onClick={() => {
             setActiveTaskIndex(index);
             setOpenTaskSubmit(true);
           }}
         >
-          Submit
+          Submit {isDeadlinePassed}
         </Button>
         <Button onClick={() => navigate(`/courses/${course.id}/${task.id}/submissions`)}>
           Submissions
         </Button>
         <Button
+          disabled={isDeadlinePassed}
           onClick={() => {
             setActiveTaskIndex(index);
             setOpenTaskTrainingSubmit(true);
           }}
         >
-          Train
+          Train {isDeadlinePassed}
         </Button>
         <Button onClick={() => navigate(`/courses/${course.id}/${task.id}/training_results`)}>
           Training Results

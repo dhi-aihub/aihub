@@ -25,8 +25,7 @@ import axios from "axios";
 import { JobStatusMap, ROLE_ADMIN, ROLE_LECTURER, CATALOG_SERVICE_BASE_URL } from "../constants";
 import catalogueService from "../lib/api/catalogueService";
 
-// import ReactJson from "react-json-view";
-import { CheckCircle, Star } from "@mui/icons-material";
+import { CheckCircle, Star, Download } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 
 const Submissions = () => {
@@ -40,10 +39,75 @@ const Submissions = () => {
   const [submissionResults, setSubmissionResults] = useState({});
   const [studentSelections, setStudentSelections] = useState({});
   const [loadingSelections, setLoadingSelections] = useState({});
+  const [downloadingZip, setDownloadingZip] = useState(false);
 
   const isAdmin =
     course && (course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER);
   const [userGroupId, setUserGroupId] = useState(null);
+
+  // Function to download selected submissions as zip
+  const downloadSelectedSubmissions = async () => {
+    setDownloadingZip(true);
+
+    try {
+      // Get all selected submissions
+      const selectedSubmissions = Object.entries(studentSelections)
+        .filter(([key, selection]) => key.startsWith(`${task_id}_`) && selection?.resultId)
+        .map(([key, selection]) => {
+          const groupId = key.split("_")[1];
+          const selectedResultId = selection.resultId;
+
+          // Find the submissionId by searching through submissionResults
+          let submissionId = null;
+          for (const [subId, result] of Object.entries(submissionResults)) {
+            if (result.data && result.data[0] && result.data[0].id === selectedResultId) {
+              submissionId = subId;
+              break;
+            }
+          }
+
+          return {
+            groupId,
+            submissionId: submissionId,
+          };
+        })
+        .filter(item => item.submissionId !== null);
+
+      if (selectedSubmissions.length === 0) {
+        alert("No submissions selected for grading to download.");
+        return;
+      }
+
+      console.log(selectedSubmissions);
+
+      const response = await catalogueService.post(
+        `/submissions/submissions/download-batch/`,
+        selectedSubmissions,
+        {
+          responseType: "blob",
+        },
+      );
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Set filename with task ID and timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+      link.setAttribute("download", `task_${task_id}_submissions_${timestamp}.zip`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download selected submissions:", error);
+      alert("Failed to download selected submissions. Please try again.");
+    } finally {
+      setDownloadingZip(false);
+    }
+  };
 
   // Function to fetch student selection for a specific group and task
   const fetchStudentSelection = async (taskId, groupId) => {
@@ -454,6 +518,18 @@ const Submissions = () => {
   // Render admin/lecturer view (grouped by student/group)
   const renderAdminView = () => (
     <>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          variant="contained"
+          startIcon={<Download />}
+          onClick={downloadSelectedSubmissions}
+          disabled={downloadingZip || Object.keys(studentSelections).length === 0}
+          sx={{ minWidth: 200 }}
+        >
+          {downloadingZip ? "Downloading..." : "Download Selected Submissions"}
+        </Button>
+      </Box>
+
       {Object.entries(groupedSubmissions).map(([groupId, groupSubmissions]) => (
         <Accordion key={`group_${groupId}`}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
