@@ -9,6 +9,7 @@ import CoursePage from "./pages/courses";
 import CourseDetail from "./pages/courseDetail";
 import MuiBreadcrumbs from "./components/breadcrumbs";
 import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
+
 import Home from "./pages/home";
 import Submissions from "./pages/submissions";
 import VerifyEmail from "./pages/verifyEmail";
@@ -34,6 +35,7 @@ import ProtectedRoute from "./components/protectedRoute";
 import ManageGroups from "./pages/manageGroups";
 import Leaderboard from "./pages/leaderboard";
 import TrainingResults from "./pages/trainingResults";
+import ChangePassword from "./pages/changePassword";
 
 const MyApp = () => {
   const dispatch = useDispatch();
@@ -90,6 +92,7 @@ const MyApp = () => {
             path="/courses/:id/admin/manage_participations"
             element={<ManageParticipations />}
           />
+          <Route path="/change-password" element={<ChangePassword />} />
         </Route>
       </Routes>
       {/*<footer>*/}
