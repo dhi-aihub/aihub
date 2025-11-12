@@ -10,7 +10,7 @@
 services:
   scheduler:
     build:
-      context: .
+      context: ./scheduler
     environment:
       - BROKER_URI=amqp://admin:secret@rabbitmq:5672/
       - SECRET_KEY=secret
@@ -26,6 +26,31 @@ services:
       - rabbitmq
     networks:
       - aihub-network
+
+  airena-worker:
+    build:
+      context: ./airena-worker
+    image: aihub/airena-worker:latest
+    environment:
+      # override BROKER_URI so the container connects to the rabbitmq service on the network
+      - BROKER_URI=amqp://admin:secret@rabbitmq:5672/
+      - SCHEDULER_BASE_URL=http://scheduler:8001
+      - FILE_SERVICE_BASE_URL=http://file-service:3002
+      - RESULT_SERVICE_BASE_URL=http://result-service:3003
+      - ACCESS_TOKEN=...
+      - TASK_QUEUE=default
+      - CELERY_CONCURRENCY=1
+      - WORKER_NAME=celery
+      - ZMQ_PORT=15921
+    ports:
+      - "15921:15921"
+    volumes:
+      # writable folder for virtualenvs / temporary grading files
+      - ./tmp:/tmp/aivle-worker
+    networks:
+      - aihub-network
+    depends_on:
+      - rabbitmq
 
   scheduler_db:
     image: postgres:latest

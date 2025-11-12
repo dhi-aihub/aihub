@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  airena-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aihub/airena-worker:latest
+    env_file:
+      - .env
+    environment:
+      # override BROKER_URI so the container connects to the rabbitmq service on the network
+      - BROKER_URI=amqp://admin:secret@rabbitmq:5672/
+      - SCHEDULER_BASE_URL=http://scheduler:8001
+      - FILE_SERVICE_BASE_URL=http://file-service:3002
+      - RESULT_SERVICE_BASE_URL=http://result-service:3003
+      - TASK_QUEUE=default
+      - CELERY_CONCURRENCY=1
+      - WORKER_NAME=celery
+      - ZMQ_PORT=15921
+    ports:
+      - "15921:15921"
+    volumes:
+      # writable folder for virtualenvs / temporary grading files
+      - ./tmp:/tmp/aivle-worker
+    networks:
+      - aihub-network
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      # host 5673 mapped to container 5672 to avoid conflicts if host already has RabbitMQ
+      - "5673:5672"
+    networks:
+      - aihub-network
+
+networks:
+  aihub-network:
+    external: true

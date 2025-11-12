@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: catalogue-service
+  name: catalogue-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: catalogue-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: catalogue-service
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: catalogue-config
+            - secretRef:
+                name: catalogue-secret
+          image: asia-southeast1-docker.pkg.dev/aihub-hosting/aihub/catalogue-service:v2.01
+          name: catalogue-service
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: catalogue-service
+  name: catalogue-service
+spec:
+  ports:
+    - name: "3001"
+      port: 3001
+      targetPort: 3001
+  selector:
+    io.kompose.service: catalogue-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: catalogue-db
+  name: catalogue-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: catalogue-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: catalogue-db
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: catalogue-secret
+          image: postgres:latest
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U admin -d catalogue-service
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: catalogue-db
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/catalogue
+              name: catalogue-data
+      restartPolicy: Always
+      volumes:
+        - name: catalogue-data
+          persistentVolumeClaim:
+            claimName: catalogue-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: catalogue-db
+  name: catalogue-db
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: catalogue-db
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: catalogue-data
+  name: catalogue-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

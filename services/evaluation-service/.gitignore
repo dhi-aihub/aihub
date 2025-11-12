@@ -112,6 +112,9 @@ venv.bak/
 gym-env/
 pyvenv.cfg
 
+# kubernetes secret files
+*-secret.yaml
+
 # Spyder project settings
 .spyderproject
 .spyproject

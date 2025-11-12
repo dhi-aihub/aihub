@@ -15,7 +15,6 @@
 # to set the database password. You must create `db/password.txt` and add
 # a password of your choosing to it before running `docker-compose up`.
 
-
 services:
   catalogue-service:
     build:
@@ -24,6 +23,8 @@ services:
       - DATABASE_URL=postgres://admin:secret@catalogue_db:5432/catalogue-service
       - NODE_ENV=development
       - JWT_SECRET=secret
+    expose:
+      - "3001"
     ports:
       - 3001:3001
     depends_on:
@@ -31,7 +32,7 @@ services:
         condition: service_healthy
     networks:
       - aihub-network
-      
+
   catalogue_db:
     image: postgres:latest
     restart: always
@@ -59,4 +60,3 @@ volumes:
 networks:
   aihub-network:
     external: true
-

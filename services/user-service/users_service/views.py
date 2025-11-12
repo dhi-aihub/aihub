@@ -4,12 +4,22 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from .serialisers import AssignRoleSerializer, ChangePasswordSerializer, CreateAdminSerializer, CustomTokenObtainPairSerializer, LogoutSerializer, RoleSerializer, UserSerializer
+from django.http import HttpResponse
+from .serialisers import (
+    AssignRoleSerializer,
+    ChangePasswordSerializer,
+    CreateAdminSerializer,
+    CustomTokenObtainPairSerializer,
+    LogoutSerializer,
+    RoleSerializer,
+    UserSerializer,
+)
 from .permissions import IsAdminOrLecturer
 from .models import Role
 from rest_framework import generics, status, permissions
 
 User = get_user_model()
+
 
 class RegisterUserView(APIView):
     """
@@ -20,7 +30,6 @@ class RegisterUserView(APIView):
     Permissions:
         - Accessible to any user (no authentication required).
     """
-
 
     permission_classes = [AllowAny]
 
@@ -43,25 +52,36 @@ class RegisterUserView(APIView):
         password = data.get("password")
 
         if not username or not email or not password:
-            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "All fields are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if User.objects.filter(username=username).exists():
-            return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         if User.objects.filter(email=email).exists():
-            return Response({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Email already registered."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Create the user account
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create_user(
+            username=username, email=email, password=password
+        )
         user.save()
 
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
     API view for handling user authentication and obtaining JWT tokens.
 
-    Eextends Django Rest Framework's `TokenObtainPairView` to use a 
+    Eextends Django Rest Framework's `TokenObtainPairView` to use a
     custom serializer that includes additional user information in the token payload.
 
     Attributes:
@@ -69,6 +89,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """
 
     serializer_class = CustomTokenObtainPairSerializer
+
 
 class CreateAdminView(generics.CreateAPIView):
     """
@@ -101,6 +122,7 @@ class CreateAdminView(generics.CreateAPIView):
 
         return super().post(request, *args, **kwargs)
 
+
 class LogoutView(APIView):
     """
     API view for handling user logout by blacklisting the refresh token.
@@ -127,9 +149,12 @@ class LogoutView(APIView):
         serializer = LogoutSerializer(data=request.data)
 
         if serializer.is_valid():
-            return Response({"message": "Logout successful."}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Logout successful."}, status=status.HTTP_200_OK
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserDetailView(APIView):
     """
@@ -139,7 +164,6 @@ class UserDetailView(APIView):
         - Authenticated users can retrieve and update their own details.
         - Admins can retrieve and delete any user's details.
     """
-
 
     permission_classes = [IsAuthenticated]
 
@@ -158,22 +182,26 @@ class UserDetailView(APIView):
             - HTTP 404: User not found.
         """
 
-        if user_id:  
-            if request.user.is_staff: 
+        if user_id:
+            if request.user.is_staff:
                 try:
                     user = User.objects.get(id=user_id)
 
                 except User.DoesNotExist:
-                    return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+                    return Response(
+                        {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                    )
+
             else:
-                return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-        
-        else: 
+                return Response(
+                    {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+                )
+
+        else:
             user = request.user
 
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-    
+
     def patch(self, request):
         """
         Updates user profile information.
@@ -187,15 +215,15 @@ class UserDetailView(APIView):
             - HTTP 400: Invalid input data.
         """
 
-        user = request.user 
+        user = request.user
         serializer = UserSerializer(user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, user_id):
         """
         Deletes a user if the requester is an admin.
@@ -217,16 +245,26 @@ class UserDetailView(APIView):
                 user = User.objects.get(id=user_id)
 
                 if user.is_staff:
-                    return Response({"error": "Cannot delete an admin."}, status=status.HTTP_403_FORBIDDEN)
+                    return Response(
+                        {"error": "Cannot delete an admin."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
 
                 user.delete()
-                return Response({"message": "User deleted successfully."}, status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "User deleted successfully."}, status=status.HTTP_200_OK
+                )
 
             except User.DoesNotExist:
-                return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
+                )
 
         else:
-            return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+
 
 class UserListView(generics.ListAPIView):
     """
@@ -240,10 +278,12 @@ class UserListView(generics.ListAPIView):
         serializer_class (Serializer): Uses the UserSerializer to serialize user data.
         permission_classes (list): Ensures only Admins or Lecturers can access this endpoint.
     """
+
     permission_classes = [IsAdminOrLecturer]
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 class UserIdsFromEmailsView(APIView):
     """
@@ -269,13 +309,17 @@ class UserIdsFromEmailsView(APIView):
         """
         emails = request.data.get("emails")
         if not isinstance(emails, list):
-            return Response({"error": "A list of emails is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "A list of emails is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         users = User.objects.filter(email__in=emails)
         email_to_id = {user.email: user.id for user in users}
         user_ids = [email_to_id.get(email) for email in emails]
         return Response({"userIds": user_ids}, status=status.HTTP_200_OK)
-    
+
+
 class UserDetailsFromIdsView(APIView):
     """
     API view for retrieving user details from a list of user IDs.
@@ -300,11 +344,15 @@ class UserDetailsFromIdsView(APIView):
         """
         user_ids = request.data.get("userIds")
         if not isinstance(user_ids, list):
-            return Response({"error": "A list of user IDs is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "A list of user IDs is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         users = User.objects.filter(id__in=user_ids)
         serializer = UserSerializer(users, many=True)
         return Response({"users": serializer.data}, status=status.HTTP_200_OK)
+
 
 class ChangePasswordView(APIView):
     """
@@ -326,16 +374,21 @@ class ChangePasswordView(APIView):
         Returns:
             Response: A success message if the password is updated, or an error message if validation fails.
         """
- 
-        serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
+
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             user = request.user
             serializer.update(user, serializer.validated_data)
-            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Password updated successfully"}, status=status.HTTP_200_OK
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class DeactivateUserView(APIView):
     """
     API view for deactivating a user account.
@@ -363,18 +416,29 @@ class DeactivateUserView(APIView):
             user = User.objects.get(id=user_id)
 
             if user.is_staff:
-                return Response({"error": "Cannot deactivate an admin."}, status=status.HTTP_403_FORBIDDEN)
+                return Response(
+                    {"error": "Cannot deactivate an admin."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
             if not user.is_active:
-                return Response({"message": "User is already deactivated."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "User is already deactivated."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             user.is_active = False
             user.save()
-            
-            return Response({"message": "User deactivated successfully."}, status=status.HTTP_200_OK)
+
+            return Response(
+                {"message": "User deactivated successfully."}, status=status.HTTP_200_OK
+            )
 
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class ReactivateUserView(APIView):
     """
@@ -403,15 +467,23 @@ class ReactivateUserView(APIView):
             user = User.objects.get(id=user_id)
 
             if user.is_active:
-                return Response({"message": "User is already active."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "User is already active."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             user.is_active = True
             user.save()
 
-            return Response({"message": "User reactivated successfully."}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "User reactivated successfully."}, status=status.HTTP_200_OK
+            )
 
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class AssignRoleView(generics.GenericAPIView):
     """
@@ -422,8 +494,8 @@ class AssignRoleView(generics.GenericAPIView):
     """
 
     serializer_class = AssignRoleSerializer
-    permission_classes = [IsAdminUser] 
-    
+    permission_classes = [IsAdminUser]
+
     def post(self, request, user_id):
         """
         Handles role assignment to a user.
@@ -436,18 +508,22 @@ class AssignRoleView(generics.GenericAPIView):
             Response: A success message if the role is assigned,
                         an error message if validation fails or the user/role is not found.
         """
-        
+
         user = get_object_or_404(User, id=user_id)
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            role_name = serializer.validated_data['role_name']
+            role_name = serializer.validated_data["role_name"]
             role = get_object_or_404(Role, name=role_name)
-            
+
             user.roles.add(role)
-            return Response({"message": f"Role '{role_name}' assigned to user {user.username}."}, status=status.HTTP_200_OK)
-        
+            return Response(
+                {"message": f"Role '{role_name}' assigned to user {user.username}."},
+                status=status.HTTP_200_OK,
+            )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RevokeRoleView(generics.GenericAPIView):
     """
@@ -477,13 +553,17 @@ class RevokeRoleView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            role_name = serializer.validated_data['role_name']
+            role_name = serializer.validated_data["role_name"]
             role = get_object_or_404(Role, name=role_name)
-            
+
             user.roles.remove(role)
-            return Response({"message": f"Role '{role_name}' removed from user {user.username}."}, status=status.HTTP_200_OK)
-        
+            return Response(
+                {"message": f"Role '{role_name}' removed from user {user.username}."},
+                status=status.HTTP_200_OK,
+            )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserRolesView(generics.GenericAPIView):
     """
@@ -503,15 +583,20 @@ class GetUserRolesView(generics.GenericAPIView):
         Args:
             request (Request): The HTTP request object.
             user_id (int): The ID of the user whose roles are being retrieved.
-        
+
         Returns:
             Response: A response containing the list of roles assigned to the user.
             - HTTP 200: Roles retrieved successfully.
             - HTTP 404: User not found.
         """
-                
+
         user = get_object_or_404(User, id=user_id)
         roles = user.roles.all()
         serializer = self.get_serializer(roles, many=True)
-        
+
         return Response(serializer.data)
+
+
+def health_check(request):
+    # A simple successful response tells the load balancer "I'm alive"
+    return HttpResponse("Healthy", status=200)
