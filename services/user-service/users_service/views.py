@@ -57,6 +57,12 @@ class RegisterUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if not email.endswith("@u.nus.edu"):
+            return Response(
+                {"error": "Email must end with '@u.nus.edu'."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if User.objects.filter(username=username).exists():
             return Response(
                 {"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST
