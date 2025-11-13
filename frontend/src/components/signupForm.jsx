@@ -1,6 +1,8 @@
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Button, styled, TextField, Typography } from "@mui/material";
 import { useYupValidationResolver } from "../lib/yupValidationResolver";
 import { SignUpSnackbarType } from "../pages/signup";
@@ -12,6 +14,8 @@ const Form = styled("form")(({ theme }) => ({
 }));
 
 const SignupForm = props => {
+  const navigate = useNavigate();
+
   const validationSchema = Yup.object({
     username: Yup.string().required("Username is required"),
     email: Yup.string().required("Email is required").email("Email is invalid"),
@@ -28,11 +32,11 @@ const SignupForm = props => {
   } = useForm({ resolver: resolver });
   const [disable, setDisable] = useState(false);
   const [showForm, setShowForm] = useState(true);
+
   const onSubmit = data => {
     const bodyForm = new FormData();
     bodyForm.append("username", data.username);
     bodyForm.append("password", data.password);
-    //bodyForm.append("password2", data.confirmPassword);
     bodyForm.append("email", data.email);
     setDisable(true);
 
@@ -46,7 +50,8 @@ const SignupForm = props => {
         if (resp.status === 201) {
           props.setSnackBarType(SignUpSnackbarType.Success);
           props.setOpenSnackBar(true);
-          setShowForm(false);
+
+          setTimeout(() => navigate("/signin"), 1500);
         } else {
           props.setSnackBarType(resp.data);
           props.setOpenSnackBar(true);
@@ -62,7 +67,7 @@ const SignupForm = props => {
           } else if (data.username) {
             props.setSnackBarType(SignUpSnackbarType.ExistingUsername);
           } else {
-            props.setSnackBarType("Unknown error. Please see console output.");
+            props.setSnackBarType(data.error || "An error occurred.");
             console.log(data);
             console.log(e.response);
           }
