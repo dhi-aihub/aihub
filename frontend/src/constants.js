@@ -1,6 +1,6 @@
-export const USER_SERVICE_BASE_URL = "http://34.117.70.4";
-export const CATALOG_SERVICE_BASE_URL = "http://34.117.70.4";
-export const API_BASE_URL = "http://34.117.70.4";
+export const USER_SERVICE_BASE_URL = "http://34.117.114.75";
+export const CATALOG_SERVICE_BASE_URL = "http://34.117.114.75";
+export const API_BASE_URL = "http://34.117.114.75";
 
 // export const USER_SERVICE_BASE_URL = "http://127.0.0.1:8000";
 // export const CATALOG_SERVICE_BASE_URL = "http://127.0.1:3001";

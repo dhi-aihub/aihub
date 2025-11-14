@@ -7,7 +7,7 @@ const WIDTH = 160;
 
 const CourseSideBar = ({ course }) => {
   const id = course.id;
-  const isAdmin = course.participation === ROLE_ADMIN || course.role === ROLE_LECTURER;
+  const isAdmin = course.participation === ROLE_ADMIN || course.participation === ROLE_LECTURER;
 
   return (
     <Paper elevation={0} sx={{ width: WIDTH, minHeight: "100%", p: 0 }}>

@@ -12,7 +12,7 @@ import { AccountBox, MenuBook } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Link as RouterLink } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectUser } from "../redux/authSlice";
+import { selectUser, selectLoggedIn } from "../redux/authSlice";
 
 const AdminButton = () => {
   return (
@@ -27,6 +27,7 @@ const AdminButton = () => {
 
 const SideBar = ({ openDrawer, setOpenDrawer }) => {
   const loggedInUser = useSelector(selectUser);
+  const loggedIn = useSelector(selectLoggedIn);
   const isAdmin = loggedInUser.isAdmin;
 
   return (
@@ -48,12 +49,14 @@ const SideBar = ({ openDrawer, setOpenDrawer }) => {
         </List>
         <Divider />
         <List>
-          <ListItemButton key={"signup"} component={RouterLink} to="/signup">
-            <ListItemIcon>
-              <AccountBox />
-            </ListItemIcon>
-            <ListItemText primary={"Sign Up"} />
-          </ListItemButton>
+          {!loggedIn && (
+            <ListItemButton key={"signup"} component={RouterLink} to="/signup">
+              <ListItemIcon>
+                <AccountBox />
+              </ListItemIcon>
+              <ListItemText primary={"Sign Up"} />
+            </ListItemButton>
+          )}
         </List>
       </Box>
     </Drawer>

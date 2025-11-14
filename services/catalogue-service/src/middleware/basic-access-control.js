@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
 import CourseParticipation from "../models/courseParticipation-model.js";
 
 export function verifyAccessToken(req, res, next) {
@@ -53,12 +54,12 @@ export async function verifyIsCourseParticipant(req, res, next) {
 
 export async function verifyIsCourseAdmin(req, res, next) {
   if (!req.user.isAdmin) {
-    // if user is not admin, check if user is a course admin
+    // if user is not admin, check if user is a course admin or lecturer
     const participation = await CourseParticipation.findOne({
       where: {
         courseId: req.params.courseId,
         userId: req.user.id,
-        role: "ADM",
+        role: { [Op.in]: ["ADM", "LEC"] },
       },
     });
     if (!participation) {
