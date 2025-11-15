@@ -204,7 +204,7 @@ spec:
     spec:
       containers:
         - name: airena-worker
-          image: asia-southeast1-docker.pkg.dev/aihub-hosting/aihub/airena-worker:v1
+          image: asia-southeast1-docker.pkg.dev/aihub-478008/aihub/airena-worker:v1
           ports:
             - containerPort: 15921
               protocol: TCP

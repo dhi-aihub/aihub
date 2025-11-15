@@ -20,7 +20,7 @@ spec:
                 name: catalogue-config
             - secretRef:
                 name: catalogue-secret
-          image: asia-southeast1-docker.pkg.dev/aihub-hosting/aihub/catalogue-service:v2.01
+          image: asia-southeast1-docker.pkg.dev/aihub-478008/aihub/catalogue-service:v1.0.1
           name: catalogue-service
           ports:
             - containerPort: 3001

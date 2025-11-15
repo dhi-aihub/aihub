@@ -15,7 +15,7 @@ spec:
         io.kompose.service: result-service
     spec:
       containers:
-        - image: asia-southeast1-docker.pkg.dev/aihub-hosting/aihub/result-service:v2
+        - image: asia-southeast1-docker.pkg.dev/aihub-478008/aihub/result-service:v1
           livenessProbe:
             exec:
               command:
