@@ -48,11 +48,25 @@ const TaskForm = () => {
 
   const onSubmit = data => {
     setDisable(true);
+
+    let deadlineAt = null;
+    if (data.deadline) {
+      if (data.deadlineTime) {
+        const [y, m, d] = data.deadline.split("-").map(Number);
+        const [hh, mm] = data.deadlineTime.split(":").map(Number);
+        deadlineAt = new Date(y, m - 1, d, hh, mm, 0).toISOString();
+      } else {
+        // If no time is provided, set to end of the day
+        const [y, m, d] = data.deadline.split("-").map(Number);
+        deadlineAt = new Date(y, m - 1, d, 23, 59, 59).toISOString();
+      }
+    }
+
     const taskData = {
       courseId: id,
       name: data.name,
       description: data.description,
-      deadlineAt: data.deadline,
+      deadlineAt: deadlineAt,
       dailySubmissionLimit: data.dailySubmissionLimit,
       maxUploadSize: data.maxUploadSize,
       runtimeLimit: data.runtimeLimit,
@@ -138,6 +152,21 @@ const TaskForm = () => {
         InputLabelProps={{
           shrink: true,
         }}
+      />
+      <TextField
+        {...register("deadlineTime", { required: true })}
+        id="deadlineTime"
+        label="Deadline Time"
+        type="time"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        autoComplete="off"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        defaultValue="23:59"
       />
       <TextField
         {...register("dailySubmissionLimit", { required: true })}
