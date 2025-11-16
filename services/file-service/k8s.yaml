@@ -5,7 +5,7 @@ metadata:
     io.kompose.service: file-service
   name: file-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       io.kompose.service: file-service

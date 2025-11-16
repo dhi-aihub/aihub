@@ -225,3 +225,82 @@ async function shouldUpdateWithNewResult(
     return false;
   }
 }
+
+/**
+ * Export results for a list of submissionIds (body: [{ submissionId, groupId }, ...])
+ * Builds a CSV with one row per input entry (preserving order). If a result is not found
+ * for a submissionId an empty row with the submissionId is still emitted.
+ */
+export async function exportResultsCsv(req: Request, res: Response) {
+  try {
+    const entries = Array.isArray(req.body) ? req.body : [];
+    const submissionIds = Array.from(
+      new Set(entries.map((e: any) => e?.submissionId).filter(Boolean))
+    );
+
+    // Fetch all matching results
+    const results = submissionIds.length
+      ? await Result.findAll({ where: { submissionId: submissionIds } })
+      : [];
+
+    const resultBySubmission = new Map<string, Result>();
+    for (const r of results) resultBySubmission.set(r.submissionId, r);
+
+    // CSV helpers
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return "";
+      const s = typeof val === "object" ? JSON.stringify(val) : String(val);
+      if (
+        s.includes('"') ||
+        s.includes(",") ||
+        s.includes("\n") ||
+        s.includes("\r")
+      ) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const headers = [
+      "groupId",
+      "score",
+      "metrics",
+      "error",
+      "artifactsUri",
+      "createdAt",
+      "updatedAt",
+    ];
+
+    const rows: string[] = [];
+    rows.push(headers.join(","));
+
+    // Preserve order of input entries; one row per input entry
+    for (const entry of entries) {
+      const sid = entry?.submissionId;
+      const found = sid ? resultBySubmission.get(sid) : undefined;
+
+      const rowValues = [
+        found?.groupId || entry?.groupId || "",
+        // score stored as string | null in model
+        found?.score ?? "",
+        found?.metrics ? JSON.stringify(found.metrics) : "",
+        found?.error ?? "",
+        found?.artifactsUri ?? "",
+        found?.createdAt ? found.createdAt.toISOString() : "",
+        found?.updatedAt ? found.updatedAt.toISOString() : "",
+      ].map(escapeCsv);
+
+      rows.push(rowValues.join(","));
+    }
+
+    const csv = rows.join("\r\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="results.csv"');
+    return res.status(200).send(csv);
+  } catch (e: any) {
+    return res.status(500).json({
+      error: { code: "RESULT_CSV_EXPORT_FAILED", message: e?.message },
+    });
+  }
+}

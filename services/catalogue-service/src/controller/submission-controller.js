@@ -1,4 +1,6 @@
 import { fileService, resultService, schedulerService } from "../lib/api.js";
+import archiver from "archiver";
+import unzipper from "unzipper";
 
 export async function getSubmissionsByTask(req, res) {
   try {
@@ -171,21 +173,54 @@ export async function downloadSubmissionsBatch(req, res) {
       });
     }
 
-    const response = await fileService.post("/submission/download-batch", submissionRequests, {
+    // request the zip (stream) from file service
+    const fileRespPromise = fileService.post("/submission/download-batch", submissionRequests, {
       responseType: "stream",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
 
-    res.setHeader("Content-Type", response.headers["content-type"] || "application/zip");
-    res.setHeader(
-      "Content-Disposition",
-      response.headers["content-disposition"] || 'attachment; filename="submissions.zip"',
-    );
+    // request the CSV from results service (arraybuffer to get full CSV as Buffer)
+    const csvRespPromise = resultService.post("/results/export-csv", submissionRequests, {
+      responseType: "arraybuffer",
+      headers: { "Content-Type": "application/json" },
+    });
 
-    // Pipe the stream directly to the response
-    response.data.pipe(res);
+    const [fileResp, csvResp] = await Promise.all([fileRespPromise, csvRespPromise]);
+
+    // Prepare response headers for a ZIP download
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", 'attachment; filename="submissions_with_results.zip"');
+
+    // Create an archiver instance and pipe it to the client response
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.on("error", err => {
+      console.error("Archive error:", err);
+      try {
+        res.status(500).end();
+      } catch (_) {}
+    });
+    archive.pipe(res);
+
+    try {
+      archive.append(fileResp.data, { name: "submissions.zip" });
+
+      const csvBuffer = Buffer.from(csvResp.data);
+      archive.append(csvBuffer, { name: "results.csv" });
+
+      await archive.finalize();
+    } catch (err) {
+      console.error("Error appending files to archive:", err);
+      try {
+        res.status(500).end();
+      } catch (_) {}
+    }
+
+    fileResp.data.on("error", err => {
+      console.error("Error reading incoming zip stream:", err);
+      try {
+        res.status(500).end();
+      } catch (_) {}
+    });
   } catch (error) {
     console.error("Error downloading submissions batch:", error);
 

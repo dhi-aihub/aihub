@@ -191,7 +191,7 @@ metadata:
     io.kompose.service: airena-worker
   name: airena-worker
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: airena-worker
