@@ -48,6 +48,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://dhi-aihub.github.io",
+    "http://dhi-aihub.github.io",
     "http://localhost:5173",
 ]
 

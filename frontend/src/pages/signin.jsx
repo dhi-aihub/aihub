@@ -9,6 +9,7 @@ import { Alert } from "../components/alert";
 
 export const SigninSnackBarType = {
   Success: "success",
+  Error: "error",
 };
 
 const SignIn = () => {

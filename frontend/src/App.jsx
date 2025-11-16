@@ -63,6 +63,7 @@ const MyApp = () => {
       <SideBar openDrawer={openDrawer} setOpenDrawer={setOpenDrawer} />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/aihub" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset_password" element={<ResetPassword />} />

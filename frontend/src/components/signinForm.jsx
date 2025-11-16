@@ -62,8 +62,8 @@ const SigninForm = props => {
           })
           .catch(e => {
             console.log("Error getting user data:", e);
+            props.setSnackBarType(SigninSnackBarType.Error);
           });
-        props.setSnackBarType(SigninSnackBarType.Success);
         props.setOpenSnackBar(true);
       })
       .catch(e => {
