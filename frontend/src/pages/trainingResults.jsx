@@ -154,7 +154,7 @@ const TrainingResults = () => {
   useEffect(() => {
     const fetchUserGroupId = async () => {
       try {
-        const response = await catalogueService.get(`/groups/user/${user.id}/course/${id}/`);
+        const response = await catalogueService.get(`/groups/user/${user.id}/task/${task_id}/`);
         setUserGroupId(response.data.groupId);
       } catch (error) {
         console.error("Error fetching user group ID:", error);
@@ -162,7 +162,7 @@ const TrainingResults = () => {
     };
 
     fetchUserGroupId();
-  }, [id, user?.id]);
+  }, [task_id, user?.id]);
 
   // fetch jobs for the task and user group
   useEffect(() => {

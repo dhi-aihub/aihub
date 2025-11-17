@@ -109,6 +109,8 @@ class JobViewSet(ModelViewSet):
 class TrainingJobViewSet(ModelViewSet):
     queryset = TrainingJob.objects.all()
     serializer_class = TrainingJobSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["status", "task_id", "group_id"]
 
     @action(detail=True)
     def start(self, request, pk=None):
