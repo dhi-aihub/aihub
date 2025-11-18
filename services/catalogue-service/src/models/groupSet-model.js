@@ -10,7 +10,6 @@ const GroupSet = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       notEmpty: true,
-      unique: true,
     },
     groupSize: {
       type: DataTypes.INTEGER,
