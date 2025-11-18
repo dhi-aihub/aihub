@@ -1,4 +1,5 @@
 import { Button, Container, CssBaseline, Divider, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -12,7 +13,7 @@ const Home = () => {
           Login first, then open the drawer by pressing the top left corner button. Enjoy~
         </Typography>
         <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
-        <Button variant={"outlined"} href="https://edu-ai.github.io/aivle-docs/" target="_blank">
+        <Button variant="outlined" component={RouterLink} to="/documentation">
           Documentation
         </Button>
       </Container>

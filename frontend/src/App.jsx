@@ -11,6 +11,7 @@ import MuiBreadcrumbs from "./components/breadcrumbs";
 import { selectIsDark, setDark, setLight } from "./redux/darkModeSlice";
 
 import Home from "./pages/home";
+import Documentation from "./pages/documentation";
 import Submissions from "./pages/submissions";
 import VerifyEmail from "./pages/verifyEmail";
 import Signup from "./pages/signup";
@@ -64,6 +65,7 @@ const MyApp = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/aihub" element={<Home />} />
+        <Route path="/documentation" element={<Documentation />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset_password" element={<ResetPassword />} />
