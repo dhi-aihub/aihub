@@ -26,6 +26,9 @@ const Course = sequelize.define(
       {
         unique: true,
         fields: ["code", "academicYear", "semester"],
+        where: {
+          deletedAt: null, // Exclude soft-deleted records from the unique constraint
+        },
       },
     ],
     paranoid: true, // enables soft deletes
