@@ -49,25 +49,6 @@ class Task {
   }
 }
 
-export const SubmitTaskSnackbarType = {
-  Success: "success",
-  DailyLimitExceeded: "daily_limit_exceeded",
-  MaxUploadSizeExceeded: "max_upload_size_exceeded",
-};
-
-const getSnackbarText = snackbarType => {
-  switch (snackbarType) {
-    case SubmitTaskSnackbarType.Success:
-      return "Success!";
-    case SubmitTaskSnackbarType.DailyLimitExceeded:
-      return "You have exceeded your daily submission limit.";
-    case SubmitTaskSnackbarType.MaxUploadSizeExceeded:
-      return "Your submission is too large.";
-    default:
-      return snackbarType;
-  }
-};
-
 const CourseDetail = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
@@ -77,8 +58,10 @@ const CourseDetail = () => {
   const [openTaskTrainingSubmit, setOpenTaskTrainingSubmit] = useState(false);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
   const [loading, setLoading] = useState([true, true]);
+  // snackbar
   const [openSnackBar, setOpenSnackBar] = useState(false);
-  const [snackBarType, setSnackBarType] = useState(SubmitTaskSnackbarType.Success);
+  const [snackBarText, setSnackBarText] = useState("");
+  const [snackBarSuccess, setSnackBarSuccess] = useState(true);
   const handleCloseSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -145,14 +128,9 @@ const CourseDetail = () => {
           })
         )}
       </Container>
-      {/* BUG: Snackbar does not show up */}
       <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackBarType === SubmitTaskSnackbarType.Success ? "success" : "error"}
-          sx={{ width: "100%" }}
-        >
-          {getSnackbarText(snackBarType)}
+        <Alert onClose={handleCloseSnackbar} severity={snackBarSuccess ? "success" : "error"}>
+          {snackBarText}
         </Alert>
       </Snackbar>
       {openTaskDetail ? (
@@ -168,7 +146,8 @@ const CourseDetail = () => {
           setOpenTaskSubmit={setOpenTaskSubmit}
           task={tasks[activeTaskIndex]}
           setOpenSnackBar={setOpenSnackBar}
-          setSnackBarType={setSnackBarType}
+          setSnackBarText={setSnackBarText}
+          setSnackBarSuccess={setSnackBarSuccess}
         />
       ) : null}
       {openTaskTrainingSubmit ? (

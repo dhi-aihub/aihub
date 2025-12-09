@@ -162,6 +162,14 @@ export async function submitTask(req, res) {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    // Check file presence and size against task limits
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    if (req.file.size > task.maxUploadSize) {
+      return res.status(400).json({ message: "Submitted file exceeds maximum allowed size" });
+    }
+
     // Find the groupId for the user in the groupSet associated with the task
     const userId = req.user.id;
     const groupSetId = task.groupSetId;

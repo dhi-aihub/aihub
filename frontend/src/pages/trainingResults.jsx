@@ -15,10 +15,7 @@ import {
 import { useState, useEffect } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import {
-  JobErrorMap,
-  JobStatusMap,
-} from "../constants";
+import { JobErrorMap, JobStatusMap } from "../constants";
 import catalogueService from "../lib/api/catalogueService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
@@ -173,7 +170,7 @@ const TrainingResults = () => {
     const fetchJobs = async () => {
       try {
         const response = await catalogueService.get(
-          `/training/tasks/${task_id}/groups/${userGroupId}/`
+          `/training/tasks/${task_id}/groups/${userGroupId}/`,
         );
         setJobs(response.data.data);
       } catch (error) {

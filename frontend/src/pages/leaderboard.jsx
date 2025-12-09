@@ -16,7 +16,6 @@ import {
 import axios from "axios";
 import catalogueService from "../lib/api/catalogueService";
 
-
 const Leaderboard = () => {
   const { id, task_id } = useParams();
   const [groups, setGroups] = useState([]);
@@ -73,8 +72,12 @@ const Leaderboard = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><strong>Group Name</strong></TableCell>
-                <TableCell align="right"><strong>Score</strong></TableCell>
+                <TableCell>
+                  <strong>Group Name</strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>Score</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
