@@ -35,8 +35,8 @@ const TaskSubmit = ({
     const uploadFile = /** @type File */ data["file"][0];
     const maxUploadSize = task.maxUploadSize;
 
-    if (uploadFile.size > maxUploadSize * 1024) {
-      // File.size is in bytes, max_upload_size is in KiB
+    if (uploadFile.size > maxUploadSize) {
+      // File.size is in bytes, max_upload_size is in bytes
       setSnackBarText("Your submission is too large.");
       setSnackBarSuccess(false);
       setOpenSnackBar(true);

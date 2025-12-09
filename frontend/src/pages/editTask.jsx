@@ -69,7 +69,7 @@ const TaskForm = () => {
         description: task.description || "",
         deadline: task.deadlineAt ? task.deadlineAt.split("T")[0] : "",
         dailySubmissionLimit: task.dailySubmissionLimit || "",
-        maxUploadSize: task.maxUploadSize || "",
+        maxUploadSize: task.maxUploadSize / 1000000 || "",
         runtimeLimit: task.runtimeLimit || "",
         ramLimit: task.ramLimit || "",
         vramLimit: task.vramLimit || "",
@@ -86,7 +86,7 @@ const TaskForm = () => {
       description: data.description,
       deadlineAt: data.deadline,
       dailySubmissionLimit: data.dailySubmissionLimit,
-      maxUploadSize: data.maxUploadSize,
+      maxUploadSize: data.maxUploadSize * 1000000, // Convert MB to bytes
       runtimeLimit: data.runtimeLimit,
       ramLimit: data.ramLimit,
       vramLimit: data.vramLimit,

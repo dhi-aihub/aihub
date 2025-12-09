@@ -54,7 +54,7 @@ const TaskForm = () => {
       description: data.description,
       deadlineAt: data.deadline,
       dailySubmissionLimit: data.dailySubmissionLimit,
-      maxUploadSize: data.maxUploadSize,
+      maxUploadSize: data.maxUploadSize * 1000000, // Convert MB to bytes
       runtimeLimit: data.runtimeLimit,
       ramLimit: data.ramLimit,
       vramLimit: data.vramLimit,
