@@ -24,11 +24,14 @@ services:
       - DATABASE_URL=postgres://admin:secret@catalogue_db:5432/catalogue-service
       - NODE_ENV=development
       - JWT_SECRET=secret
+      - REDIS_URL=redis://redis:6379
     ports:
       - 3001:3001
     depends_on:
       catalogue_db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - aihub-network
       
@@ -49,6 +52,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - aihub-network
+  
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
     networks:
       - aihub-network
 

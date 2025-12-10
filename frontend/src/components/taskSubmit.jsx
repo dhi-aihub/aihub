@@ -66,8 +66,8 @@ const TaskSubmit = ({
       })
       .catch(e => {
         if (e.response) {
-          const detail = e.response.data.detail;
-          if (detail === "You have exceeded your daily submission limit.") {
+          const detail = e.response.data.message;
+          if (detail === "Daily submission limit reached") {
             setSnackBarText("You have exceeded your daily submission limit.");
           } else {
             setSnackBarText("Unknown error. Please see console output.");

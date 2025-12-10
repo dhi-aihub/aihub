@@ -4,6 +4,7 @@ import Group from "../models/group-model.js";
 import GroupParticipation from "../models/groupParticipation-model.js";
 import { fileService, schedulerService } from "../lib/api.js";
 import upload from "../middleware/file-upload.js";
+import redisClient from "../lib/redis-client.js";
 
 export async function getAllTasks(req, res) {
   try {
@@ -162,14 +163,6 @@ export async function submitTask(req, res) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Check file presence and size against task limits
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-    if (req.file.size > task.maxUploadSize) {
-      return res.status(400).json({ message: "Submitted file exceeds maximum allowed size" });
-    }
-
     // Find the groupId for the user in the groupSet associated with the task
     const userId = req.user.id;
     const groupSetId = task.groupSetId;
@@ -187,6 +180,31 @@ export async function submitTask(req, res) {
       return res.status(403).json({ message: "User is not part of any group for this task" });
     }
 
+    // Check submission limits
+    const dailyLimit = task.dailySubmissionLimit;
+    const today = new Date().toISOString().split("T")[0];
+    const redisKey = `submission_count:${task.id}:${groupId}:${today}`;
+    const currentCount = await redisClient.get(redisKey) || 0; // Get current count or default to 0
+
+    if (currentCount >= dailyLimit) {
+      return res.status(429).json({ message: "Daily submission limit reached" });
+    }
+
+    const submissionCount = await redisClient.incr(redisKey);
+    if (submissionCount === 1) {
+      // Set expiration to 24 hours
+      await redisClient.expire(redisKey, 86400);
+    }
+
+    // Check file presence and size against task limits
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    if (req.file.size > task.maxUploadSize) {
+      return res.status(400).json({ message: "Submitted file exceeds maximum allowed size" });
+    }
+
+    // Upload file to file service
     const formData = new FormData();
     formData.append("taskId", req.params.taskId);
     formData.append("groupId", groupId);
@@ -201,7 +219,7 @@ export async function submitTask(req, res) {
       throw new Error("Failed to submit file");
     }
 
-    // create job in scheduler
+    // Create job in scheduler
     const jobData = {
       task_id: req.params.taskId,
       submission_id: fileResponse.data.id,

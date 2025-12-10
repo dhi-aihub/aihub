@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "pg": "^8.13.3",
+    "redis": "^5.10.0",
     "sequelize": "^6.37.6",
     "swagger-ui-express": "^5.0.1"
   },
