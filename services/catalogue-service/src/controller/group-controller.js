@@ -135,7 +135,7 @@ export const getUserGroupForTask = async (req, res) => {
 
 export async function getGroupById(req, res) {
   try {
-    const group = await Group.findByPk(req.params.id);
+    const group = await Group.findByPk(req.params.groupId);
     res.status(200).json({ message: "Group found", data: group });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -191,7 +191,7 @@ export async function createGroupsBulk(req, res) {
 
 export async function updateGroup(req, res) {
   try {
-    const group = await Group.findByPk(req.params.id);
+    const group = await Group.findByPk(req.params.groupId);
     group.update(req.body);
     res.status(200).json({ message: "Group updated", data: group });
   } catch (error) {
@@ -242,7 +242,7 @@ export async function updateGroupsBulk(req, res) {
 
 export async function deleteGroup(req, res) {
   try {
-    const group = await Group.findByPk(req.params.id);
+    const group = await Group.findByPk(req.params.groupId);
     group.destroy();
     res.status(200).json({ message: "Group deleted" });
   } catch (error) {

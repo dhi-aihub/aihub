@@ -26,4 +26,25 @@ const CourseParticipation = sequelize.define(
   },
 );
 
+CourseParticipation.isCourseParticipant = async function (userId, courseId) {
+  const participation = await this.findOne({
+    where: {
+      userId: userId,
+      courseId: courseId,
+    },
+  });
+  return participation !== null;
+};
+
+CourseParticipation.isCourseAdmin = async function (userId, courseId) {
+  const participation = await this.findOne({
+    where: {
+      userId: userId,
+      courseId: courseId,
+      role: "ADM",
+    },
+  });
+  return participation !== null;
+}
+
 export default CourseParticipation;

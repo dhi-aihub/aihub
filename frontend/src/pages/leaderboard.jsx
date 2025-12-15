@@ -13,7 +13,6 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import axios from "axios";
 import catalogueService from "../lib/api/catalogueService";
 
 const Leaderboard = () => {

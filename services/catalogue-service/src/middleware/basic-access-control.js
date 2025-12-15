@@ -35,35 +35,33 @@ export function verifyIsAdmin(req, res, next) {
 }
 
 export async function verifyIsCourseParticipant(req, res, next) {
-  if (!req.user.isAdmin) {
-    // if user is not admin, check if user is a participant in the course
-    const participation = await CourseParticipation.findOne({
-      where: {
-        courseId: req.params.courseId,
-        userId: req.user.id,
-      },
-    });
-    if (!participation) {
-      return res.status(403).json({ message: "Not authorized to access this resource" });
-    }
+  if (req.user.isAdmin) {
+    return next();
+  }
+
+  const isParticipant = await CourseParticipation.isCourseParticipant(
+    req.user.id,
+    req.params.courseId || req.body.courseId,
+  );
+  if (!isParticipant) {
+    return res.status(403).json({ message: "Not authorized to access this resource" });
   }
 
   next();
 }
 
 export async function verifyIsCourseAdmin(req, res, next) {
-  if (!req.user.isAdmin) {
-    // if user is not admin, check if user is a course admin
-    const participation = await CourseParticipation.findOne({
-      where: {
-        courseId: req.params.courseId,
-        userId: req.user.id,
-        role: "ADM",
-      },
-    });
-    if (!participation) {
-      return res.status(403).json({ message: "Not authorized to access this resource" });
-    }
+  if (req.user.isAdmin) {
+    return next();
+  }
+  
+  const isAdmin = await CourseParticipation.isCourseAdmin(
+    req.user.id,
+    req.params.courseId || req.body.courseId,
+  );
+
+  if (!isAdmin) {
+    return res.status(403).json({ message: "Not authorized to access this resource" });
   }
 
   next();

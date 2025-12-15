@@ -27,6 +27,14 @@ const GroupSet = sequelize.define(
   },
 );
 
+GroupSet.getCourseIdByGroupSetId = async function (groupSetId) {
+  const groupSet = await this.findByPk(groupSetId);
+  if (!groupSet) {
+    return null;
+  }
+  return groupSet.courseId;
+};
+
 GroupSet.hasMany(Group, {
   foreignKey: {
     name: "groupSetId",

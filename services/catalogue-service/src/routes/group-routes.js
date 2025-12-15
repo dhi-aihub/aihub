@@ -12,27 +12,30 @@ import {
   getUserGroupInCourse,
   getUserGroupForTask,
 } from "../controller/group-controller.js";
+import { verifyAccessToken, verifyIsAdmin } from "../middleware/basic-access-control.js";
+import { verifyGroupAccess, verifyGroupAdmin } from "../middleware/group-access-control.js";
+import { verifyGroupSetAccess, verifyGroupSetAdmin } from "../middleware/groupSet-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getAllGroups);
+router.get("/", verifyAccessToken, verifyIsAdmin, getAllGroups);
 
-router.get("/groupSet/:groupSetId", getGroupsByGroupSetId);
+router.get("/groupSet/:groupSetId", verifyAccessToken, verifyGroupSetAccess, getGroupsByGroupSetId);
 
-router.get("/:id", getGroupById);
+router.get("/:groupId", verifyAccessToken, verifyGroupAccess, getGroupById);
 
-router.post("/", createGroup);
+router.get("/user/:userId/course/:courseId", verifyAccessToken, getUserGroupInCourse);
 
-router.post("/bulk/:groupSetId", createGroupsBulk);
+router.get("/user/:userId/task/:taskId", verifyAccessToken, getUserGroupForTask);
 
-router.put("/:id", updateGroup);
+router.post("/", verifyAccessToken, verifyGroupSetAdmin, createGroup);
 
-router.put("/bulk/:groupSetId", updateGroupsBulk);
+router.post("/bulk/:groupSetId", verifyAccessToken, verifyGroupSetAdmin, createGroupsBulk);
 
-router.delete("/:id", deleteGroup);
+router.put("/:groupId", verifyAccessToken, verifyGroupAdmin, updateGroup);
 
-router.get("/user/:userId/course/:courseId", getUserGroupInCourse);
+router.put("/bulk/:groupSetId", verifyAccessToken, verifyGroupSetAdmin, updateGroupsBulk);
 
-router.get("/user/:userId/task/:taskId", getUserGroupForTask);
+router.delete("/:groupId", verifyAccessToken, verifyGroupAdmin, deleteGroup);
 
 export default router;

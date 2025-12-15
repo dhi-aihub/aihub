@@ -8,20 +8,20 @@ import {
   createCourseParticipationBulk,
   downloadEnrollmentTemplate,
 } from "../controller/courseParticipation-controller.js";
-import { verifyAccessToken } from "../middleware/basic-access-control.js";
+import { verifyAccessToken, verifyIsAdmin, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getCourseParticipations);
+router.get("/", verifyAccessToken, verifyIsAdmin, getCourseParticipations);
 
 router.get("/template", verifyAccessToken, downloadEnrollmentTemplate);
 
-router.get("/:courseId", getCourseParticipationsByCourse);
+router.get("/:courseId", verifyAccessToken, verifyIsCourseAdmin, getCourseParticipationsByCourse);
 
-router.post("/:courseId", verifyAccessToken, createCourseParticipation);
+router.post("/:courseId", verifyAccessToken, verifyIsCourseAdmin, createCourseParticipation);
 
-router.post("/:courseId/bulk", verifyAccessToken, createCourseParticipationBulk);
+router.post("/:courseId/bulk", verifyAccessToken, verifyIsCourseAdmin, createCourseParticipationBulk);
 
-router.delete("/:userId/:courseId", verifyAccessToken, deleteCourseParticipation);
+router.delete("/:userId/:courseId", verifyAccessToken, verifyIsCourseAdmin, deleteCourseParticipation);
 
 export default router;

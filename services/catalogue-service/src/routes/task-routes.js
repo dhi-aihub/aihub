@@ -15,13 +15,14 @@ import {
   downloadTrainingOutputFile,
   getTaskGroups,
 } from "../controller/task-controller.js";
-import { verifyAccessToken, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
+import { verifyAccessToken, verifyIsAdmin, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
+import { verifyTaskAccess, verifyTaskAdmin } from "../middleware/task-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getAllTasks); // unused
+router.get("/", verifyAccessToken, verifyIsAdmin, getAllTasks);
 
-router.get("/:id", getTaskById);
+router.get("/:taskId", verifyAccessToken, verifyTaskAccess, getTaskById);
 
 router.post(
   "/:courseId",
@@ -32,30 +33,31 @@ router.post(
 );
 
 router.put(
-  "/:courseId/:taskId",
+  "/:taskId",
   verifyAccessToken,
-  verifyIsCourseAdmin,
+  verifyTaskAdmin,
   taskFilesUploadMulter,
   updateTask,
 );
 
-router.delete("/:courseId/:taskId", verifyAccessToken, verifyIsCourseAdmin, deleteTask);
+router.delete("/:taskId", verifyAccessToken, verifyTaskAdmin, deleteTask);
 
-router.post("/:taskId/submit", verifyAccessToken, submissionUploadMulter, submitTask);
+router.post("/:taskId/submit", verifyAccessToken, verifyTaskAccess, submissionUploadMulter, submitTask);
 
 router.post(
   "/:taskId/submit-training",
   verifyAccessToken,
+  verifyTaskAccess,
   trainingSubmissionUploadMulter,
   submitTrainingAgent,
 );
 
-router.get("/:taskId/download-template", verifyAccessToken, downloadTemplateFile);
+router.get("/:taskId/download-template", verifyAccessToken, verifyTaskAccess, downloadTemplateFile);
 
-router.get("/:taskId/download-training-template", verifyAccessToken, downloadTrainerTemplateFile);
+router.get("/:taskId/download-training-template", verifyAccessToken, verifyTaskAccess, downloadTrainerTemplateFile);
 
-router.get("/:fileId/download-training-output", verifyAccessToken, downloadTrainingOutputFile);
+router.get("/:fileId/download-training-output", verifyAccessToken, downloadTrainingOutputFile); // todo: add access control
 
-router.get("/:taskId/groups", verifyAccessToken, getTaskGroups);
+router.get("/:taskId/groups", verifyAccessToken, verifyTaskAccess, getTaskGroups);
 
 export default router;

@@ -45,4 +45,9 @@ const Task = sequelize.define(
   },
 );
 
+Task.getCourseIdByTaskId = async function (taskId) {
+  const task = await Task.findByPk(taskId);
+  return task ? task.courseId : null;
+}
+
 export default Task;

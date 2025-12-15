@@ -7,19 +7,21 @@ import {
   getGroupSetById,
   getGroupSetGroups,
 } from "../controller/groupSet-controller.js";
+import { verifyAccessToken, verifyIsAdmin, verifyIsCourseAdmin } from "../middleware/basic-access-control.js";
+import { verifyGroupSetAdmin, verifyGroupSetAccess } from "../middleware/groupSet-access-control.js";
 
 const router = express.Router();
 
-router.get("/", getAllGroupSets);
+router.get("/", verifyAccessToken, verifyIsAdmin, getAllGroupSets);
 
-router.get("/:id", getGroupSetById);
+router.get("/:groupSetId", verifyAccessToken, verifyGroupSetAccess, getGroupSetById);
 
-router.post("/", createGroupSet);
+router.post("/", verifyAccessToken, verifyIsCourseAdmin, createGroupSet);
 
-router.put("/:id", updateGroupSet);
+router.put("/:groupSetId", verifyAccessToken, verifyGroupSetAdmin, updateGroupSet);
 
-router.delete("/:id", deleteGroupSet);
+router.delete("/:groupSetId", verifyAccessToken, verifyGroupSetAdmin, deleteGroupSet);
 
-router.get("/:id/groups", getGroupSetGroups);
+router.get("/:groupSetId/groups", verifyAccessToken, verifyGroupSetAccess, getGroupSetGroups);
 
 export default router;

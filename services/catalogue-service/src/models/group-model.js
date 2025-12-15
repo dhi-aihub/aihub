@@ -21,6 +21,14 @@ const Group = sequelize.define(
   },
 );
 
+Group.getGroupSetIdByGroupId = async function (groupId) {
+  const group = await this.findByPk(groupId);
+  if (!group) {
+    return null;
+  }
+  return group.groupSetId;
+}
+
 Group.hasMany(GroupParticipation, {
   foreignKey: {
     name: "groupId",

@@ -11,7 +11,7 @@ export async function getAllGroupSets(req, res) {
 
 export async function getGroupSetById(req, res) {
   try {
-    const groupSet = await GroupSet.findByPk(req.params.id);
+    const groupSet = await GroupSet.findByPk(req.params.groupSetId);
     if (!groupSet) {
       return res.status(404).json({ message: "Group set not found" });
     }
@@ -22,7 +22,7 @@ export async function getGroupSetById(req, res) {
 }
 
 export async function createGroupSet(req, res) {
-  try {
+  try {    
     const groupSet = await GroupSet.create(req.body);
     res.status(201).json({ message: "Group set created", data: groupSet });
   } catch (error) {
@@ -32,7 +32,7 @@ export async function createGroupSet(req, res) {
 
 export async function updateGroupSet(req, res) {
   try {
-    const groupSet = await GroupSet.findByPk(req.params.id);
+    const groupSet = await GroupSet.findByPk(req.params.groupSetId);
     if (!groupSet) {
       return res.status(404).json({ message: "Group set not found" });
     }
@@ -45,7 +45,7 @@ export async function updateGroupSet(req, res) {
 
 export async function deleteGroupSet(req, res) {
   try {
-    const groupSet = await GroupSet.findByPk(req.params.id);
+    const groupSet = await GroupSet.findByPk(req.params.groupSetId);
     if (!groupSet) {
       return res.status(404).json({ message: "Group set not found" });
     }
@@ -65,7 +65,7 @@ export async function deleteGroupSet(req, res) {
 
 export async function getGroupSetGroups(req, res) {
   try {
-    const groupSet = await GroupSet.findByPk(req.params.id, { include: "groups" });
+    const groupSet = await GroupSet.findByPk(req.params.groupSetId, { include: "groups" });
     if (!groupSet) {
       return res.status(404).json({ message: "Group set not found" });
     }

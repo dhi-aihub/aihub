@@ -17,7 +17,7 @@ export async function getAllTasks(req, res) {
 
 export async function getTaskById(req, res) {
   try {
-    const task = await Task.findByPk(req.params.id);
+    const task = await Task.findByPk(req.params.taskId);
     res.status(200).json({ message: "Task found", data: task });
   } catch (error) {
     res.status(500).json({ message: error.message });
